@@ -370,6 +370,10 @@ public class BDD {
     @Override
     public String toString(){
         String text = "Tree for "+this.function+"\n";
+        text += "Variables: ";
+        for(String var : this.variables)
+            text += var+", ";
+        text = text.substring(0, text.length()-2)+"\n";
         text += "Vertices: "+this.T.getVertices().size()+"\n";
         text += "u\tvar_i\tvar\tlow\thigh\n";
         ArrayList<Integer> vertixKeys = new ArrayList<Integer>(T.keySet());
