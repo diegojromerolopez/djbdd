@@ -18,28 +18,33 @@ public class Main {
     private static DimacsLoaderConfiguration loadConfig(String[] args){
         DimacsLoaderConfiguration config = new DimacsLoaderConfiguration();
         String text = "Printing a BDD from a dimacs file";
+        // Print in file?
+        config.outputInFile = args.length >= 4 && args[3].equals("file");
+        if (config.outputInFile) {
+            text += " in a file";
+        }
         // Use apply algorithm?
-        config.useApply = args.length >= 4 && args[3].equals("apply");
+        config.useApply = args.length >= 5 && args[4].equals("apply");
         if (config.useApply) {
             text += " using apply operation";
         }
         // Numer of clausules by each BDD
-        if (args.length >= 5 && args[4].matches("\\d+")) {
+        if (args.length >= 6 && args[5].matches("\\d+")) {
             config.numberOfCNFByBDD = Integer.parseInt(args[5]);
             if(config.numberOfCNFByBDD<=0){
                 config.numberOfCNFByBDD = 1;
             }
             if(config.numberOfCNFByBDD>1)
-                text += "each "+config.numberOfCNFByBDD+" CNFs";
+                text += " each "+config.numberOfCNFByBDD+" CNFs";
             else
-                text += "each CNFs";
+                text += " each CNF";
         }
         else{
             text += " each CNF";
         }
         // Number of clausules, -1 implies this will get all clausules
-        if (args.length >= 6 && args[5].matches("\\d+")) {
-            config.numberOfClausules = Integer.parseInt(args[5]);
+        if (args.length >= 7 && args[6].matches("\\d+")) {
+            config.numberOfClausules = Integer.parseInt(args[6]);
             if (config.numberOfClausules <= 0) {
                 config.numberOfClausules = DimacsLoaderConfiguration.ALL_CLAUSULES;
             }
@@ -93,9 +98,10 @@ public class Main {
         System.out.println(config.text);
         BDD bdd = loader.loadFile(config);
         bdd.print();
-        
-        BDDPrinter printer = new BDDPrinter(bdd);
-        printer.print("./"+filename);
+        if(config.outputInFile){
+            BDDPrinter printer = new BDDPrinter(bdd);
+            printer.print("./"+filename);
+        }
     }
     
      /**

@@ -1,2 +1,0 @@
-djbdd.BDDDimacsLoader
-djbdd.DimacsLoaderConfiguration

@@ -12,6 +12,8 @@ import java.io.*;
 class DimacsLoaderConfiguration{
     public boolean verbose = false;
     
+    public boolean outputInFile = false;
+    
     public boolean useApply = true;
     
     public int numberOfCNFByBDD = 1;

@@ -26,8 +26,13 @@ public class BDD {
     Vertex True;
     Vertex False;
     
-    protected boolean evaluate(ArrayList<Boolean> path){
-        // TODO: evaluate the formula
+    /**
+     * Evaluates the formula given a path (an assignement of variables)
+     * @param path ArrayList of variables that contains a boolean assignement for each variable.
+     * @return boolean Evaluation of the formula using this assignment.
+     */
+    protected boolean evaluatePath(ArrayList<Boolean> path){
+        // TODO: evaluatePath the formula
         String _function = this.function;
         for(int i=0; i<this.present_variable_indices.size(); i++){
             int variable_index = present_variable_indices.get(i);
@@ -39,6 +44,11 @@ public class BDD {
         return (Boolean)MVEL.eval(_function);
     }
     
+    /**
+     * Main recursively generation of the tree.
+     * @param path ArrayList of variables that contains a boolean assignement for each variable.
+     * @return Vertex of each level.
+     */
     private Vertex generateTreeFunction(ArrayList<Boolean> path){
             int path_len = path.size();
             //System.out.println(path.toString());
@@ -71,7 +81,7 @@ public class BDD {
             else if(path_len == this.present_variable_indices.size())
             {
                 // reached leafes
-                boolean value = this.evaluate(path);
+                boolean value = this.evaluatePath(path);
                 if(value)
                     return this.True;
                 return this.False;
@@ -320,6 +330,38 @@ public class BDD {
     }
     
     /**************************************************************************/
+    /* Operations */
+    
+    /**
+     * Recursive evaluate function.
+     * Evaluates the tree from a vertex.
+     * @param v Start vertex from will start evaluation.
+     * @param truthAssignement ArrayList of boolean where ith item coresponds to the truth value assigned to the ith variable.
+     * @return boolean Value gotten of the evaluation of the tree starting in v.
+     */
+    protected boolean evaluateFromVertex(Vertex v, ArrayList<Boolean> truthAssignement){
+        if(!v.isLeaf())
+        {
+            if(!truthAssignement.get(v.variable))
+                return this.evaluateFromVertex(this.T.get(v.low), truthAssignement);
+            else
+                return this.evaluateFromVertex(this.T.get(v.high), truthAssignement);
+        }
+        else{
+            return v.value();
+        }
+    }
+    
+    /**
+     * Evaluates a BDD tree given a assignement to its variables.
+     * @param truthAssignement ArrayList of boolean where ith item coresponds to the value of the ith variable.
+     * @return boolean Value gotten of the evaluation of the tree. 
+     */
+    public boolean evaluate(ArrayList<Boolean> truthAssignement){
+        return this.evaluateFromVertex(this.root, truthAssignement);
+    }
+    
+    /**************************************************************************/
     /* Output zone */
     
     /**
@@ -328,6 +370,7 @@ public class BDD {
     @Override
     public String toString(){
         String text = "Tree for "+this.function+"\n";
+        text += "Vertices: "+this.T.getVertices().size()+"\n";
         text += "u\tvar_i\tvar\tlow\thigh\n";
         ArrayList<Integer> vertixKeys = new ArrayList<Integer>(T.keySet());
         for(Integer i : vertixKeys){
@@ -340,6 +383,9 @@ public class BDD {
         return text;
     }
     
+    /**
+     * Prints the BDD table.
+     */
     public void print(){
         System.out.println(this.toString());
         System.out.flush();
