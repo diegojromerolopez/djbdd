@@ -124,8 +124,7 @@ public class BDDDimacsLoader {
         int clausules = config.numberOfClausules;
         if(!config.useApply)
             return this.loadFileWithoutApply();
-        
-        //System.out.println("runLoadDimacsFile");
+
         int numVariables = 0;
         int numClausules = 0;
         String formula = "";
@@ -175,7 +174,7 @@ public class BDDDimacsLoader {
                     formulaI = formulaI.trim();
                     CNFS.add(formulaI);
                     
-                    if(config.verbose && ((formulaIndex+1) % 1000 == 0)){
+                    if(config.verbose){
                         System.out.println("Extracting clausule: "+(formulaIndex+1)+" / "+numClausules);
                     }
                     formulaIndex++;
@@ -216,7 +215,7 @@ public class BDDDimacsLoader {
         for(int i=1; i<bdd_formula.size(); i++){
             String formulaI = bdd_formula.get(i);
             if(config.verbose){
-                System.out.println(formulaI);
+                System.out.println("Formula "+i+": "+formulaI);
                 System.out.println((i+1)+"/"+bdd_formula.size());
             }
             BDD bddI = new BDD(formulaI, variables);
@@ -241,7 +240,9 @@ public class BDDDimacsLoader {
             //System.out.flush();
             bdd = bddRes;
         }
-        
+        if(config.verbose){
+            System.out.println("BDD constructed: "+bdd.T.getVertices().size()+" vertices and "+bdd.variables.size()+" variables");
+        }
         return bdd;    
     }
 }

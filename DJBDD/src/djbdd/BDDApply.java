@@ -67,7 +67,28 @@ public class BDDApply {
              return OP_NAND;
          if(operation.equalsIgnoreCase("<=>") || operation.equalsIgnoreCase("iff"))
              return OP_IFF;
-         throw new Exception("Operador "+operation+" no definido");
+         throw new Exception("Operator "+operation+" undefined");
+    }
+    
+    /**
+     * Construct the function string for the resulting BDD.
+     * @return String Formula for the resulting BDD obtained of operating the other BDDs.
+     */
+    private String getFunction(){
+        String function1 = bdd1.function.trim();
+        String function2 = bdd2.function.trim();
+        if(operation == OP_AND)
+            return function1+" && "+function2;
+        if(operation == OP_OR)
+            return function1+" || "+function2;
+        if(operation == OP_NOR)
+            return "!("+function1+" || "+function2+")";
+        if(operation == OP_NAND)
+            return "!("+function1+" &&"+function2+")";
+        if(operation == OP_IFF)
+            return "("+function1+" || !("+function2+")) && (!("+function1+") || "+function2+")";
+        return "Undefined operator";
+        //throw new Exception("Operator "+operation+" undefined");
     }
     
     
@@ -190,7 +211,7 @@ public class BDDApply {
         // Leaf vertices
         this.T.put(0, this.False);
         this.T.put(1, this.True);
-        String function = "("+bdd1.function+") "+operation+" ("+bdd2.function+")";
+        String function = this.getFunction();
         
         // Fill this.T with vertices of bdd1 and bdd2
         this.app(bdd1.root, bdd2.root);

@@ -6,7 +6,7 @@ package djbdd;
 
 import java.util.*;
 
-/** XXXXXXXXXXXXXX
+/**
  *
  * @author diegoj
  */
@@ -94,9 +94,12 @@ public class Main {
      * @param filename Name of the file containing the CNF in dimacs format.
      */
     private static void printDimacsFile(String filename, DimacsLoaderConfiguration config){
+        TimeMeasurer t = new TimeMeasurer("dimacs loading");
         BDDDimacsLoader loader = new BDDDimacsLoader(filename);
         System.out.println(config.text);
         BDD bdd = loader.loadFile(config);
+        t.end();
+        t.show();
         bdd.print();
         if(config.outputInFile){
             BDDPrinter printer = new BDDPrinter(bdd);

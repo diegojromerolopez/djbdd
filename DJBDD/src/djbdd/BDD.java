@@ -366,26 +366,43 @@ public class BDD {
     
     /**
      * Gets the string representation of a BDD.
+     * @param verbose Must show all variables and other explicit information?
+     * @return String String that contains the hastable representation of the BDD.
      */
-    @Override
-    public String toString(){
-        String text = "Tree for "+this.function+"\n";
-        text += "Variables: ";
-        for(String var : this.variables)
-            text += var+", ";
-        text = text.substring(0, text.length()-2)+"\n";
-        text += "Vertices: "+this.T.getVertices().size()+"\n";
+    public String toString(boolean verbose){
+        String text = "";
+        text = "Tree for "+this.function+"\n";
+        if(verbose){
+            text += "Variables: ";
+            for(String var : this.variables)
+                text += var+", ";
+            text = text.substring(0, text.length()-2)+"\n";
+        }
+        else
+        {
+            text += "Variables: "+this.variables.size()+"\n";
+        }
+        ArrayList<Vertex> vertices = this.T.getVertices();
+        text += "Vertices: "+vertices.size()+"\n";
         text += "u\tvar_i\tvar\tlow\thigh\n";
-        ArrayList<Integer> vertixKeys = new ArrayList<Integer>(T.keySet());
-        for(Integer i : vertixKeys){
-            Vertex v = T.get(i);
+        for(Vertex v : vertices){
             String variable = Boolean.toString(v.value());
             if(v.variable > -1)
                 variable = this.variables.get(v.variable);
-            text += i+"\t"+v.variable+"\t"+variable+"\t"+v.low+"\t"+v.high+"\n";
+            text += v.index+"\t"+v.variable+"\t"+variable+"\t"+v.low+"\t"+v.high+"\n";
         }
         return text;
     }
+
+    
+     /**
+     * Gets the string representation of a BDD.
+     * @return String String that contains the hastable representation of the BDD.
+     */
+    @Override
+    public String toString(){
+        return this.toString(false);
+    }    
     
     /**
      * Prints the BDD table.
