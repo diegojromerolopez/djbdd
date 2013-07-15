@@ -41,14 +41,17 @@ public class BDDApply {
     /** OR logic operation key */
     public final static int OP_OR = 2;
     
+    /** IF logic operation key */
+    public final static int OP_IF = 3;
+    
     /** IFF logic operation key */
-    public final static int OP_IFF = 3;
+    public final static int OP_IFF = 4;
     
     /** NAND logic operation key */
-    public final static int OP_NAND=4;
+    public final static int OP_NAND=5;
     
     /** NOR logic operation key */
-    public final static int OP_NOR=5;
+    public final static int OP_NOR=6;
     
     
     /**
@@ -65,8 +68,10 @@ public class BDDApply {
              return OP_NOR;
          if(operation.equalsIgnoreCase("nand"))
              return OP_NAND;
-         if(operation.equalsIgnoreCase("<=>") || operation.equalsIgnoreCase("iff"))
+         if(operation.equalsIgnoreCase("<=>") || operation.equalsIgnoreCase("iff") || operation.equalsIgnoreCase("<->"))
              return OP_IFF;
+          if(operation.equalsIgnoreCase("=>") || operation.equalsIgnoreCase("if") || operation.equalsIgnoreCase("->"))
+             return OP_IF;
          throw new Exception("Operator "+operation+" undefined");
     }
     
@@ -87,6 +92,8 @@ public class BDDApply {
             return "!("+function1+" &&"+function2+")";
         if(operation == OP_IFF)
             return "("+function1+" || !("+function2+")) && (!("+function1+") || "+function2+")";
+         if(operation == OP_IF)
+            return "(!("+function1+") || ("+function2+"))";
         return "Undefined operator";
         //throw new Exception("Operator "+operation+" undefined");
     }

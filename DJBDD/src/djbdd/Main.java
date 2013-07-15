@@ -15,7 +15,7 @@ public class Main {
     /**
      * Load configuration for the loading of the DIMACS file from the commandline.
      */
-    private static DimacsLoaderConfiguration loadConfig(String[] args){
+    private static DimacsLoaderConfiguration loadDimacsConfig(String[] args){
         DimacsLoaderConfiguration config = new DimacsLoaderConfiguration();
         String text = "Printing a BDD from a dimacs file";
         // Print in file?
@@ -41,6 +41,49 @@ public class Main {
         }
         else{
             text += " each CNF";
+        }
+        // Number of clausules, -1 implies this will get all clausules
+        if (args.length >= 7 && args[6].matches("\\d+")) {
+            config.numberOfClausules = Integer.parseInt(args[6]);
+            if (config.numberOfClausules <= 0) {
+                config.numberOfClausules = DimacsLoaderConfiguration.ALL_CLAUSULES;
+            }
+            if(config.numberOfClausules != DimacsLoaderConfiguration.ALL_CLAUSULES)
+                text += " and getting " + config.numberOfClausules + " clausules. ";
+            else
+                text += " and getting all clausules. ";
+        }
+        else{
+            text += " and getting all clausules. ";
+        }
+        config.text = text;
+        return config;
+    }
+    
+    /**
+     * Load configuration for the loading of the S. She file from the commandline.
+     */
+    private static SheLoaderConfiguration loadSheConfig(String[] args){
+        SheLoaderConfiguration config = new SheLoaderConfiguration();
+        String text = "Printing a BDD from a S. She file";
+        // Print in file?
+        config.outputInFile = args.length >= 4 && args[3].equals("file");
+        if (config.outputInFile) {
+            text += " in a file";
+        }
+        // Numer of clausules by each BDD
+        if (args.length >= 5 && args[4].matches("\\d+")) {
+            config.numberOfCNFByBDD = Integer.parseInt(args[5]);
+            if(config.numberOfCNFByBDD<=0){
+                config.numberOfCNFByBDD = 1;
+            }
+            if(config.numberOfCNFByBDD>1)
+                text += " each "+config.numberOfCNFByBDD+" CNFs";
+            else
+                text += " each clausule";
+        }
+        else{
+            text += " each clausule";
         }
         // Number of clausules, -1 implies this will get all clausules
         if (args.length >= 7 && args[6].matches("\\d+")) {
@@ -107,6 +150,27 @@ public class Main {
         }
     }
     
+         /**
+     * Reads a dimacs file an prints the BDD contained in the file.
+     * This method DOES NOT creates a BDD at once, it DOES use the operator apply of the BDD.
+     * See http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html for a dimacs format description.
+     * @see BDD
+     * @param filename Name of the file containing the CNF in dimacs format.
+     */
+    private static void printSheFile(String filename, SheLoaderConfiguration config){
+        TimeMeasurer t = new TimeMeasurer("She loading");
+        BDDSheFileLoader loader = new BDDSheFileLoader(filename);
+        System.out.println(config.text);
+        BDD bdd = loader.loadFile(config);
+        t.end();
+        t.show();
+        bdd.print();
+        if(config.outputInFile){
+            BDDPrinter printer = new BDDPrinter(bdd);
+            printer.print("./"+filename);
+        }
+    }
+    
      /**
      * Creates a BDD from a formula.
      * This method DOES NOT creates a BDD at once, it DOES use the operator apply of the BDD.
@@ -150,6 +214,7 @@ public class Main {
             System.out.println("2. BDD printing:");
             System.out.println("\tFrom formula: java -jar BDD.jar --print fmla <logic formula in java code> <variables in 'x1,x2,...,xN' format>");
             System.out.println("\tFrom dimacs file: java -jar BDD.jar --print dimacs <filepath of dimacs file> [apply] [number of CNFs by BDD] [number of clausules]");
+            System.out.println("\tFrom S. She file: java -jar BDD.jar --print she <filepath of She file> [number of CNFs by BDD] [number of clausules]");
             return;
         }
         String text = "";
@@ -170,8 +235,12 @@ public class Main {
                     Main.printFmla(args[2], variables);
                 }
                 else if(args[1].equalsIgnoreCase("dimacs")){
-                    DimacsLoaderConfiguration config = loadConfig(args);
+                    DimacsLoaderConfiguration config = loadDimacsConfig(args);
                     Main.printDimacsFile(args[2], config);
+                }
+                else if(args[1].equalsIgnoreCase("she")){
+                    SheLoaderConfiguration config = loadSheConfig(args);
+                    Main.printSheFile(args[2], config);
                 }
                 else{
                     System.out.println("You are not using this software correctly");
