@@ -118,19 +118,22 @@ public class BDD {
      * That is, all vertex with the same low and high values.
      * Of course modifies the T table.
      */
-    private void deleteRedundantVertices(){
+    private boolean deleteRedundantVertices(){
         // Non-redundancy: no vertex has same low and high
-        ArrayList<Integer> vertixKeys = new ArrayList<Integer>(this.T.keySet());
-        for(Integer i : vertixKeys){
-            Vertex v = this.T.get(i);
+        //ArrayList<Integer> vertixKeys = new ArrayList<Integer>(this.T.keySet());
+        boolean deleted = false;
+        for(Vertex v : this.T.getVertices()){
+            //Vertex v = this.T.get(i);
             if(v.isRedundant()){
                 //System.out.println("Eliminamos el "+v.index);
+                deleted = true;
                 this.deleteRedundantVertex(v);
             }
-        }    
+        }
+        return deleted;
     }
     
-    private ArrayList<Vertex> getDuplicateVertices(Vertex v){
+    /*private ArrayList<Vertex> getDuplicateVertices(Vertex v){
         
         ArrayList<Integer> vertixKeys = new ArrayList<Integer>(this.T.keySet());
         ArrayList<Vertex> duplicates = new ArrayList<Vertex>();
@@ -143,7 +146,7 @@ public class BDD {
             }
         }
         return duplicates;
-    }
+    }*/
     
     private ArrayList<Integer> getDuplicateVertexIndices(Vertex v){
         
@@ -164,8 +167,9 @@ public class BDD {
     /**
      * Delete all duplicate vertices.
      */
-    private void deleteDuplicateVertices(){
+    private boolean deleteDuplicateVertices(){
         // Uniqueness
+        boolean _change = false;
         boolean change = false;
         do{
             change = false;
@@ -188,12 +192,14 @@ public class BDD {
                                     vQ.high = k;
                             }
                             T.remove(d);
+                            _change = true;
                         }
                     }
                 }
             }
         }
         while(change);
+        return _change;
     }
     
     
@@ -251,9 +257,12 @@ public class BDD {
      * Reduces the BDD deleting redundant and duplicate vertices.
      */
     public void reduce(){
-        this.deleteRedundantVertices();
-        //this.print();
-        this.deleteDuplicateVertices();
+        boolean change = false;
+        do{
+            change = this.deleteRedundantVertices();
+            //this.print();
+            change = change || this.deleteDuplicateVertices();
+        }while(change);
         //this.assignNewIndices();
         // Asignamos H
         this.updateH();
