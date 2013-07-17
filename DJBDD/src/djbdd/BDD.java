@@ -6,7 +6,7 @@ package djbdd;
 
 import java.util.*;
 //import java.util.regex.*;
-import org.mvel2.MVEL;
+//import org.mvel2.MVEL;
 
 /**
  *
@@ -41,7 +41,8 @@ public class BDD {
             _function = _function.replaceAll(variable, value);
         }
         
-        return (Boolean)MVEL.eval(_function);
+        return BooleanEvaluator.run(_function);
+        //return (Boolean)MVEL.eval(_function);
     }
     
     /**

@@ -16,11 +16,37 @@ public class BDDPrinter {
 
     /* Output file type */
     static String FILE_TYPE = "png";
-    
     final boolean SHOW_NODE_PATHS = false;
-    
     /** BDD tree to print */
     BDD bdd = null;
+    HashMap<String, Boolean> edgeCache = null;
+
+    protected String getVertexName(Vertex v){
+        String name = "";
+        if (v.isLeaf()) {
+            name = Boolean.toString(v.value());
+            if (SHOW_NODE_PATHS) {
+                //name += " (" + pathName + ")";
+            }
+            return name;
+        }
+
+        if (v.variable > -1) {
+            name = bdd.variables.get(v.variable);
+            if (SHOW_NODE_PATHS) {
+                //name += " (" + pathName + ")";
+            }
+            name = name.replaceAll("_", "");
+            return name;
+        }
+
+        if (v.index != -1) {
+            name = "" + v.variable;
+            return name;
+        }
+        //this.name = pathName;
+        return name;
+    }
     
     class Node {
 
@@ -43,19 +69,21 @@ public class BDDPrinter {
         public String setName(String pathName) {
             if (v.isLeaf()) {
                 this.name = Boolean.toString(v.value());
-                if(SHOW_NODE_PATHS)
+                if (SHOW_NODE_PATHS) {
                     this.name += " (" + pathName + ")";
+                }
                 return this.name;
             }
-            
+
             if (v.variable > -1) {
                 this.name = bdd.variables.get(v.variable);
-                if(SHOW_NODE_PATHS)
+                if (SHOW_NODE_PATHS) {
                     this.name += " (" + pathName + ")";
+                }
                 this.name = this.name.replaceAll("_", "");
                 return this.name;
             }
-            
+
             if (v.index != -1) {
                 this.name = "" + v.variable;
                 return this.name;
@@ -83,9 +111,9 @@ public class BDDPrinter {
             this.label = "0";
             return this.label;
         }
-        
-        public String toString(){
-            return "{"+this.v.toString()+"| l="+this.low+" h="+this.high+"}";
+
+        public String toString() {
+            return "{" + this.v.toString() + "| l=" + this.low + " h=" + this.high + "}";
         }
     }
 
@@ -101,26 +129,34 @@ public class BDDPrinter {
             if (!n.visited) {
                 n.visited = true;
                 n.setName(pathName);
-                graph.addln("\""+n.name + "\" -> \"" + n.low.name + "\" [dir=\"forward\" arrowtype=\"normal\" style=\"dashed\"];");
-                graph.addln("\""+n.name + "\" -> \"" + n.high.name + "\" [dir=\"forward\" arrowtype=\"normal\" style=\"normal\"];");
-            }
-        } else if (n.v.isLeaf()) {
-                if (!n.visited) {
-                    n.visited = true;
-                    n.setName(pathName);
-                    n.setLabel();
+                String lowEdgeName = n.name + "-" + n.low.name;
+                if (!edgeCache.containsKey(lowEdgeName)) {
+                    graph.addln("\"" + n.name + "\" -> \"" + n.low.name + "\" [dir=\"forward\" arrowtype=\"normal\" style=\"dashed\"];");
+                    edgeCache.put(lowEdgeName, true);
+                }
+                String highEdgeName = n.name + "-" + n.high.name;
+                if (!edgeCache.containsKey(highEdgeName)) {
+                    graph.addln("\"" + n.name + "\" -> \"" + n.high.name + "\" [dir=\"forward\" arrowtype=\"normal\" style=\"normal\"];");
+                    edgeCache.put(highEdgeName, true);
                 }
             }
+        } else if (n.v.isLeaf()) {
+            if (!n.visited) {
+                n.visited = true;
+                n.setName(pathName);
+                n.setLabel();
+            }
         }
-    
+    }
+
     /**
      * Prints the BDD.
      */
-    public void print(String path) {
+    public void print2(String path) {
 
-       HashMap<Integer,Node> nodes = new HashMap<Integer,Node>();
-       ArrayList<Vertex> vertices = bdd.T.getVertices();
-       for (Vertex v : vertices) {
+        HashMap<Integer, Node> nodes = new HashMap<Integer, Node>();
+        ArrayList<Vertex> vertices = bdd.T.getVertices();
+        for (Vertex v : vertices) {
             Node n = new Node(v, bdd);
             nodes.put(v.index, n);
         }
@@ -136,13 +172,15 @@ public class BDDPrinter {
                 nodes.get(index).high = nodes.get(v.high);
             }
         }
-        
-        for (Integer nodeKey : nodes.keySet()){
+
+        for (Integer nodeKey : nodes.keySet()) {
             Node n = nodes.get(nodeKey);
-            if(n.low!=null && n.low!=null && n.low.v.index != n.v.low)
-                System.out.println("El nodo "+n.v.index+" está petao");
-            if(n.high!=null && n.high!=null && n.high.v.index != n.v.high)
-                System.out.println("El nodo "+n.v.index+" está petao");
+            if (n.low != null && n.low != null && n.low.v.index != n.v.low) {
+                System.out.println("El nodo " + n.v.index + " está petao");
+            }
+            if (n.high != null && n.high != null && n.high.v.index != n.v.high) {
+                System.out.println("El nodo " + n.v.index + " está petao");
+            }
         }
 
         GraphViz gv = new GraphViz();
@@ -150,13 +188,14 @@ public class BDDPrinter {
         gv.addln(gv.start_graph());
 
         String pathName = "R";
+        this.edgeCache = new HashMap<String, Boolean>();
         this._create_graph(gv, root, pathName);
 
         //gv.addln("A -> B;");
         //gv.addln("A -> C;");
         gv.addln(gv.end_graph());
         System.out.println(gv.getDotSource());
-        
+
         String type = FILE_TYPE;
 //      String type = "gif";
 //      String type = "dot";
@@ -166,14 +205,57 @@ public class BDDPrinter {
 //      String type = "svg";    // open with inkscape
 //      String type = "png";
 //      String type = "plain";
-        if(!path.contains("\\"+ FILE_TYPE))
-            path += "."+FILE_TYPE;
+        if (!path.contains("\\" + FILE_TYPE)) {
+            path += "." + FILE_TYPE;
+        }
         File out = new File(path);   // Linux
         gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type), out);
     }
-    
-    
-    public BDDPrinter(BDD bdd){
+
+    public BDDPrinter(BDD bdd) {
         this.bdd = bdd;
+    }
+
+    protected void createTree(GraphViz graph, Vertex v, String pathName) {
+       if (v.index > 1) {
+           Vertex low = bdd.T.get(v.low);
+           Vertex high = bdd.T.get(v.high);
+            this.createTree(graph, low, pathName + "L");
+            this.createTree(graph, high, pathName + "H");
+            String lowEdgeKey = v.index + "-" + v.low;
+            String vName = getVertexName(v);
+            if (!edgeCache.containsKey(lowEdgeKey)) {
+                edgeCache.put(lowEdgeKey, true);
+                String lowName = getVertexName(low);
+                graph.addln("\"" + vName + "\" -> \"" +lowName + "\" [dir=\"forward\" arrowtype=\"normal\" style=\"dashed\"];");
+            }
+            String highEdgeKey = v.index + "-" + v.high;
+            if (!edgeCache.containsKey(highEdgeKey)) {
+                edgeCache.put(highEdgeKey, true);
+                String highName = getVertexName(high);
+                graph.addln("\"" + vName + "\" -> \"" + highName + "\" [dir=\"forward\" arrowtype=\"normal\" style=\"normal\"];");
+            }
+       }
+
+    }
+
+    public void print(String path) {
+
+        GraphViz gv = new GraphViz();
+        gv.addln(gv.start_graph());
+
+        String pathName = "R";
+        this.edgeCache = new HashMap<String, Boolean>();
+        createTree(gv, bdd.root, pathName);
+
+        gv.addln(gv.end_graph());
+        System.out.println(gv.getDotSource());
+
+        String type = FILE_TYPE;
+        if (!path.contains("\\" + FILE_TYPE)) {
+            path += "." + FILE_TYPE;
+        }
+        File out = new File(path);   // Linux
+        gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type), out);
     }
 }

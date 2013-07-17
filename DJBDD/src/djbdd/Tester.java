@@ -5,6 +5,7 @@
 package djbdd;
 
 import java.util.*;
+import org.mvel2.MVEL;
 
 /**
  *
@@ -58,11 +59,51 @@ public class Tester {
         bdd.print();
     }
     
+    private static boolean testBooleanOperation(Boolean a, Boolean b, String op){
+        String _function1 = a.toString()+" "+op+" "+b.toString();
+        String _function2 = a.toString()+" "+op+" "+b.toString();
+        if(op.equals("->"))
+            _function2 = "!"+a.toString()+" || "+b.toString();
+        boolean res1 = BooleanEvaluator.run(_function1);
+        boolean res2 = (Boolean)MVEL.eval(_function2);
+        System.out.println("Javaluator\t"+_function1 +" = "+res1);
+        System.out.println("MVEL\t\t"+_function2+" = "+res2);
+        if(res1!=res2)
+        {
+            System.out.println("WRONG");
+            System.exit(-1);
+        }
+        return res1==res2;
+    }
+    
+    public static void test3(){
+        System.out.println("--- AND ---");
+        for(int i=0; i<=1; i++){
+            for(int j=0; j<=1; j++){
+                testBooleanOperation(i==0, j==0, "||");
+            }
+        }
+        System.out.println("--- OR ---");
+        for(int i=0; i<=1; i++){
+            for(int j=0; j<=1; j++){
+                testBooleanOperation(i==0, j==0, "&&");
+            }
+        }
+        System.out.println("--- IMP ---");
+        for(int i=0; i<=1; i++){
+            for(int j=0; j<=1; j++){
+                testBooleanOperation(i==0, j==0, "->");
+            }
+        }
+    }
+    
     public static void run(int testIndex){
         if(testIndex == 1)
             test1();
         if(testIndex == 2)
             test2();
+        if(testIndex == 3)
+            test3();
     }
     
 }

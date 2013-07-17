@@ -15,7 +15,7 @@ class SheLoaderConfiguration{
     boolean outputInFile = false;
     
     /** Is verbose mode? */
-    public boolean verbose = false;
+    public boolean verbose = true;
     
     /** Number of clausules by BDD (1 by default) */
     public int numberOfCNFByBDD = 1;
@@ -31,8 +31,6 @@ class SheLoaderConfiguration{
 public class BDDSheFileLoader {
     /** Path of the DIMACS file */
     String filename;
-    
-    public static final boolean VERBOSE = true;
     
     /**
      * Constructor: builds a BDDDimacsLoader from the DIMACS file path.
@@ -51,8 +49,9 @@ public class BDDSheFileLoader {
      * @return BDD BDD tree with the formula contained in the filename.
      */
     public BDD loadFile(SheLoaderConfiguration config){
+        String END_VAR = "_";
         int numVariables = -1;
-        int numClausules = -1;
+        int numClausules = config.numberOfClausules;
         ArrayList<String> variables = new ArrayList<String>();
         ArrayList<String> formulas = new ArrayList<String>();
         try{
@@ -80,29 +79,37 @@ public class BDDSheFileLoader {
                   if(line.charAt(0)=='@')
                   {
                       String[] content = line.split(" ");
-                      variables.add(content[1]);
+                      String variable = content[1]+END_VAR;
+                      variables.add(variable);
                       numVariables++;
+                      //System.out.println(variable);
                   }
                   // Integer variable? x_i
                   else if(line.charAt(0)=='$')
                   {
                       String[] content = line.split(" ");
-                      variables.add(content[1]+" ");
+                      String variable = content[1]+END_VAR;
+                      variables.add(variable);
                       numVariables++;
+                      //System.out.println(variable);
                   }
                   // Clausules
                   else
                   {
                     String formulaI = line.trim();
-                    System.out.println(formulaI);
+                    //System.out.println(formulaI);
+                    formulaI = formulaI.replaceAll("(0)([^\\w\\d]+)", "false $2");
                     formulaI = formulaI.replaceAll("\\|", " || ");
                     formulaI = formulaI.replaceAll("&", " && ");
-                    formulaI = formulaI.replaceAll("([0-9]+)([^\\w_]+)", "x$1 $2");
-                    System.out.println(formulaI);
-                    System.exit(-1);
+                    formulaI = formulaI.replaceAll("([0-9]+)([^\\w_]+)", "x$1"+END_VAR+"$2");
+                    formulaI = formulaI.replaceAll("([\\w_\\d]+)", "$1"+END_VAR);
+                    formulaI = formulaI.replaceAll("__","_");
+                    formulaI = formulaI.replaceAll("false_","false");
+                    //System.out.println(formulaI);
+                    //System.exit(-1);
                     formulas.add(formulaI);
                     if(config.verbose){
-                        System.out.println("Extracting clausule: "+(formulaIndex+1)+" / "+numClausules);
+                        System.out.println("Extracting clausule: "+(formulaIndex)+" / "+numClausules);
                     }
                     formulaIndex++;
                     if(formulaIndex > numClausules && numClausules!=-1)
@@ -136,12 +143,14 @@ public class BDDSheFileLoader {
         }
         
         // Construction of the BDD
+        if(config.verbose){
+            System.out.println("Formula "+(1)+"/"+bdd_formula.size()+": "+bdd_formula.get(0));
+        }
         BDD bdd = new BDD(bdd_formula.get(0),variables);
         for(int i=1; i<bdd_formula.size(); i++){
             String formulaI = bdd_formula.get(i);
             if(config.verbose){
-                System.out.println("Formula "+i+": "+formulaI);
-                System.out.println((i+1)+"/"+bdd_formula.size());
+                System.out.println("Formula "+(i+1)+"/"+bdd_formula.size()+": "+formulaI);
             }
             BDD bddI = new BDD(formulaI, variables);
             /*

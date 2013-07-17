@@ -73,7 +73,7 @@ public class Main {
         }
         // Numer of clausules by each BDD
         if (args.length >= 5 && args[4].matches("\\d+")) {
-            config.numberOfCNFByBDD = Integer.parseInt(args[5]);
+            config.numberOfCNFByBDD = Integer.parseInt(args[4]);
             if(config.numberOfCNFByBDD<=0){
                 config.numberOfCNFByBDD = 1;
             }
@@ -86,8 +86,8 @@ public class Main {
             text += " each clausule";
         }
         // Number of clausules, -1 implies this will get all clausules
-        if (args.length >= 7 && args[6].matches("\\d+")) {
-            config.numberOfClausules = Integer.parseInt(args[6]);
+        if (args.length >= 6 && args[5].matches("\\d+")) {
+            config.numberOfClausules = Integer.parseInt(args[5]);
             if (config.numberOfClausules <= 0) {
                 config.numberOfClausules = DimacsLoaderConfiguration.ALL_CLAUSULES;
             }
