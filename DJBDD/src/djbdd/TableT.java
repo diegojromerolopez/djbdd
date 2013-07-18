@@ -26,14 +26,8 @@ public class TableT {
         return T.get(index);
     }
     
-    public void put(int index, Vertex v){
-        T.put(index, v);
-    }
-    
-    public void put(Vertex v){
-        int index = 2;
-        while(T.containsKey(index)){ index++; }
-        T.put(index, v);
+    public Vertex put(int index, Vertex v){
+        return T.put(index, v);
     }
     
     public void remove(int index){
@@ -46,6 +40,12 @@ public class TableT {
         
     public Set<Integer> keySet(){
         return this.T.keySet();
+    }
+    
+    public Integer getNextKey(){
+        int index = 2;
+        while(T.containsKey(index)){ index++; }
+        return index;
     }
     
     public ArrayList<Integer> getIndices(){

@@ -5,13 +5,26 @@ package djbdd;
  * @author diegoj
  */
 public class TimeMeasurer {
+    
+    /** Switch to stop measuring times */
     public final static boolean MEASURE_TIME = true;
+    
+    /** Message to warn developers if MEASURE_TIME = false */
+    public final static String DISABLED_MEASUREMENT_CONTEXT = "IT IS NOT MEASURING";
+    
+    /** Context of the time measurement: method name, class, etc. */
     public String context = "";
+    
+    /** Start time in nanoseconds */
     public long startTime = 0;
+    
+    /** End time in nanoseconds */
     public  long endTime = 0;
+    
+    /** Elapsed time in nanoseconds */
     public  long elapsedTime = 0;
     
-        /**
+    /**
      * Converts the elapsed time to a human readable format.
      * @return String Time elapsed in human-friendly form.
      */
@@ -28,13 +41,14 @@ public class TimeMeasurer {
         long h = m / 60;
         m = m % 60;
         return h+" h, "+m+" m, "+s+" s, "+ms+" ms, "+us+"µs";
-    } 
-    
+    }
     
     public TimeMeasurer(String context){
-        this.context = context;
-        if(MEASURE_TIME)
+        this.context = DISABLED_MEASUREMENT_CONTEXT;
+        if(MEASURE_TIME){
             this.startTime = System.nanoTime();
+            this.context = context;
+        }
     }
     
     public long end(){

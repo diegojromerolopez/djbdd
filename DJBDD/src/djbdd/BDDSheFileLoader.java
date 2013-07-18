@@ -98,10 +98,10 @@ public class BDDSheFileLoader {
                   {
                     String formulaI = line.trim();
                     //System.out.println(formulaI);
-                    formulaI = formulaI.replaceAll("(0)([^\\w\\d]+)", "false $2");
+                    formulaI = formulaI.replaceAll("([^\\w\\d]+)(0)([^\\w\\d]+)", "$1 false $3");
                     formulaI = formulaI.replaceAll("\\|", " || ");
                     formulaI = formulaI.replaceAll("&", " && ");
-                    formulaI = formulaI.replaceAll("([0-9]+)([^\\w_]+)", "x$1"+END_VAR+"$2");
+                    formulaI = formulaI.replaceAll("([^\\w_]+)([0-9]+)([^\\w_]+)", "$1 x$2"+END_VAR+"$3");
                     formulaI = formulaI.replaceAll("([\\w_\\d]+)", "$1"+END_VAR);
                     formulaI = formulaI.replaceAll("__","_");
                     formulaI = formulaI.replaceAll("false_","false");
@@ -148,6 +148,7 @@ public class BDDSheFileLoader {
         }
         BDD bdd = new BDD(bdd_formula.get(0),variables);
         for(int i=1; i<bdd_formula.size(); i++){
+            TimeMeasurer t = new TimeMeasurer("LOOP "+(i+1));
             String formulaI = bdd_formula.get(i);
             if(config.verbose){
                 System.out.println("Formula "+(i+1)+"/"+bdd_formula.size()+": "+formulaI);
@@ -173,6 +174,8 @@ public class BDDSheFileLoader {
             //System.out.println(bddRes);
             //System.out.flush();
             bdd = bddRes;
+            t.end();
+            t.show();
         }
         if(config.verbose){
             System.out.println("BDD constructed: "+bdd.T.getVertices().size()+" vertices and "+bdd.variables.size()+" variables");

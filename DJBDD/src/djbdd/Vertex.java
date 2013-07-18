@@ -87,6 +87,20 @@ public class Vertex {
         return (this.index == v.index && this.low == v.low && this.high == v.high && this.variable == v.variable);
     }
     
+    public Vertex getHighParent(TableT T){
+        for(Vertex v : T.getVertices())
+            if(v.low == this.index)
+                return v;
+        return null;
+    }
+    
+    public Vertex getLowParent(TableT T){
+        for(Vertex v : T.getVertices())
+            if(v.high == this.index)
+                return v;
+        return null;    
+    }
+    
     public String keyH(){
         return Vertex.kH(this.variable, this.low, this.high);
     }

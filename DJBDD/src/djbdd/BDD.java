@@ -26,6 +26,9 @@ public class BDD {
     Vertex True;
     Vertex False;
     
+    boolean isTautology = false;
+    boolean isContradiction = false;
+    
     /**
      * Evaluates the formula given a path (an assignement of variables)
      * @param path ArrayList of variables that contains a boolean assignement for each variable.
@@ -48,9 +51,10 @@ public class BDD {
     /**
      * Main recursively generation of the tree.
      * @param path ArrayList of variables that contains a boolean assignement for each variable.
+     * @param U HashMap that ensures the uniqueness of the generated vertices.
      * @return Vertex of each level.
      */
-    private Vertex generateTreeFunction(ArrayList<Boolean> path){
+    private Vertex generateTreeFunction(ArrayList<Boolean> path, HashMap<String,Vertex> U){
             int path_len = path.size();
             //System.out.println(path.toString());
             //System.out.println(path_len);
@@ -61,30 +65,60 @@ public class BDD {
                 //int variable_index = this.variables.get(path_len);
                 //System.out.println("EXISTE "+ path_len +" "+ this.variables.get(variable_index));
                 //System.out.flush();
+                
+                // Low path
                 ArrayList<Boolean> path_low = new ArrayList<Boolean>(path);
                 path_low.add(false);
-                Vertex v_low = this.generateTreeFunction(path_low);
+                Vertex v_low = this.generateTreeFunction(path_low, U);
                 
+                // High path
                 ArrayList<Boolean> path_high = new ArrayList<Boolean>(path);
                 path_high.add(true);
-                Vertex v_high = this.generateTreeFunction(path_high);
-                //System.out.println("Parent of "+v_low.id+" y "+v_high.id);
-                // Create a new vertex
-                int index = 2;
-                while(T.containsKey(index)){
-                    index++;
+                Vertex v_high = this.generateTreeFunction(path_high, U);
+                
+                //////////////// Constraints:
+                
+                ////////
+                //// 1.- Non-redundancy
+                // If low and high are the same vertex, we do not create their
+                // parent, because it is redundant. We return the child.
+                if(v_low.index == v_high.index){
+                    return v_low;
                 }
+                
+                ////////
+                //// 2.- Uniqueness
+                // No two vertices have the same variable, and low and high
+                // vertices
+                        
+                // Variable of the new vertex
                 int var_index = this.present_variable_indices.get(path_len);
+                
+                // If exists a vertex with the same variable and the same
+                // descendents, return that
+                String vKey = var_index+"-"+v_low.index+"-"+v_high.index;
+                if(U.containsKey(vKey)){
+                    return U.get(vKey);
+                }
+                
+                // There are no vertex with
+                // this variable, and low and high vertices.
+                // We create a new vertex
+                int index = T.getNextKey();
                 Vertex v = new Vertex(index, var_index, v_low, v_high);
                 this.T.put(index, v);
+                U.put(vKey, v);
                 return v;
             }
             else if(path_len == this.present_variable_indices.size())
             {
                 // reached leafes
                 boolean value = this.evaluatePath(path);
-                if(value)
+                if(value){
+                    this.T.put(1,this.True);
                     return this.True;
+                }
+                this.T.put(0,this.False);
                 return this.False;
             }
             //System.out.println("WRONG");
@@ -117,6 +151,7 @@ public class BDD {
      * Delete all redundante vertices of the tree.
      * That is, all vertex with the same low and high values.
      * Of course modifies the T table.
+     * @return boolean True if there has been a deletion of a redundant vertex. False otherwise.
      */
     private boolean deleteRedundantVertices(){
         // Non-redundancy: no vertex has same low and high
@@ -235,11 +270,17 @@ public class BDD {
         }
     }
     
+    /**
+     * Assign the root of the BDD.
+     */
     private void assignRoot(){
         ArrayList<Integer> vertexKeys = new ArrayList<Integer>(this.T.keySet());
         this.root = this.T.get(Collections.max(vertexKeys));
     }
     
+    /**
+     * Updates the H table.
+     */
     private void updateH(){
         //System.out.flush();
         this.H = new HashMap<String,Vertex>();
@@ -257,6 +298,7 @@ public class BDD {
      * Reduces the BDD deleting redundant and duplicate vertices.
      */
     public void reduce(){
+        TimeMeasurer t = new TimeMeasurer("reduce");
         boolean change = false;
         do{
             change = this.deleteRedundantVertices();
@@ -268,6 +310,8 @@ public class BDD {
         this.updateH();
         // Asignamos la raiz
         this.assignRoot();
+        t.end();
+        t.show();
     }
     
     /**
@@ -276,6 +320,7 @@ public class BDD {
      * @param variables Name of the variables and order of them in the BDD.
      */
     BDD(String function_str, ArrayList<String> variables){
+        TimeMeasurer t = new TimeMeasurer("BDD constructor");
         this.function = function_str;
         this.variables = variables;
         this.present_variable_indices = new ArrayList<Integer>();
@@ -292,16 +337,29 @@ public class BDD {
         this.True = new Vertex(true);
         // HashMap
         this.T = new TableT();
-        T.put(0, this.False);
-        T.put(1, this.True);
+        
+        // If we insert the False and True vertices,
+        // we can't have true or false BDDs
+        //T.put(0, this.False);
+        //T.put(1, this.True);
+        
         // Generation of the BDD tree
         ArrayList<Boolean> path = new ArrayList<Boolean>();
-        this.generateTreeFunction(path);
+        HashMap<String,Vertex> U = new HashMap<String,Vertex>();
+        this.generateTreeFunction(path, U);
+        //this.print();
         // Reduction of the BDD tree
         this.reduce();
+        if(T.keySet().size() == 1){
+            this.isTautology =  T.get(1)==this.True;
+            this.isContradiction = T.get(0)==this.False;
+        }
+        t.end();
+        t.show();
     }
     
     BDD(TableT T, String function_str, ArrayList<String> variables){
+        TimeMeasurer t = new TimeMeasurer("BDD constructor from T");
         this.function = function_str;
         this.variables = variables;
         this.present_variable_indices = new ArrayList<Integer>();
@@ -320,6 +378,8 @@ public class BDD {
         this.T = T;
         // Reduction of the BDD tree
         this.reduce();
+        t.end();
+        t.show();
     }
     
     /**************************************************************************/
@@ -328,7 +388,10 @@ public class BDD {
     public BDD apply(String op, BDD bdd2){
         try
         {
+            TimeMeasurer t = new TimeMeasurer("apply");
             BDDApply applicator = new BDDApply(op, this, bdd2);
+            t.end();
+            t.show();          
             return applicator.run();
         }
         catch(Exception e)
@@ -336,6 +399,7 @@ public class BDD {
             System.err.println(e);
             e.printStackTrace();
         }
+        // This code is not executed:
         return null;
     }
     
