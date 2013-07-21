@@ -7,6 +7,7 @@ package djbdd;
 import java.util.*;
 
 /**
+ * Apply operation for BDDs
  * Contains the apply computation.
  * @author diegoj
  */
@@ -171,8 +172,10 @@ public class BDDApply {
         if(v1.isLeaf() && v2.isLeaf())
         {
             if(this.op(v1,v2)){
+                this.T.put(1, this.True);
                 return this.True;
             }
+            this.T.put(0, this.False);
             return this.False;
         }
         
@@ -195,8 +198,7 @@ public class BDDApply {
         }
 
         // Create the resulting vertex
-        int index = 2;
-        while(this.T.containsKey(index)){ index++; };
+        int index = this.T.getNextKey();
         Vertex u = new Vertex(index, var, low.index, high.index);
         this.T.put(index, u);
         G.put(key, u);
@@ -216,15 +218,17 @@ public class BDDApply {
         this.T = new TableT();
         
         // Leaf vertices
-        this.T.put(0, this.False);
-        this.T.put(1, this.True);
+        // We don't put true and false vertices because we can have a
+        // tautology or contradiction as resultant BDD
+        //this.T.put(0, this.False);
+        //this.T.put(1, this.True);
         String function = this.getFunction();
         
         // Fill this.T with vertices of bdd1 and bdd2
         this.app(bdd1.root, bdd2.root);
         
         // Construction of new BDD
-        this.bdd = new BDD(this.T, function, bdd1.variables);
+        this.bdd = new BDD(this.T, function, bdd1.variables, bdd1.variable_ordering);
         
         // Return the new BDD computed
         return this.bdd;

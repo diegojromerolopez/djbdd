@@ -6,7 +6,12 @@ package djbdd;
 
 import java.util.*;
 import java.io.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+/**
+ * Configuration of the loading.
+ */
 class SheLoaderConfiguration{
     /**  */
     public String text;
@@ -24,11 +29,61 @@ class SheLoaderConfiguration{
     public int numberOfClausules = -1;
 }
 
+ 
+class BDDSheFileLoaderThread implements Runnable {
+    private int index;
+    private ArrayList<String> formulas;
+    private ArrayList<String> variables;
+    private boolean verbose = false;
+    private BDD bdd;
+     
+    public BDDSheFileLoaderThread(int index, ArrayList<String> formulas, ArrayList<String> variables){
+        this.index = index;
+        this.formulas = formulas;
+        this.variables = variables;
+    }
+ 
+    @Override
+    public void run() {
+        bdd = new BDD(formulas.get(0),variables);
+        if(verbose){
+            System.out.println("\n[Thread "+this.index+"] Formula "+(1)+"/"+formulas.size()+": "+formulas.get(0));
+        }
+        // Loop throught formulas whose index > 0
+        for(int i=1; i<formulas.size(); i++)
+        {
+            TimeMeasurer t = new TimeMeasurer("\n[Thread "+this.index+"] LOOP "+(i+1)+"/"+formulas.size());
+            String formulaI = formulas.get(i);
+            if(verbose){
+                System.out.println("[Thread "+this.index+"] Formula "+(i+1)+"/"+formulas.size()+": "+formulaI);
+            }
+            BDD bddI = new BDD(formulaI, variables);
+            BDD bddRes = bdd.apply("and",bddI);
+            bdd = bddRes;
+            t.end();
+            t.show();
+        }
+    }
+    
+    public BDD getBDD(){ return this.bdd; }
+  
+    @Override
+    public String toString(){
+        return this.index +" thread with"+formulas.size()+" formulas";
+    }
+}
+
+
+
+
 /**
  * Loads a BDD from a Steven She boolean format file extracted from the kconfig.
  * @author diegoj
  */
 public class BDDSheFileLoader {
+    /** Number of threads used to load the BDD trees */
+    public final int NUM_THREADS = 8;
+    
     /** Path of the DIMACS file */
     String filename;
     
@@ -142,37 +197,22 @@ public class BDDSheFileLoader {
             }
         }
         
+        /*
         // Construction of the BDD
-        if(config.verbose){
-            System.out.println("Formula "+(1)+"/"+bdd_formula.size()+": "+bdd_formula.get(0));
-        }
         BDD bdd = new BDD(bdd_formula.get(0),variables);
-        for(int i=1; i<bdd_formula.size(); i++){
-            TimeMeasurer t = new TimeMeasurer("LOOP "+(i+1));
+        if(config.verbose){
+            System.out.println("\nFormula "+(1)+"/"+bdd_formula.size()+": "+bdd_formula.get(0));
+        }
+        // Loop throught formulas whose index > 0
+        for(int i=1; i<bdd_formula.size(); i++)
+        {
+            TimeMeasurer t = new TimeMeasurer("\nLOOP "+i);
             String formulaI = bdd_formula.get(i);
             if(config.verbose){
                 System.out.println("Formula "+(i+1)+"/"+bdd_formula.size()+": "+formulaI);
             }
             BDD bddI = new BDD(formulaI, variables);
-            /*
-            if(bddI == null){
-                System.out.println("bddI es null");
-                System.exit(-1);
-            }
-            if(bdd == null){
-                System.out.println("bdd antes del apply es null");
-                System.exit(-1);
-            }*/
             BDD bddRes = bdd.apply("and",bddI);
-            /*
-            if(bddRes == null){
-                System.out.println("bddRes obtenido del apply es null");
-                System.exit(-1);
-            }*/
-            
-            //System.out.println("Iteración "+i);
-            //System.out.println(bddRes);
-            //System.out.flush();
             bdd = bddRes;
             t.end();
             t.show();
@@ -180,7 +220,45 @@ public class BDDSheFileLoader {
         if(config.verbose){
             System.out.println("BDD constructed: "+bdd.T.getVertices().size()+" vertices and "+bdd.variables.size()+" variables");
         }
-        return bdd;  
+        return bdd;
+        //*/
+        
+        int numThreads = Math.min(numClausules, NUM_THREADS);
+        int numFormulasByThread = bdd_formula.size()/numThreads;
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        ArrayList<BDDSheFileLoaderThread> workers = new ArrayList<BDDSheFileLoaderThread>();
+        System.out.println( bdd_formula.size() );
+        for (int i = 0; i < numThreads; i++) {
+            int startFormulaIndex = i*numFormulasByThread;
+            int endFormulaIndex = Math.min(startFormulaIndex + numFormulasByThread, bdd_formula.size());
+            System.out.println("["+startFormulaIndex+", "+endFormulaIndex+"]");
+            ArrayList<String> threadFormulas = new ArrayList<String>(bdd_formula.subList(startFormulaIndex, endFormulaIndex));
+            Runnable worker = new BDDSheFileLoaderThread(i,threadFormulas,variables);
+            executor.execute(worker);
+            workers.add((BDDSheFileLoaderThread)worker);
+        }
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+        }
+        System.out.println("Finished all threads");
+        
+        for(int i=0; i<workers.size(); i++){
+            BDD bddI = workers.get(i).getBDD();
+            bddI.reduce();
+            if(config.verbose){
+                System.out.println("BDD "+i+": "+bddI.function);
+                //BDDPrinter.printBDD(bddI, "bdd_"+i);
+                bddI.toFile("bdd_"+i+".txt");
+            }
+        }
+        
+        BDD bdd = workers.get(0).getBDD();
+        for(int i=1; i<workers.size(); i++){
+            BDD bddI = workers.get(1).getBDD();
+            BDD bddRes = bdd.apply("and",bddI);
+            bdd = bddRes;
+        }
+        return bdd;//*/
     }
     
 }

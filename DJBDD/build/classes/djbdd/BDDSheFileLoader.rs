@@ -1,2 +1,0 @@
-djbdd.SheLoaderConfiguration
-djbdd.BDDSheFileLoader

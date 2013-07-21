@@ -165,6 +165,7 @@ public class Main {
         t.end();
         t.show();
         bdd.print();
+        bdd.toFile(filename+".bdd.txt");
         if(config.outputInFile){
             BDDPrinter printer = new BDDPrinter(bdd);
             printer.print("./"+filename);

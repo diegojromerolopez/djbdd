@@ -51,16 +51,20 @@ public class TimeMeasurer {
         }
     }
     
-    public long end(){
+    public TimeMeasurer end(){
         if(MEASURE_TIME){
             this.endTime = System.nanoTime();
             this.elapsedTime = this.endTime - this.startTime;
         }
-        return this.elapsedTime;
+        return this;
     }
     
     public void show(){
         if(MEASURE_TIME)
             System.out.println(context+" "+this.getElapsedTimeAsHumanText());
+    }
+    
+    public long getElapsedTime(){
+        return this.elapsedTime;
     }
 }

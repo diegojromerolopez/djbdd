@@ -16,7 +16,7 @@ public class BDDPrinter {
 
     /* Output file type */
     static String FILE_TYPE = "png";
-    final boolean SHOW_NODE_PATHS = true;
+    final boolean SHOW_NODE_PATHS = false;
     /** BDD tree to print */
     BDD bdd = null;
     HashMap<String, Boolean> edgeCache = null;
@@ -38,6 +38,8 @@ public class BDDPrinter {
             }
             if (SHOW_NODE_PATHS) {
                 name += " (" + pathName + ")";
+            }else{
+                name += " (" + v.index + ")";
             }
             return name;
         }
@@ -93,6 +95,12 @@ public class BDDPrinter {
             path += "." + FILE_TYPE;
         }
         File out = new File(path);   // Linux
+        System.out.println("Saving in "+out.getAbsolutePath());
         gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type), out);
+    }
+    
+    public static void printBDD(BDD bdd, String path){
+        BDDPrinter printer = new BDDPrinter(bdd);
+        printer.print(path);
     }
 }

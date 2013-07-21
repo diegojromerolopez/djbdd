@@ -13,6 +13,34 @@ import org.mvel2.MVEL;
  */
 public class Tester {
     
+    public static void test0(){
+        // Function
+        String function = "(a || b) && c && d";
+        // Variables of the function (some of them not present)
+        ArrayList<String> variables = new ArrayList<String>();
+        variables.add("a");
+        variables.add("b");
+        variables.add("c");
+        variables.add("d");
+        variables.add("e");
+        variables.add("f");
+        /*
+        // Variable ordering (pray that's right)
+        ArrayList<Integer> variable_ordering = new ArrayList<Integer>();
+        variable_ordering.add(2);// c
+        variable_ordering.add(3);// d
+        variable_ordering.add(0);// a
+        variable_ordering.add(1);// b
+        variable_ordering.add(4);// e
+        variable_ordering.add(5);// f
+         * 
+         */
+        // Construction of the BDD
+        BDD bdd = new BDD(function, variables);
+        bdd.print();
+        BDDPrinter.printBDD(bdd, "test0_"+bdd.variable_ordering.toString());
+    }
+    
     public static void test1(){
         String function = "( (!x1 || x2) && (x1 || !x2) ) && ( (!x3 || x4) && (x3 || !x4) )";
         ArrayList<String> variables = new ArrayList<String>();
@@ -98,6 +126,8 @@ public class Tester {
     }
     
     public static void run(int testIndex){
+        if(testIndex == 0)
+            test0();
         if(testIndex == 1)
             test1();
         if(testIndex == 2)
