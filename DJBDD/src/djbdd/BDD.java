@@ -10,31 +10,56 @@ import java.io.*;
 //import org.mvel2.MVEL;
 
 /**
- *
+ * BDD object capable of execute boolean logic operations.
+ * TODO: method to evaluate the BDD given a variable boolean assignation.
  * @author diegoj
  */
 public class BDD {
+    /** Name of this BDD */
     String name = "";
+    
+    /** String representation of the boolean logic function of this BDD */
     String function;
+    
+    /** All the variables that will be know by this BDD in no particular order */
     ArrayList<String> variables;
+    
+    /** Informs if a variable exists in this BDD */
     HashMap<String,Boolean> variable_existence;
     
     /** Variable ordering, ith variable is in variable_ordering[i] position */
     ArrayList<Integer> variable_ordering;
     
     /** List of indices of the present variables sorted by the variable_ordering list  */
+    // NOT: it is important to note that this indices has the ordering given by
+    // variable ordering, don't forget that
     ArrayList<Integer> present_variable_indices;
     
     /** Hash table that contains the BDD tree itself */
     TableT T;
+    
+    /** Hash table useful for doing apply */
     HashMap<String,Vertex> H;
 
+    /** Root of the BDD tree */
     Vertex root = null;
+    
+    /** True leaf vertex */
     Vertex True;
+    
+    /** False leaf vertex */
     Vertex False;
     
+    /** Informs if this BDD is a tautology (always true) */
     boolean isTautology = false;
+    
+    /** Informs if this BDD is a contradiction (always false) */
     boolean isContradiction = false;
+
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    /**** TREE GENERATION ****/ 
     
     /**
      * Evaluates the formula given a path (an assignement of variables)
@@ -131,6 +156,11 @@ public class BDD {
             //System.out.println("WRONG");
             return null;
     }
+    
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    /**** TREE REDUCTION ****/ 
     
     /**
      * Deletes a vertex from the BDD.
@@ -311,10 +341,16 @@ public class BDD {
         t.end().show();
     }
 
+    
     /**************************************************************************/
     /**************************************************************************/
     /* Constructors */
-    
+
+    /**
+     * Initialize parameters dependant of variables and variable ordering in BDD constructor.
+     * @param variables Name of the variables and order of them in the BDD.
+     * @param variable_ordering Order of the variables given this way: variable_ordering[i]=j => jth variable is in ith position.
+     */
     private void initVariableParameters(ArrayList<String> variables, ArrayList<Integer> variable_ordering){
         this.variables = variables;
         this.variable_ordering = variable_ordering;
@@ -336,7 +372,12 @@ public class BDD {
          */
     }
     
-    
+    /**
+     * Initialize parameters of the BDD given by its constructor.
+     * @param function_str String containing the boolean formula. Use Java representation of the formula. Don't forget using parentheses.
+     * @param variables Name of the variables and order of them in the BDD.
+     * @param variable_ordering Order of the variables given this way: variable_ordering[i]=j => jth variable is in ith position.
+     */
     private void init(String function_str, ArrayList<String> variables, ArrayList<Integer> variable_ordering){
         //TimeMeasurer t = new TimeMeasurer("BDD constructor");
         //TimeMeasurer _t = new TimeMeasurer(" :::::::: BDD preprocess :::::::");
@@ -464,6 +505,7 @@ public class BDD {
     
     
     /**************************************************************************/
+    /**************************************************************************/
     /* Apply algorithm */
     
     public BDD apply(String op, BDD bdd2){
@@ -483,7 +525,9 @@ public class BDD {
         // This code is not executed:
         return null;
     }
+
     
+    /**************************************************************************/
     /**************************************************************************/
     /* Operations */
     
@@ -516,6 +560,8 @@ public class BDD {
         return this.evaluateFromVertex(this.root, truthAssignement);
     }
     
+    
+    /**************************************************************************/
     /**************************************************************************/
     /* Output zone */
     
