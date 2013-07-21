@@ -227,11 +227,17 @@ public class BDDSheFileLoader {
         int numFormulasByThread = bdd_formula.size()/numThreads;
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         ArrayList<BDDSheFileLoaderThread> workers = new ArrayList<BDDSheFileLoaderThread>();
-        System.out.println( bdd_formula.size() );
+        if(config.verbose){
+            System.out.println( "There are "+bdd_formula.size()+" formulas" );
+        }
         for (int i = 0; i < numThreads; i++) {
             int startFormulaIndex = i*numFormulasByThread;
-            int endFormulaIndex = Math.min(startFormulaIndex + numFormulasByThread, bdd_formula.size());
-            System.out.println("["+startFormulaIndex+", "+endFormulaIndex+"]");
+            int endFormulaIndex = startFormulaIndex + numFormulasByThread;
+            if(i==numThreads-1)
+                endFormulaIndex = bdd_formula.size();
+            if(config.verbose){
+                System.out.println("Thread "+i+" has clausules ["+startFormulaIndex+", "+endFormulaIndex+"]");
+            }
             ArrayList<String> threadFormulas = new ArrayList<String>(bdd_formula.subList(startFormulaIndex, endFormulaIndex));
             Runnable worker = new BDDSheFileLoaderThread(i,threadFormulas,variables);
             executor.execute(worker);
@@ -240,7 +246,7 @@ public class BDDSheFileLoader {
         executor.shutdown();
         while (!executor.isTerminated()) {
         }
-        System.out.println("Finished all threads");
+        //System.out.println("Finished all threads");
         
         for(int i=0; i<workers.size(); i++){
             BDD bddI = workers.get(i).getBDD();

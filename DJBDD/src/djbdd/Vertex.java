@@ -20,16 +20,16 @@ public class Vertex {
     public static final int NULL_INDEX = -1; 
     
     /** Unique key of the vertex in the hash T of the TBDD */
-    int index = NULL_INDEX;
+    final int index;
     
     /** Index of the variable of this vertex in the variables */
     int variable = NULL_INDEX;
     
     /** Index of the low child of this vertex in the hash T of the TBDD */
-    int low = NULL_INDEX;
+    private int low = NULL_INDEX;
     
     /** Index of the high child of this vertex in the hash T of the TBDD */
-    int high = NULL_INDEX;
+    private int high = NULL_INDEX;
     
 
     /** Constructs the vertex */
@@ -87,14 +87,14 @@ public class Vertex {
         return (this.index == v.index && this.low == v.low && this.high == v.high && this.variable == v.variable);
     }
     
-    public Vertex getHighParent(TableT T){
+    public Vertex getHighParents(TableT T){
         for(Vertex v : T.getVertices())
             if(v.low == this.index)
                 return v;
         return null;
     }
     
-    public Vertex getLowParent(TableT T){
+    public Vertex getLowParents(TableT T){
         for(Vertex v : T.getVertices())
             if(v.high == this.index)
                 return v;
@@ -108,6 +108,18 @@ public class Vertex {
     public static String kH(int variable, int low, int high){
         return variable+HKEY_SEPARATOR+low+HKEY_SEPARATOR+high;
     }
+    
+    /**************************************************************************/
+    /**************************************************************************/   
+    public int high(){ return this.high; }
+    
+    public int low(){ return this.low; }
+    
+    public void setHigh(int highIndex){ this.high = highIndex; }
+    public void setLow(int lowIndex){ this.low = lowIndex; }
+    
+    /**************************************************************************/
+    /**************************************************************************/
     
     @Override
     public String toString(){

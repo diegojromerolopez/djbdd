@@ -185,16 +185,16 @@ public class BDDApply {
         // v1.index < v2.index
         if (!v1.isLeaf() && (v2.isLeaf() || v1.variable < v2.variable)) {
             var = v1.variable;
-            low = this.app(v1.low, v2.index);
-            high = this.app(v1.high, v2.index);
+            low = this.app(v1.low(), v2.index);
+            high = this.app(v1.high(), v2.index);
         } else if (v1.isLeaf() || v1.variable > v2.variable) {
             var = v2.variable;
-            low = this.app(v1.index, v2.low);
-            high = this.app(v1.index, v2.high);
+            low = this.app(v1.index, v2.low());
+            high = this.app(v1.index, v2.high());
         } else {
             var = v1.variable;
-            low = this.app(v1.low, v2.low);
-            high = this.app(v1.high, v2.high);
+            low = this.app(v1.low(), v2.low());
+            high = this.app(v1.high(), v2.high());
         }
 
         // Create the resulting vertex

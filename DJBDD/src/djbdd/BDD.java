@@ -169,18 +169,18 @@ public class BDD {
      * @param deletedVertex Vertex to be deleted.
      */
     private void deleteRedundantVertex(Vertex deletedVertex){
-        int low = deletedVertex.low;
-        int high = deletedVertex.high;
+        int low = deletedVertex.low();
+        int high = deletedVertex.high();
         T.remove(deletedVertex.index);
         // Update the low and high pointers to the new values
         // (the low and high of the deleted vertex resp.)
         ArrayList<Integer> vertexIndices = new ArrayList<Integer>(T.keySet());
         for(Integer i : vertexIndices){
             Vertex v = T.get(i);
-            if(v.low == deletedVertex.index)
-                v.low = low;
-            if(v.high == deletedVertex.index)
-                v.high = high;
+            if(v.low() == deletedVertex.index)
+                v.setLow(low);
+            if(v.high() == deletedVertex.index)
+                v.setHigh(high);
         }
     }
     
@@ -191,9 +191,7 @@ public class BDD {
      * @return boolean True if there has been a deletion of a redundant vertex. False otherwise.
      */
     private boolean deleteRedundantVertices(){
-        //TimeMeasurer t = new TimeMeasurer("---- deleteRedundantVertices ----");
-        // Non-redundancy: no vertex has same low and high
-        //ArrayList<Integer> vertixKeys = new ArrayList<Integer>(this.T.keySet());
+        TimeMeasurer t = new TimeMeasurer("---- deleteRedundantVertices ----");
         boolean deleted = false;
         for(Vertex v : this.T.getVertices()){
             //Vertex v = this.T.get(i);
@@ -202,9 +200,8 @@ public class BDD {
                 deleted = true;
                 this.deleteRedundantVertex(v);
             }
-        }
-        //t.end();
-        //t.show();
+        }//*/
+        t.end().show();
         return deleted;
     }
     
@@ -229,7 +226,7 @@ public class BDD {
      * Delete all duplicate vertices.
      */
     private boolean deleteDuplicateVertices(){
-        //TimeMeasurer t = new TimeMeasurer("++++++ deleteDuplicateVertices ++++++");
+        TimeMeasurer t = new TimeMeasurer("++++++ deleteDuplicateVertices ++++++");
         // Uniqueness
         boolean _change = false;
         boolean change = false;
@@ -248,10 +245,10 @@ public class BDD {
                             ArrayList<Integer> remining = new ArrayList<Integer>(this.T.keySet());
                             for(Integer q : remining){
                                 Vertex vQ = T.get(q);
-                                if(vQ.low == d)
-                                    vQ.low = k;
-                                if(vQ.high == d)
-                                    vQ.high = k;
+                                if(vQ.low() == d)
+                                    vQ.setLow(k);
+                                if(vQ.high() == d)
+                                    vQ.setHigh(k);
                             }
                             T.remove(d);
                             _change = true;
@@ -261,7 +258,7 @@ public class BDD {
             }
         }
         while(change);
-        //t.end().show();
+        t.end().show();
         return _change;
     }
     
@@ -270,6 +267,7 @@ public class BDD {
      * Assigns consecutive indices to the vertex.
      * It has no computational purpose, only estetic one. 
      */
+    /*
     private void assignNewIndices(){
         ArrayList<Integer> vertixKeys = new ArrayList<Integer>(this.T.keySet());
         int i = 2;
@@ -285,10 +283,10 @@ public class BDD {
                         //System.out.println("Para el vértice "+k2+" sustituimos "+k+" -> "+i);
                         //System.out.flush();
                         Vertex other = T.get(k2);
-                        if(other.high == k)
-                            other.high = i;
-                        if(other.low == k)
-                            other.low = i;
+                        if(other.high() == k)
+                            other.setHigh(i);
+                        if(other.low() == k)
+                            other.setLow(i);
                     }
                 }
                 v.index = i;
@@ -296,7 +294,7 @@ public class BDD {
                 i++;
             }
         }
-    }
+    }*/
     
     /**
      * Assign the root of the BDD.
@@ -330,7 +328,6 @@ public class BDD {
         boolean change = false;
         do{
             change = this.deleteRedundantVertices();
-            //this.print();
             change = change || this.deleteDuplicateVertices();
         }while(change);
         //this.assignNewIndices();
@@ -383,19 +380,7 @@ public class BDD {
         //TimeMeasurer _t = new TimeMeasurer(" :::::::: BDD preprocess :::::::");
         this.function = function_str;
         this.initVariableParameters(variables, variable_ordering);
-        /*
-        this.variables = variables;
-        this.variable_ordering = variable_ordering;
-        this.present_variable_indices = new ArrayList<Integer>();
-        this.variable_existence = new ArrayList<Boolean>(variables.size( ));
-        for(int i=0; i<variables.size(); i++){
-            String var = variables.get(i);
-            Boolean exists_variable = function.contains(var);
-            this.variable_existence.add(exists_variable);
-            if(exists_variable)
-                this.present_variable_indices.add(i);
-        }
-         */
+
         // Leaf vertices
         this.False = new Vertex(false);
         this.True = new Vertex(true);
@@ -456,11 +441,17 @@ public class BDD {
      */
     BDD(String function_str, ArrayList<String> variables, HashMap<String,Integer> hash_variable_ordering){
         ArrayList<Integer> _variable_ordering = new ArrayList<Integer>(variables.size());
+        // Create initial elements
+        for(int i=0; i<variables.size(); i++){
+            _variable_ordering.add(i);
+        }
+        // Assign order
         for(String variable : hash_variable_ordering.keySet()){
             Integer position = hash_variable_ordering.get(variable);
             Integer variable_index = variables.indexOf(variable);
             _variable_ordering.set(position, variable_index);
         }
+        // Initialize variable parameters
         this.init(function_str, variables, _variable_ordering);
     }
     
@@ -474,20 +465,6 @@ public class BDD {
     BDD(TableT T, String function_str, ArrayList<String> variables, ArrayList<Integer> variable_ordering){
         //TimeMeasurer t = new TimeMeasurer("BDD constructor from T");
         this.function = function_str;
-        /*
-        this.variables = variables;
-        this.variable_ordering = variable_ordering;
-        this.present_variable_indices = new ArrayList<Integer>();
-        this.variable_existence = new ArrayList<Boolean>(variables.size( ));
-        for(int i=0; i<variables.size(); i++){
-            String var = variables.get(i);
-            Boolean exists_variable = function.contains(var);
-            this.variable_existence.add(exists_variable);
-            if(exists_variable)
-                this.present_variable_indices.add(i);
-        }
-         * 
-         */
         this.initVariableParameters(variables, variable_ordering);
         // Leaf vertices
         this.False = T.get(0);
@@ -542,9 +519,9 @@ public class BDD {
         if(!v.isLeaf())
         {
             if(!truthAssignement.get(v.variable))
-                return this.evaluateFromVertex(this.T.get(v.low), truthAssignement);
+                return this.evaluateFromVertex(this.T.get(v.low()), truthAssignement);
             else
-                return this.evaluateFromVertex(this.T.get(v.high), truthAssignement);
+                return this.evaluateFromVertex(this.T.get(v.high()), truthAssignement);
         }
         else{
             return v.value();
@@ -590,7 +567,7 @@ public class BDD {
             String variable = Boolean.toString(v.value());
             if(v.variable > -1)
                 variable = this.variables.get(v.variable);
-            text += v.index+"\t"+v.variable+"\t"+variable+"\t"+v.low+"\t"+v.high+"\n";
+            text += v.index+"\t"+v.variable+"\t"+variable+"\t"+v.low()+"\t"+v.high()+"\n";
         }
         return text;
     }

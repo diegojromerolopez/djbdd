@@ -31,6 +31,7 @@ public class TableT {
     }
     
     public void remove(int index){
+        //Vertex removed = T.get(index);
         T.remove(index);
     }
     

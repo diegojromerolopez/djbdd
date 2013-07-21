@@ -35,8 +35,15 @@ public class Tester {
         variable_ordering.add(5);// f
          * 
          */
+        HashMap<String,Integer> variable_ordering = new HashMap<String,Integer>();
+        variable_ordering.put("c", 0);
+        variable_ordering.put("d", 1);
+        variable_ordering.put("a", 2);
+        variable_ordering.put("b", 3);
+        variable_ordering.put("e", 4);
+        variable_ordering.put("f", 5);
         // Construction of the BDD
-        BDD bdd = new BDD(function, variables);
+        BDD bdd = new BDD(function, variables, variable_ordering);
         bdd.print();
         BDDPrinter.printBDD(bdd, "test0_"+bdd.variable_ordering.toString());
     }

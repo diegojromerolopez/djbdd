@@ -13,14 +13,21 @@ import java.util.Iterator;
  */
 public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   /** The negate unary operator.*/
-  public final static Operator NOT = new Operator("!", 1, Operator.Associativity.RIGHT, 4);
+  public final static Operator NOT = new Operator("!", 1, Operator.Associativity.RIGHT, 5);
   /** The logical AND operator.*/
-  private static final Operator AND = new Operator("&&", 2, Operator.Associativity.LEFT, 3);
+  private static final Operator AND = new Operator("&&", 2, Operator.Associativity.LEFT, 4);
   /** The logical OR operator.*/
-  public final static Operator OR = new Operator("||", 2, Operator.Associativity.LEFT, 2);
+  public final static Operator OR = new Operator("||", 2, Operator.Associativity.LEFT, 3);
   /** The logical Implication operator.*/
-  public final static Operator IMP = new Operator("->", 2, Operator.Associativity.LEFT, 1);
- 
+  public final static Operator IMP = new Operator("->", 2, Operator.Associativity.LEFT, 2);
+  /** The logical Implication operator (version2).*/
+  public final static Operator IMP2 = new Operator("=>", 2, Operator.Associativity.LEFT, 2);
+  /** The logical double implication operator.*/
+  public final static Operator DOUBLE_IMP = new Operator("<->", 2, Operator.Associativity.LEFT, 1);
+  /** The logical double implication operator (version2).*/
+  public final static Operator DOUBLE_IMP2 = new Operator("<=>", 2, Operator.Associativity.LEFT, 1);
+  
+  
   private static final Parameters PARAMETERS;
  
   static {
@@ -31,6 +38,9 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     PARAMETERS.add(OR);
     PARAMETERS.add(NOT);
     PARAMETERS.add(IMP);
+    PARAMETERS.add(IMP2);
+    PARAMETERS.add(DOUBLE_IMP);
+    PARAMETERS.add(DOUBLE_IMP2);
     // Add the parentheses
     PARAMETERS.addExpressionBracket(BracketPair.PARENTHESES);
   }
@@ -67,10 +77,16 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
       return o1 && o2;
     }
     
-    if (operator == IMP) {
+    if (operator == IMP || operator == IMP2) {
       Boolean o1 = operands.next();
       Boolean o2 = operands.next();
       return !o1 || o2;      
+    }
+    
+    if (operator == DOUBLE_IMP || operator == DOUBLE_IMP2) {
+      Boolean o1 = operands.next();
+      Boolean o2 = operands.next();
+      return (!o1 || o2) && (o1 || !o2);
     }
     
     return super.evaluate(operator, operands, evaluationContext);

@@ -57,18 +57,18 @@ public class BDDPrinter {
 
     protected void createTree(GraphViz graph, Vertex v, String pathName) {
         if (v.index > 1) {
-            Vertex low = bdd.T.get(v.low);
-            Vertex high = bdd.T.get(v.high);
+            Vertex low = bdd.T.get(v.low());
+            Vertex high = bdd.T.get(v.high());
             this.createTree(graph, low, pathName + "L");
             this.createTree(graph, high, pathName + "H");
-            String lowEdgeKey = v.index + "-" + v.low;
+            String lowEdgeKey = v.index + "-" + v.low();
             String vName = getVertexName(v, pathName);
             if (!edgeCache.containsKey(lowEdgeKey)) {
                 edgeCache.put(lowEdgeKey, true);
                 String lowName = getVertexName(low, pathName + "L");
                 graph.addln("\"" + vName + "\" -> \"" + lowName + "\" [dir=\"forward\" arrowtype=\"normal\" style=\"dashed\"];");
             }
-            String highEdgeKey = v.index + "-" + v.high;
+            String highEdgeKey = v.index + "-" + v.high();
             if (!edgeCache.containsKey(highEdgeKey)) {
                 edgeCache.put(highEdgeKey, true);
                 String highName = getVertexName(high, pathName + "H");
