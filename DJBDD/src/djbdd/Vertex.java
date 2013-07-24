@@ -20,10 +20,10 @@ public class Vertex {
     public static final int NULL_INDEX = -1; 
     
     /** Unique key of the vertex in the hash T of the TBDD */
-    final int index;
+    public final int index;
     
     /** Index of the variable of this vertex in the variables */
-    int variable = NULL_INDEX;
+    public int variable = NULL_INDEX;
     
     /** Index of the low child of this vertex in the hash T of the TBDD */
     private int low = NULL_INDEX;

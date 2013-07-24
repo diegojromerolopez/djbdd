@@ -6,7 +6,7 @@ package djbdd;
 
 import net.astesana.javaluator.*;
 
-import java.util.Iterator;
+import java.util.*;
 
  
 /** An example of how to implement an evaluator from scratch.
@@ -97,7 +97,30 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     boolean result = evaluator.evaluate(expression);
     //System.out.println (expression+" = "+result);
     return result;
-    
   }
+  
+  /**
+   * Evaluate a given boolean logic function.
+   */
+  public static boolean evaluateFunction(String function, ArrayList<String> variables, ArrayList<Boolean> assignement){
+      String _function = function;
+      for(int i=0; i<variables.size(); i++){
+            String variable = variables.get(i);
+            String value = assignement.get(i)?"true":"false";
+            _function = _function.replaceAll(variable, value);
+      }
+      return BooleanEvaluator.run(_function);
+  }
+  
+  /**
+   * Evaluate a given boolean logic function.
+   */
+  public static boolean evaluateFunction(String function, String[] variables, Boolean[] assignement){
+      ArrayList<String> variablesList = new ArrayList<String>(Arrays.asList(variables));
+      ArrayList<Boolean> assignementList = new ArrayList<Boolean>(Arrays.asList(assignement));
+      return BooleanEvaluator.evaluateFunction(function, variablesList, assignementList);
+  }
+  
+  
 }
  

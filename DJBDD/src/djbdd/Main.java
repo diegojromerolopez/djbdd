@@ -4,6 +4,12 @@
  */
 package djbdd;
 
+import djbdd.timemeasurer.TimeMeasurer;
+import djbdd.io.*;
+import djbdd.io.BDDDimacsLoader;
+import djbdd.io.BDDPrinter;
+import djbdd.test.Tester;
+import djbdd.io.BDDSheFileLoader;
 import java.util.*;
 
 /**
@@ -15,8 +21,8 @@ public class Main {
     /**
      * Load configuration for the loading of the DIMACS file from the commandline.
      */
-    private static DimacsLoaderConfiguration loadDimacsConfig(String[] args){
-        DimacsLoaderConfiguration config = new DimacsLoaderConfiguration();
+    private static FileLoaderConfiguration loadDimacsConfig(String[] args){
+        FileLoaderConfiguration config = new FileLoaderConfiguration();
         String text = "Printing a BDD from a dimacs file";
         // Print in file?
         config.outputInFile = args.length >= 4 && args[3].equals("file");
@@ -46,9 +52,9 @@ public class Main {
         if (args.length >= 7 && args[6].matches("\\d+")) {
             config.numberOfClausules = Integer.parseInt(args[6]);
             if (config.numberOfClausules <= 0) {
-                config.numberOfClausules = DimacsLoaderConfiguration.ALL_CLAUSULES;
+                config.numberOfClausules = FileLoaderConfiguration.ALL_CLAUSULES;
             }
-            if(config.numberOfClausules != DimacsLoaderConfiguration.ALL_CLAUSULES)
+            if(config.numberOfClausules != FileLoaderConfiguration.ALL_CLAUSULES)
                 text += " and getting " + config.numberOfClausules + " clausules. ";
             else
                 text += " and getting all clausules. ";
@@ -63,8 +69,8 @@ public class Main {
     /**
      * Load configuration for the loading of the S. She file from the commandline.
      */
-    private static SheLoaderConfiguration loadSheConfig(String[] args){
-        SheLoaderConfiguration config = new SheLoaderConfiguration();
+    private static FileLoaderConfiguration loadSheConfig(String[] args){
+        FileLoaderConfiguration config = new FileLoaderConfiguration();
         String text = "Printing a BDD from a S. She file";
         // Print in file?
         config.outputInFile = args.length >= 4 && args[3].equals("file");
@@ -89,9 +95,9 @@ public class Main {
         if (args.length >= 6 && args[5].matches("\\d+")) {
             config.numberOfClausules = Integer.parseInt(args[5]);
             if (config.numberOfClausules <= 0) {
-                config.numberOfClausules = DimacsLoaderConfiguration.ALL_CLAUSULES;
+                config.numberOfClausules = FileLoaderConfiguration.ALL_CLAUSULES;
             }
-            if(config.numberOfClausules != DimacsLoaderConfiguration.ALL_CLAUSULES)
+            if(config.numberOfClausules != FileLoaderConfiguration.ALL_CLAUSULES)
                 text += " and getting " + config.numberOfClausules + " clausules. ";
             else
                 text += " and getting all clausules. ";
@@ -136,7 +142,7 @@ public class Main {
      * @see BDD
      * @param filename Name of the file containing the CNF in dimacs format.
      */
-    private static void printDimacsFile(String filename, DimacsLoaderConfiguration config){
+    private static void printDimacsFile(String filename, FileLoaderConfiguration config){
         TimeMeasurer t = new TimeMeasurer("dimacs loading");
         BDDDimacsLoader loader = new BDDDimacsLoader(filename);
         System.out.println(config.text);
@@ -157,7 +163,7 @@ public class Main {
      * @see BDD
      * @param filename Name of the file containing the CNF in dimacs format.
      */
-    private static void printSheFile(String filename, SheLoaderConfiguration config){
+    private static void printSheFile(String filename, FileLoaderConfiguration config){
         TimeMeasurer t = new TimeMeasurer("She loading");
         BDDSheFileLoader loader = new BDDSheFileLoader(filename);
         System.out.println(config.text);
@@ -184,6 +190,15 @@ public class Main {
         BDD bdd = new BDD(fmla, variables);
         BDDPrinter printer = new BDDPrinter(bdd);
         printer.print("./"+fmla);
+    }
+    
+    protected static void extractOrderSheFile(String filename, FileLoaderConfiguration config){
+        TimeMeasurer t = new TimeMeasurer("She extracting");
+        OrderExtractor extractor = new OrderExtractor(filename, filename+"ordered");
+        System.out.println(config.text);
+        extractor.run(config);
+        t.end();
+        t.show();
     }
     
     /**
@@ -236,12 +251,29 @@ public class Main {
                     Main.printFmla(args[2], variables);
                 }
                 else if(args[1].equalsIgnoreCase("dimacs")){
-                    DimacsLoaderConfiguration config = loadDimacsConfig(args);
+                    FileLoaderConfiguration config = loadDimacsConfig(args);
                     Main.printDimacsFile(args[2], config);
                 }
                 else if(args[1].equalsIgnoreCase("she")){
-                    SheLoaderConfiguration config = loadSheConfig(args);
+                    FileLoaderConfiguration config = loadSheConfig(args);
                     Main.printSheFile(args[2], config);
+                }
+                else{
+                    System.out.println("You are not using this software correctly");
+                }
+        }else if(option.equals("--extractorder")){
+            text = "Printing a formula";
+                if(args[1].equalsIgnoreCase("fmla")){
+                    text += " get from commandline";
+                    System.out.println("TODO");
+                }
+                else if(args[1].equalsIgnoreCase("dimacs")){
+                    FileLoaderConfiguration config = loadDimacsConfig(args);
+                    //Main.extractDimacsFile(args[2], config);
+                }
+                else if(args[1].equalsIgnoreCase("she")){
+                    FileLoaderConfiguration config = loadSheConfig(args);
+                    Main.extractOrderSheFile(args[2], config);
                 }
                 else{
                     System.out.println("You are not using this software correctly");
