@@ -18,7 +18,7 @@ class BDDSheFileLoaderThread implements Runnable {
     private int index;
     private ArrayList<String> formulas;
     private ArrayList<String> variables;
-    private boolean verbose = false;
+    private boolean verbose = true;
     private BDD bdd;
      
     public BDDSheFileLoaderThread(int index, ArrayList<String> formulas, ArrayList<String> variables){
@@ -42,7 +42,8 @@ class BDDSheFileLoaderThread implements Runnable {
     public void run() {
         String[] _variables = variables.toArray(new String[variables.size()]);
         String[] _variable_order = getVariableOrder(formulas.get(0));
-        bdd = BDD.factoryWithBetterVariableOrder(formulas.get(0), _variables, _variable_order);
+        bdd = new BDD(formulas.get(0), _variables, _variable_order);
+        bdd.print();
         if(verbose){
             System.out.println("\n[Thread "+this.index+"] Formula "+(1)+"/"+formulas.size()+": "+formulas.get(0));
         }
@@ -54,12 +55,17 @@ class BDDSheFileLoaderThread implements Runnable {
             if(verbose){
                 System.out.println("[Thread "+this.index+"] Formula "+(i+1)+"/"+formulas.size()+": "+formulaI);
             }
-            _variable_order = getVariableOrder(formulaI);
-            BDD bddI = BDD.factoryWithBetterVariableOrder(formulaI, _variables, _variable_order);
+            //_variable_order = getVariableOrder(formulaI);
+            //BDD bddI = new BDD(formulaI, _variables, _variable_order);
+            TimeMeasurer t2 = new TimeMeasurer("\n[Thread "+this.index+"] BDD Creation "+(i+1)+"/"+formulas.size());
+            BDD bddI = new BDD(formulaI, variables);
+            t2.end().show();
+            TimeMeasurer t3 = new TimeMeasurer("\n[Thread "+this.index+"] BDD APPLY "+(i+1)+"/"+formulas.size());
             BDD bddRes = bdd.apply("and",bddI);
             bdd = bddRes;
-            t.end();
-            t.show();
+            bdd.print();
+            t3.end().show();
+            t.end().show();
         }
     }
     
@@ -100,7 +106,8 @@ public class BDDSheFileLoader {
     public ArrayList<String> formulas;
     public ArrayList<String> original_formulas;
     public ArrayList<String> bdd_formulas;
-    final static String END_VAR = "#";
+    final static String START_VAR = "{";
+    final static String END_VAR = "}";
     
     public String[] getVariableOrder(String function){
         ArrayList<String> variable_order = new ArrayList<String>(variables.size());
@@ -146,7 +153,7 @@ public class BDDSheFileLoader {
                   if(line.charAt(0)=='@')
                   {
                       String[] content = line.split(" ");
-                      String variable = content[1]+END_VAR;
+                      String variable = START_VAR+content[1]+END_VAR;
                       variables.add(variable);
                       named_variables.add(variable);
                       numVariables++;
@@ -156,7 +163,7 @@ public class BDDSheFileLoader {
                   else if(line.charAt(0)=='$')
                   {
                       String[] content = line.split(" ");
-                      String variable = content[1]+END_VAR;
+                      String variable = START_VAR+content[1]+END_VAR;
                       variables.add(variable);
                       integer_variables.add(variable);
                       numVariables++;
@@ -167,20 +174,26 @@ public class BDDSheFileLoader {
                   {
                     String formula = line.trim();
                     original_formulas.add(formula);
-                    //System.out.println(formulaI);
-                    String formulaI = formula.replaceAll("([^\\w\\d]+)(0)([^\\w\\d]+)", "$1 false $3");
-                    formulaI = formula.replaceAll("([^\\w\\d]+)(1)([^\\w\\d]+)", "$1 true $3");
-                    formulaI = formulaI.replaceAll("\\|", " || ");
-                    formulaI = formulaI.replaceAll("&", " && ");
-                    formulaI = formulaI.replaceAll("([^\\w_]+)([0-9]+)([^\\w_]+)", "$1 x$2"+END_VAR+"$3");
-                    formulaI = formulaI.replaceAll("([\\w_\\d]+)", "$1"+END_VAR);
-                    formulaI = formulaI.replaceAll(END_VAR+END_VAR,END_VAR);
-                    formulaI = formulaI.replaceAll("(true|false)"+END_VAR,"$1");
+                    System.out.println(formula);
+                    String formulaI = formula;//formula.replaceAll("([^\\w\\d]+)(0)([^\\w\\d]+)", "$1 false $3");
+                    //formulaI = formula.replaceAll("([^\\w\\d]+)(1)([^\\w\\d]+)", "$1 true $3");
+                    formulaI = formulaI.replace("|", " || ");
+                    formulaI = formulaI.replace("&", " && ");
+                    formulaI = formulaI.replaceAll("([^\\w_]+)([1-9]+)([^\\w_]+)", "$1 "+START_VAR+"x$2"+END_VAR+"$3");
+                    formulaI = formulaI.replaceAll("([\\w_\\d]+)", START_VAR+"$1"+END_VAR);
+                    formulaI = formulaI.replace(END_VAR+END_VAR,END_VAR);
+                    formulaI = formulaI.replace(START_VAR+"0"+END_VAR," false ");
+                    formulaI = formulaI.replace(START_VAR+"1"+END_VAR," true ");
+                    formulaI = formulaI.replace(START_VAR+"false"+END_VAR," false ");
+                    formulaI = formulaI.replace(START_VAR+"true"+END_VAR," true ");
+                    
+                    formulaI = formulaI.replaceAll(Pattern.quote(START_VAR)+"([\\w\\d_]+)"+Pattern.quote(END_VAR)+"\\s*\\|\\|\\s*true\\s*","true");
+                    //formulaI = formulaI.replaceAll("(true|false)"+END_VAR,"$1");
                     //System.out.println(formulaI);
                     //System.exit(-1);
                     formulas.add(formulaI);
                     if(config.verbose){
-                        System.out.println("Extracting clausule: "+(formulaIndex)+" / "+numClausules);
+                        System.out.println("Extracting clausule: "+(formulaIndex)+" / "+numClausules+": "+formulaI);
                     }
                     formulaIndex++;
                     if(formulaIndex > numClausules && numClausules!=-1)
@@ -274,7 +287,7 @@ public class BDDSheFileLoader {
         executor.shutdown();
         while (!executor.isTerminated()) {
         }
-        //System.out.println("Finished all threads");
+        
         
         for(int i=0; i<workers.size(); i++){
             BDD bddI = workers.get(i).getBDD();
@@ -285,7 +298,7 @@ public class BDDSheFileLoader {
                 bddI.toFile("bdd_"+i+".txt");
             }
         }
-        
+        System.out.println("Finished all threads");
         BDD bdd = workers.get(0).getBDD();
         for(int i=1; i<workers.size(); i++){
             BDD bddI = workers.get(1).getBDD();

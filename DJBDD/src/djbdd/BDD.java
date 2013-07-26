@@ -23,6 +23,9 @@ public class BDD {
     /** String representation of the boolean logic function of this BDD */
     public final String function;
     
+    /** Should we simplify the logic formulas */
+    public static final boolean SIMPLIFY_FORMULAS = false;
+    
     /** All the variables that will be know by this BDD in no particular order */
     public ArrayList<String> variables;
     
@@ -377,8 +380,8 @@ public class BDD {
      * @param variables Name of the variables and order of them in the BDD.
      * @param variable_ordering Order of the variables given this way: variable_ordering[i]=j => jth variable is in ith position.
      */
-    private void init(String function_str, ArrayList<String> variables, ArrayList<Integer> variable_ordering){
-        //TimeMeasurer t = new TimeMeasurer("BDD constructor");
+    private void init(ArrayList<String> variables, ArrayList<Integer> variable_ordering){
+        TimeMeasurer t = new TimeMeasurer(" ::::::::::::. BDD constructor "+this.function+".::::::::::::");
         //TimeMeasurer _t = new TimeMeasurer(" :::::::: BDD preprocess :::::::");
         //this.function = function_str;
         this.initVariableParameters(variables, variable_ordering);
@@ -394,20 +397,22 @@ public class BDD {
         //T.put(0, this.False);
         //T.put(1, this.True);
         // Generation of the BDD tree
-        ArrayList<Boolean> path = new ArrayList<Boolean>();
+        ArrayList<Boolean> path = new ArrayList<Boolean>(this.present_variable_indices.size());
         HashMap<String,Vertex> U = new HashMap<String,Vertex>();
+        
+        // If the formula can be evaluated to true without creating all the tree
+        // is a truth BDD, containing only the True vertex
         this.generateTreeFunction(path, U);
         //_t.end();
         //_t.show();
         //this.print();
         // Reduction of the BDD tree
         this.reduce();
-        if(T.keySet().size() == 1){
-            this.isTautology =  T.get(1)==this.True;
-            this.isContradiction = T.get(0)==this.False;
+        if (T.keySet().size() == 1) {
+            this.isTautology = T.get(1) == this.True;
+            this.isContradiction = T.get(0) == this.False;
         }
-        //t.end();
-        //t.show();    
+        t.end().show();
     }
     
     /**
@@ -416,14 +421,17 @@ public class BDD {
      * @param variables Name of the variables and order of them in the BDD.
      */
     public BDD(String function_str, ArrayList<String> variables){
-        this.function = function_str;
+        if(BDD.SIMPLIFY_FORMULAS)
+            this.function = BooleanSimplifier.simplifyFormula(function_str);
+        else
+            this.function = function_str;
         // We use the trivial ordering,
         // that is the ith variable has the ith position
         ArrayList<Integer> trivial_variable_ordering = new ArrayList<Integer>(variables.size());
         for(int i=0; i<variables.size(); i++)
             trivial_variable_ordering.add(i);
         // Init the BDD
-        this.init(function_str, variables, trivial_variable_ordering);
+        this.init(variables, trivial_variable_ordering);
     }
     
     /**
@@ -433,8 +441,11 @@ public class BDD {
      * @param variable_ordering Order of the variables identified each one by its index, so if variable_ordering[i] = j, jth variable comes in ith position.
      */
     public BDD(String function_str, ArrayList<String> variables, ArrayList<Integer> variable_ordering){
-        this.function = function_str;
-        this.init(function_str, variables, variable_ordering);
+        if(BDD.SIMPLIFY_FORMULAS)
+            this.function = BooleanSimplifier.simplifyFormula(function_str);
+        else
+            this.function = function_str;
+        this.init(variables, variable_ordering);
     }
 
     /**
@@ -444,10 +455,13 @@ public class BDD {
      * @param variable_ordering Order of the variables identified each one by its index, so if variable_ordering[i] = j, jth variable comes in ith position.
      */
     public BDD(String function_str, String[] variables, Integer[] variable_ordering){
-        this.function = function_str;
+        if(BDD.SIMPLIFY_FORMULAS)
+            this.function = BooleanSimplifier.simplifyFormula(function_str);
+        else
+            this.function = function_str;
         ArrayList<String> variable_list = new ArrayList<String>(Arrays.asList(variables));
         ArrayList<Integer> variable_ordering_list = new ArrayList<Integer>(Arrays.asList(variable_ordering));
-        this.init(function_str, variable_list, variable_ordering_list);
+        this.init(variable_list, variable_ordering_list);
     }
     
     /**
@@ -457,7 +471,10 @@ public class BDD {
      * @param variable_ordering Order of the variables identified its position. Thats it, if variable_order_by_position[i] = "a", variable "a" is in ith position.
      */
     public BDD(String function_str, String[] variables, String[] variable_order_by_position){
-        this.function = function_str;
+        if(BDD.SIMPLIFY_FORMULAS)
+            this.function = BooleanSimplifier.simplifyFormula(function_str);
+        else
+            this.function = function_str;
         ArrayList<String> variable_list = new ArrayList<String>(Arrays.asList(variables));
         ArrayList<Integer> variable_ordering_list = new ArrayList<Integer>(variable_order_by_position.length);
         for(int i=0; i<variable_order_by_position.length; i++){
@@ -466,7 +483,7 @@ public class BDD {
         }
         //System.out.println(variable_list);
         //System.out.println(variable_ordering_list);
-        this.init(function_str, variable_list, variable_ordering_list);
+        this.init(variable_list, variable_ordering_list);
         /*System.out.println(this.variables);
         System.out.println(this.variable_ordering);
         System.out.println(this.present_variable_indices);
@@ -480,7 +497,10 @@ public class BDD {
      * @param hash_variable_ordering Order of the variables identified each one by its name, so if variable_ordering[x134] = i, x134 is in ith position.
      */
     public BDD(String function_str, ArrayList<String> variables, HashMap<String,Integer> hash_variable_ordering){
-        this.function = function_str;
+        if(BDD.SIMPLIFY_FORMULAS)
+            this.function = BooleanSimplifier.simplifyFormula(function_str);
+        else
+            this.function = function_str;
         ArrayList<Integer> _variable_ordering = new ArrayList<Integer>(variables.size());
         // Create initial elements
         for(int i=0; i<variables.size(); i++){
@@ -493,7 +513,7 @@ public class BDD {
             _variable_ordering.set(position, variable_index);
         }
         // Initialize variable parameters
-        this.init(function_str, variables, _variable_ordering);
+        this.init(variables, _variable_ordering);
     }
     
     /**
@@ -505,7 +525,10 @@ public class BDD {
      */
     public BDD(TableT T, String function_str, ArrayList<String> variables, ArrayList<Integer> variable_ordering){
         //TimeMeasurer t = new TimeMeasurer("BDD constructor from T");
-        this.function = function_str;
+        if(BDD.SIMPLIFY_FORMULAS)
+            this.function = BooleanSimplifier.simplifyFormula(function_str);
+        else
+            this.function = function_str;
         this.initVariableParameters(variables, variable_ordering);
         // Leaf vertices
         this.False = T.get(0);

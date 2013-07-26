@@ -4,6 +4,8 @@
  */
 package djbdd;
 
+import djbdd.timemeasurer.TimeMeasurer;
+
 import java.util.*;
 
 /**
@@ -211,6 +213,7 @@ public class BDDApply {
      * @return BDD BDD Tree with the operatian computed for bdd1 and bdd2.
      */
     public BDD run(){
+        TimeMeasurer t = new TimeMeasurer("========= apply =========");
         // Cache to avoid repeated computations
         this.G = new HashMap<String,Vertex>();
         
@@ -229,6 +232,8 @@ public class BDDApply {
         
         // Construction of new BDD
         this.bdd = new BDD(this.T, function, bdd1.variables, bdd1.variable_ordering);
+        
+        t.end().show();
         
         // Return the new BDD computed
         return this.bdd;
