@@ -23,9 +23,6 @@ public class BDD {
     /** String representation of the boolean logic function of this BDD */
     public final String function;
     
-    /** Should we simplify the logic formulas */
-    public static final boolean SIMPLIFY_FORMULAS = false;
-    
     /** All the variables that will be know by this BDD in no particular order */
     public ArrayList<String> variables;
     
@@ -421,10 +418,7 @@ public class BDD {
      * @param variables Name of the variables and order of them in the BDD.
      */
     public BDD(String function_str, ArrayList<String> variables){
-        if(BDD.SIMPLIFY_FORMULAS)
-            this.function = BooleanSimplifier.simplifyFormula(function_str);
-        else
-            this.function = function_str;
+        this.function = function_str;
         // We use the trivial ordering,
         // that is the ith variable has the ith position
         ArrayList<Integer> trivial_variable_ordering = new ArrayList<Integer>(variables.size());
@@ -441,10 +435,7 @@ public class BDD {
      * @param variable_ordering Order of the variables identified each one by its index, so if variable_ordering[i] = j, jth variable comes in ith position.
      */
     public BDD(String function_str, ArrayList<String> variables, ArrayList<Integer> variable_ordering){
-        if(BDD.SIMPLIFY_FORMULAS)
-            this.function = BooleanSimplifier.simplifyFormula(function_str);
-        else
-            this.function = function_str;
+        this.function = function_str;
         this.init(variables, variable_ordering);
     }
 
@@ -455,10 +446,7 @@ public class BDD {
      * @param variable_ordering Order of the variables identified each one by its index, so if variable_ordering[i] = j, jth variable comes in ith position.
      */
     public BDD(String function_str, String[] variables, Integer[] variable_ordering){
-        if(BDD.SIMPLIFY_FORMULAS)
-            this.function = BooleanSimplifier.simplifyFormula(function_str);
-        else
-            this.function = function_str;
+        this.function = function_str;
         ArrayList<String> variable_list = new ArrayList<String>(Arrays.asList(variables));
         ArrayList<Integer> variable_ordering_list = new ArrayList<Integer>(Arrays.asList(variable_ordering));
         this.init(variable_list, variable_ordering_list);
@@ -471,10 +459,7 @@ public class BDD {
      * @param variable_ordering Order of the variables identified its position. Thats it, if variable_order_by_position[i] = "a", variable "a" is in ith position.
      */
     public BDD(String function_str, String[] variables, String[] variable_order_by_position){
-        if(BDD.SIMPLIFY_FORMULAS)
-            this.function = BooleanSimplifier.simplifyFormula(function_str);
-        else
-            this.function = function_str;
+        this.function = function_str;
         ArrayList<String> variable_list = new ArrayList<String>(Arrays.asList(variables));
         ArrayList<Integer> variable_ordering_list = new ArrayList<Integer>(variable_order_by_position.length);
         for(int i=0; i<variable_order_by_position.length; i++){
@@ -497,10 +482,7 @@ public class BDD {
      * @param hash_variable_ordering Order of the variables identified each one by its name, so if variable_ordering[x134] = i, x134 is in ith position.
      */
     public BDD(String function_str, ArrayList<String> variables, HashMap<String,Integer> hash_variable_ordering){
-        if(BDD.SIMPLIFY_FORMULAS)
-            this.function = BooleanSimplifier.simplifyFormula(function_str);
-        else
-            this.function = function_str;
+        this.function = function_str;
         ArrayList<Integer> _variable_ordering = new ArrayList<Integer>(variables.size());
         // Create initial elements
         for(int i=0; i<variables.size(); i++){
@@ -525,10 +507,7 @@ public class BDD {
      */
     public BDD(TableT T, String function_str, ArrayList<String> variables, ArrayList<Integer> variable_ordering){
         //TimeMeasurer t = new TimeMeasurer("BDD constructor from T");
-        if(BDD.SIMPLIFY_FORMULAS)
-            this.function = BooleanSimplifier.simplifyFormula(function_str);
-        else
-            this.function = function_str;
+        this.function = function_str;
         this.initVariableParameters(variables, variable_ordering);
         // Leaf vertices
         this.False = T.get(0);
