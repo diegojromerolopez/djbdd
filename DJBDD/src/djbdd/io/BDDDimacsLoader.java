@@ -89,7 +89,7 @@ public class BDDDimacsLoader {
         for(int i=1; i<=numVariables; i++)
             variables.add("x"+i+"_");
         
-        BDD bdd = new BDD(formula, variables);
+        BDD bdd = new BDD(formula, variables, false);
         return bdd;
     }
    
@@ -194,14 +194,14 @@ public class BDDDimacsLoader {
             }
         }
         
-        BDD bdd = new BDD(bdd_formula.get(0),variables);
+        BDD bdd = new BDD(bdd_formula.get(0),variables, config.useApplyInCreation);
         for(int i=1; i<bdd_formula.size(); i++){
             String formulaI = bdd_formula.get(i);
             if(config.verbose){
                 System.out.println("Formula "+i+": "+formulaI);
                 System.out.println((i+1)+"/"+bdd_formula.size());
             }
-            BDD bddI = new BDD(formulaI, variables);
+            BDD bddI = new BDD(formulaI, variables, config.useApplyInCreation);
             /*
             if(bddI == null){
                 System.out.println("bddI es null");

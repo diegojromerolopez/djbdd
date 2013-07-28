@@ -31,7 +31,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.*;
 
 /**
  * <dl>
@@ -278,7 +280,42 @@ public class GraphViz
 		   dis.close();
 	   } 
 	   catch (Exception e) {
-		   System.err.println("Error: " + e.getMessage());
+               e.printStackTrace();
+	       System.err.println("Error: " + e.getMessage());
+	   }
+	   
+	   this.graph = sb;
+   }
+   
+   
+      /**
+    * Read a DOT graph from a text file.
+    * 
+    * @param input Input text file containing the DOT graph
+    * source.
+    */
+   public void readString(String input)
+   {
+	   StringBuilder sb = new StringBuilder();
+	   
+	   try
+	   {
+		   //FileInputStream fis = new FileInputStream(input);
+		   //DataInputStream dis = new DataInputStream(fis);
+                   InputStream is = new ByteArrayInputStream(input.getBytes());
+                   BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+		   //BufferedReader br = new BufferedReader(new InputStreamReader(dis));
+		   
+                   String line;
+		   while ((line = br.readLine()) != null) {
+                       if(!line.equals("\\n"))
+			   sb.append(line);
+		   }
+		   //dis.close();
+	   } 
+	   catch (Exception e) {
+               e.printStackTrace();
+	       System.err.println("Error: " + e.getMessage());
 	   }
 	   
 	   this.graph = sb;

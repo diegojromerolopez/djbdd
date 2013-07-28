@@ -5,9 +5,16 @@
 package djbdd;
 
 import djbdd.timemeasurer.TimeMeasurer;
+import djbdd.logic.*;
+import org.antlr.runtime.tree.*;
+
 import java.util.*;
 import java.io.*;
 import java.util.regex.*;
+
+import org.antlr.runtime.*;
+import org.antlr.runtime.tree.*;
+import org.antlr.stringtemplate.*;
 
 //import org.mvel2.MVEL;
 
@@ -17,11 +24,18 @@ import java.util.regex.*;
  * @author diegoj
  */
 public class BDD {
+    
+    /** Maximum number of variables accepted in recursive creation */
+    public static final int MAX_NUMBER_OF_VARIABLES_TO_LAUNCH_RECURSIVE_CREATION = 100;
+    
+    /** Use apply operation in constructor */
+    public static final boolean USE_APPLY_IN_CONSTRUCTOR = false;
+    
     /** Name of this BDD */
     String name = "";
     
     /** String representation of the boolean logic function of this BDD */
-    public final String function;
+    public String function;
     
     /** All the variables that will be know by this BDD in no particular order */
     public ArrayList<String> variables;
@@ -41,7 +55,7 @@ public class BDD {
     public TableT T;
     
     /** Hash table useful for doing apply */
-    public HashMap<String,Vertex> H;
+    public HashMap<String,Vertex> U;
 
     /** Root of the BDD tree */
     Vertex root = null;
@@ -58,6 +72,21 @@ public class BDD {
     /** Informs if this BDD is a contradiction (always false) */
     boolean isContradiction = false;
 
+    
+    private void assign(BDD bdd){
+        this.name = bdd.name;
+        this.function = bdd.function;
+        this.variables = bdd.variables;
+        this.variable_existence = bdd.variable_existence;
+        this.variable_ordering = bdd.variable_ordering;
+        this.present_variable_indices = bdd.present_variable_indices;
+        this.T = bdd.T;
+        this.U = bdd.U;
+        this.True = bdd.True;
+        this.False = bdd.False;
+        this.isTautology = bdd.isTautology;
+        this.isContradiction = bdd.isContradiction;
+    }
     
     /**************************************************************************/
     /**************************************************************************/
@@ -159,6 +188,53 @@ public class BDD {
             return null;
     }
     
+    
+    
+   private static BDD generateTreeFromAST(CommonTree tree, ArrayList<String> variables) {
+      int childCount = tree.getChildCount();
+      if (childCount == 0) {
+          //System.out.println("Leaf " + tree.getText());
+          return new BDD(tree.getText(), variables, false);
+      }
+      
+      String op = tree.getText();
+      //System.out.println("OP es "+op);
+      List<CommonTree> children = (List<CommonTree>) tree.getChildren();
+      ArrayList<BDD> bdds = new ArrayList<BDD>(childCount);
+      for (CommonTree child : children) {
+          BDD bddI = BDD.generateTreeFromAST(child, variables);
+          //System.out.println("Función "+bddI.function);
+          bdds.add(bddI);
+      }
+      BDD bdd = bdds.get(0);
+      for(int i=1; i<bdds.size(); i++){
+          BDD bddI = bdds.get(i);
+          BDD bddRes = bdd.apply(op, bddI);
+          bdd = bddRes;
+          bdd.reduce();
+      }
+      //bdd.print();
+      return bdd;
+    }
+   
+    private void generateTreeUsingApply(){
+        if(this.function.charAt(0)=='(' && this.function.charAt(this.function.length()-1)==')')
+            this.function = this.function.substring(1, this.function.length()-1);
+        
+        LogicLexer lexer = new LogicLexer(new ANTLRStringStream(this.function));
+        LogicParser parser = new LogicParser(new CommonTokenStream(lexer));
+        
+        // invoke the entry point of the parser (the parse() method) and get the AST
+        CommonTree tree = null;
+        try{
+            tree = (CommonTree)parser.parse().getTree();
+        }catch(Exception e){
+            System.err.println("Parsing of the expression "+this.function+" has failed. Detailed report:");
+            e.printStackTrace();
+        }
+        BDD bdd = BDD.generateTreeFromAST(tree, this.variables);
+        this.assign(bdd);
+    }
     
     /**************************************************************************/
     /**************************************************************************/
@@ -266,39 +342,6 @@ public class BDD {
     
     
     /**
-     * Assigns consecutive indices to the vertex.
-     * It has no computational purpose, only estetic one. 
-     */
-    /*
-    private void assignNewIndices(){
-        ArrayList<Integer> vertixKeys = new ArrayList<Integer>(this.T.keySet());
-        int i = 2;
-        for(Integer k : vertixKeys){
-            if(k > 1)
-            {
-                Vertex v = this.T.get(k);
-                T.remove(k);
-                for(Integer k2 : vertixKeys)
-                {
-                    if(k2 != k && T.containsKey(k2))
-                    {
-                        //System.out.println("Para el vértice "+k2+" sustituimos "+k+" -> "+i);
-                        //System.out.flush();
-                        Vertex other = T.get(k2);
-                        if(other.high() == k)
-                            other.setHigh(i);
-                        if(other.low() == k)
-                            other.setLow(i);
-                    }
-                }
-                v.index = i;
-                T.put(i, v);
-                i++;
-            }
-        }
-    }*/
-    
-    /**
      * Assign the root of the BDD.
      */
     private void assignRoot(){
@@ -309,17 +352,12 @@ public class BDD {
     /**
      * Updates the H table.
      */
-    private void updateH(){
+    private void updateU(){
         //System.out.flush();
-        this.H = new HashMap<String,Vertex>();
-        ArrayList<Integer>  indices = new ArrayList<Integer>(this.T.keySet());
-        for(Integer index : indices){
-            Vertex v = this.T.get(index);
-            String vKey = v.keyH();
-            //System.out.println(vKey +" -> "+v.toString());
-            this.H.put(vKey, v);
+        this.U = new HashMap<String,Vertex>();
+        for(Vertex v : this.T.getVertices()){
+            this.U.put(v.uniqueKey(),v);
         }
-        //System.out.flush();
     }
     
     /**
@@ -333,8 +371,18 @@ public class BDD {
             change = change || this.deleteDuplicateVertices();
         }while(change);
         //this.assignNewIndices();
-        // Asignamos H
-        this.updateH();
+        // Asignamos U
+        this.updateU();
+        // Asignamos la raiz
+        this.assignRoot();
+        t.end().show();
+    }
+    
+    private void reduceForApply(){
+        TimeMeasurer t = new TimeMeasurer("********* REDUCE FOR APPLY *********");
+        //this.assignNewIndices();
+        // Asignamos U
+        this.updateU();
         // Asignamos la raiz
         this.assignRoot();
         t.end().show();
@@ -376,8 +424,9 @@ public class BDD {
      * @param function_str String containing the boolean formula. Use Java representation of the formula. Don't forget using parentheses.
      * @param variables Name of the variables and order of them in the BDD.
      * @param variable_ordering Order of the variables given this way: variable_ordering[i]=j => jth variable is in ith position.
+     * @param useApplyInCreation 
      */
-    private void init(ArrayList<String> variables, ArrayList<Integer> variable_ordering){
+    private void init(ArrayList<String> variables, ArrayList<Integer> variable_ordering, boolean useApplyInCreation){
         TimeMeasurer t = new TimeMeasurer(" ::::::::::::. BDD constructor "+this.function+".::::::::::::");
         //TimeMeasurer _t = new TimeMeasurer(" :::::::: BDD preprocess :::::::");
         //this.function = function_str;
@@ -399,7 +448,11 @@ public class BDD {
         
         // If the formula can be evaluated to true without creating all the tree
         // is a truth BDD, containing only the True vertex
-        this.generateTreeFunction(path, U);
+        if(!useApplyInCreation)// && this.present_variable_indices.size() < MAX_NUMBER_OF_VARIABLES_TO_LAUNCH_RECURSIVE_CREATION)
+            this.generateTreeFunction(path, U);
+        else{
+            this.generateTreeUsingApply();
+        }
         //_t.end();
         //_t.show();
         //this.print();
@@ -417,7 +470,7 @@ public class BDD {
      * @param function_str String containing the boolean formula. Use Java representation of the formula. Don't forget using parentheses.
      * @param variables Name of the variables and order of them in the BDD.
      */
-    public BDD(String function_str, ArrayList<String> variables){
+    public BDD(String function_str, ArrayList<String> variables, boolean useApplyInCreation){
         this.function = function_str;
         // We use the trivial ordering,
         // that is the ith variable has the ith position
@@ -425,7 +478,7 @@ public class BDD {
         for(int i=0; i<variables.size(); i++)
             trivial_variable_ordering.add(i);
         // Init the BDD
-        this.init(variables, trivial_variable_ordering);
+        this.init(variables, trivial_variable_ordering, useApplyInCreation);
     }
     
     /**
@@ -434,9 +487,9 @@ public class BDD {
      * @param variables Name of the variables and order of them in the BDD.
      * @param variable_ordering Order of the variables identified each one by its index, so if variable_ordering[i] = j, jth variable comes in ith position.
      */
-    public BDD(String function_str, ArrayList<String> variables, ArrayList<Integer> variable_ordering){
+    public BDD(String function_str, ArrayList<String> variables, ArrayList<Integer> variable_ordering, boolean useApplyInCreation){
         this.function = function_str;
-        this.init(variables, variable_ordering);
+        this.init(variables, variable_ordering, useApplyInCreation);
     }
 
     /**
@@ -445,11 +498,11 @@ public class BDD {
      * @param variables Name of the variables and order of them in the BDD.
      * @param variable_ordering Order of the variables identified each one by its index, so if variable_ordering[i] = j, jth variable comes in ith position.
      */
-    public BDD(String function_str, String[] variables, Integer[] variable_ordering){
+    public BDD(String function_str, String[] variables, Integer[] variable_ordering, boolean useApplyInCreation){
         this.function = function_str;
         ArrayList<String> variable_list = new ArrayList<String>(Arrays.asList(variables));
         ArrayList<Integer> variable_ordering_list = new ArrayList<Integer>(Arrays.asList(variable_ordering));
-        this.init(variable_list, variable_ordering_list);
+        this.init(variable_list, variable_ordering_list, useApplyInCreation);
     }
     
     /**
@@ -458,7 +511,7 @@ public class BDD {
      * @param variables Name of the variables and order of them in the BDD.
      * @param variable_ordering Order of the variables identified its position. Thats it, if variable_order_by_position[i] = "a", variable "a" is in ith position.
      */
-    public BDD(String function_str, String[] variables, String[] variable_order_by_position){
+    public BDD(String function_str, String[] variables, String[] variable_order_by_position, boolean useApplyInCreation){
         this.function = function_str;
         ArrayList<String> variable_list = new ArrayList<String>(Arrays.asList(variables));
         ArrayList<Integer> variable_ordering_list = new ArrayList<Integer>(variable_order_by_position.length);
@@ -468,7 +521,7 @@ public class BDD {
         }
         //System.out.println(variable_list);
         //System.out.println(variable_ordering_list);
-        this.init(variable_list, variable_ordering_list);
+        this.init(variable_list, variable_ordering_list, useApplyInCreation);
         /*System.out.println(this.variables);
         System.out.println(this.variable_ordering);
         System.out.println(this.present_variable_indices);
@@ -481,7 +534,7 @@ public class BDD {
      * @param variables Name of the variables and order of them in the BDD.
      * @param hash_variable_ordering Order of the variables identified each one by its name, so if variable_ordering[x134] = i, x134 is in ith position.
      */
-    public BDD(String function_str, ArrayList<String> variables, HashMap<String,Integer> hash_variable_ordering){
+    public BDD(String function_str, ArrayList<String> variables, HashMap<String,Integer> hash_variable_ordering, boolean useApplyInCreation){
         this.function = function_str;
         ArrayList<Integer> _variable_ordering = new ArrayList<Integer>(variables.size());
         // Create initial elements
@@ -495,7 +548,7 @@ public class BDD {
             _variable_ordering.set(position, variable_index);
         }
         // Initialize variable parameters
-        this.init(variables, _variable_ordering);
+        this.init(variables, _variable_ordering, useApplyInCreation);
     }
     
     /**
@@ -515,7 +568,7 @@ public class BDD {
         // HashMap
         this.T = T;
         // Reduction of the BDD tree
-        this.reduce();
+        this.reduceForApply();
         //t.end().show();
     }
     
@@ -523,7 +576,7 @@ public class BDD {
     /**************************************************************************/
     /**************************************************************************/
     
-    public static BDD factoryWithBetterVariableOrder(String function_str, String[] variables, String[] variable_order){
+    /*public static BDD factoryWithBetterVariableOrder(String function_str, String[] variables, String[] variable_order){
         BDD bdd = new BDD(function_str, variables, variable_order);
         int i=0;
         while(i<1){
@@ -537,7 +590,7 @@ public class BDD {
             i++;
         }
         return bdd;
-    }
+    }*/
     
     /**************************************************************************/
     /**************************************************************************/
@@ -546,11 +599,12 @@ public class BDD {
     public BDD apply(String op, BDD bdd2){
         try
         {
-            TimeMeasurer t = new TimeMeasurer("apply");
-            BDDApply applicator = new BDDApply(op, this, bdd2);
-            t.end();
-            t.show();          
-            return applicator.run();
+            TimeMeasurer t = new TimeMeasurer(" AAAAAAAAAAAAAAAAAAAAAAAA apply AAAAAAAAAAAAA");
+            BDDApply applicator = new BDDApply(op, this, bdd2);     
+            BDD bddRes = applicator.run();
+            bddRes.reduceForApply();
+            t.end().show();
+            return bddRes;
         }
         catch(Exception e)
         {

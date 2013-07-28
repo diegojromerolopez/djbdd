@@ -26,5 +26,7 @@ public class FileLoaderConfiguration {
       
     public boolean useApply = true;
     
+    public boolean useApplyInCreation = false;
+    
     public static final int ALL_CLAUSULES = -1;
 }

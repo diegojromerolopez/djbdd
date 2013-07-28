@@ -35,6 +35,9 @@ public class BDDApply {
     /** Cache table **/
     HashMap<String,Vertex> G;
     
+    /** Unique vertex table **/
+    HashMap<String,Vertex> U;
+    
     /** Resulting hash table containing the relations between vertices */
     TableT T;
     
@@ -199,11 +202,25 @@ public class BDDApply {
             high = this.app(v1.high(), v2.high());
         }
 
+        // Respect the non-redundant propierty:
+        // "No vertex shall be one whose low and high indices are the same."
+        if(low.index == high.index){
+            return low;
+        }
+        
+        // Respect the uniqueness propierty:
+        // "No vertex shall be one that contains same variable, low, high indices as other."
+        String uniqueVertexKey = Vertex.computeUniqueKey(var,low.index,high.index);
+        if(U.containsKey(uniqueVertexKey)){
+            return U.get(uniqueVertexKey);
+        }
+        
         // Create the resulting vertex
         int index = this.T.getNextKey();
         Vertex u = new Vertex(index, var, low.index, high.index);
         this.T.put(index, u);
-        G.put(key, u);
+        this.G.put(key, u);
+        this.U.put(uniqueVertexKey, u);
         return u;
     }
 
@@ -217,6 +234,12 @@ public class BDDApply {
         // Cache to avoid repeated computations
         this.G = new HashMap<String,Vertex>();
         
+        // Cache to avoid repeating vertices
+        this.U = new HashMap<String,Vertex>();
+        //this.U = bdd1.U;
+        //this.U.putAll(bdd2.U);
+        
+        
         // Table that contains the structure of or new BDD
         this.T = new TableT();
         
@@ -229,10 +252,8 @@ public class BDDApply {
         
         // Fill this.T with vertices of bdd1 and bdd2
         this.app(bdd1.root, bdd2.root);
-        
         // Construction of new BDD
         this.bdd = new BDD(this.T, function, bdd1.variables, bdd1.variable_ordering);
-        
         t.end().show();
         
         // Return the new BDD computed

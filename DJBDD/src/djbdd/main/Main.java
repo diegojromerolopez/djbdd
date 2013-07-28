@@ -188,7 +188,7 @@ public class Main {
      * @param ArrayList<String> variables Variables used in the formula. Note that this parameter gives the order of them.
      */
     protected static void printFmla(String fmla, ArrayList<String> variables){
-        BDD bdd = new BDD(fmla, variables);
+        BDD bdd = new BDD(fmla, variables, false);
         BDDPrinter printer = new BDDPrinter(bdd);
         printer.print("./"+fmla);
     }

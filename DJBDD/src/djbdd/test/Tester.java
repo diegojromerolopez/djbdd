@@ -40,24 +40,26 @@ public class Tester {
         variable_ordering.add(1);// b
         variable_ordering.add(4);// e
         variable_ordering.add(5);// f
+        boolean useApplyInCreation = false;
         // Construction of the BDD
-        BDD bdd = new BDD(function, variables, variable_ordering);
+        BDD bdd = new BDD(function, variables, variable_ordering, useApplyInCreation);
         bdd.print();
         BDDPrinter.printBDD(bdd, "test0_"+bdd.variable_ordering.toString());
     }
     
     public static void test1(){
+        boolean useApplyInCreation = false;
         // Un test para estudiar el orden de las variables
         String function = "(a_ && b_) || (c_ && d_) || (e_ && f_)";
         final String[] variables={"a_", "b_", "c_", "d_", "e_", "f_"};
         // Small BDD
         final String[] variable_ordering1={"a_", "b_", "c_", "d_", "e_", "f_"};
-        BDD bdd1 = new BDD(function, variables, variable_ordering1);
+        BDD bdd1 = new BDD(function, variables, variable_ordering1, useApplyInCreation);
         bdd1.print();
         BDDPrinter.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_"+bdd1.variable_ordering.toString());
         // Big an inefficient BDD
         final String[] variable_ordering2={"c_", "a_", "e_", "b_", "f_", "d_"};
-        BDD bdd2 = new BDD(function, variables, variable_ordering2);
+        BDD bdd2 = new BDD(function, variables, variable_ordering2, useApplyInCreation);
         bdd2.print();
         BDDPrinter.printBDD(bdd2, "test1_bdd2_"+bdd2.size()+"_"+bdd2.variable_ordering.toString());
         // Heuristic BDD
@@ -66,7 +68,7 @@ public class Tester {
         int iterations = 1000;
         int i = 0;
         while(i< iterations){
-            BDD bddH = new BDD(function, variables, variable_orderingH);
+            BDD bddH = new BDD(function, variables, variable_orderingH, useApplyInCreation);
             if(bddMin == null || bddH.size() < bddMin.size()){
                 bddMin = bddH;
             }
@@ -78,13 +80,14 @@ public class Tester {
     }
     
    public static void test2(){
+       boolean useApplyInCreation = false;
         // Un test para estudiar el orden de las variables (queremos hacer una heurística)
         String function = "(((PPC?  || MAC?) && (ADB? && MAC?)) || ((false -> ADB_IOP?) && (ADB_IOP? -> false)))";
         //String function = "(( (PPC?  || MAC?) ))";
         final String[] variables={"PPC?", "MAC?", "ADB?", "ADB_IOP?"};
         // Small BDD
         final String[] variable_ordering1={"PPC?", "MAC?", "ADB?", "ADB_IOP?"};
-        BDD bdd1 = new BDD(function, variables, variable_ordering1);
+        BDD bdd1 = new BDD(function, variables, variable_ordering1, useApplyInCreation);
         bdd1.print();
         BDDPrinter.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_"+bdd1.variable_ordering.toString());      
    }
@@ -96,7 +99,8 @@ public class Tester {
         variables.add("x2");
         variables.add("x3");
         variables.add("x4");
-        BDD bdd = new BDD(function, variables);
+        boolean useApplyInCreation = false;
+        BDD bdd = new BDD(function, variables, useApplyInCreation);
         bdd.print();
         System.out.println(
         "Tree for "+function+"\n"+
@@ -113,6 +117,7 @@ public class Tester {
     }
     
     public static void test4(){
+        boolean useApplyInCreation = false;
         ArrayList<String> variables = new ArrayList<String>();
         variables.add("x1");
         variables.add("x2");
@@ -121,12 +126,12 @@ public class Tester {
         
         //String function1 = "( (!x1 || x2) && (x1 || !x2) )";
         String function1 = "x1";
-        BDD bdd1 = new BDD(function1, variables);
+        BDD bdd1 = new BDD(function1, variables, useApplyInCreation);
         bdd1.print();//*/
         
         //String function2 = "( (!x3 || x4) && (x3 || !x4) )";
         String function2 = "x2";
-        BDD bdd2 = new BDD(function2, variables);
+        BDD bdd2 = new BDD(function2, variables, useApplyInCreation);
         bdd2.print();
         
         System.out.flush();

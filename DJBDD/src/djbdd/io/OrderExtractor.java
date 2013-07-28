@@ -30,6 +30,7 @@ public class OrderExtractor {
         String[] _variables = loader.variables.toArray(new String[loader.variables.size()]);
         ArrayList<String> variable_orderings = new ArrayList<String>(loader.bdd_formulas.size());
         
+        
         for(int i=0; i<loader.bdd_formulas.size(); i++)
         {
             TimeMeasurer t = new TimeMeasurer("\nFMLA " + (i+1)+"/"+loader.bdd_formulas.size());
@@ -38,11 +39,11 @@ public class OrderExtractor {
                 System.out.println("Formula " + (i + 1) + "/" + loader.bdd_formulas.size() + ": " + formulaI);
             }
             String[] _variable_order = loader.getVariableOrder(formulaI);
-            BDD bdd = new BDD(formulaI, _variables, _variable_order);
+            BDD bdd = new BDD(formulaI, _variables, _variable_order, config.useApplyInCreation);
             int j = 0;
             while(j < LOOPS){
                 Collections.shuffle( Arrays.asList(_variable_order) );
-                BDD bddI = new BDD(formulaI, _variables, _variable_order);
+                BDD bddI = new BDD(formulaI, _variables, _variable_order, config.useApplyInCreation);
                 j++;
                 if(bddI.size() < bdd.size())
                     bdd = bddI;

@@ -15,7 +15,7 @@ public class Vertex {
     
     public static final int FALSE_VARIABLE = -2;
     public static final int TRUE_VARIABLE = -1;
-    public static final String HKEY_SEPARATOR="$";
+    public static final String UNIQUE_KEY_SEPARATOR="-";
     
     public static final int NULL_INDEX = -1; 
     
@@ -101,12 +101,12 @@ public class Vertex {
         return null;    
     }
     
-    public String keyH(){
-        return Vertex.kH(this.variable, this.low, this.high);
+    public String uniqueKey(){
+        return Vertex.computeUniqueKey(this.variable, this.low, this.high);
     }
     
-    public static String kH(int variable, int low, int high){
-        return variable+HKEY_SEPARATOR+low+HKEY_SEPARATOR+high;
+    public static String computeUniqueKey(int variable, int low, int high){
+        return variable+UNIQUE_KEY_SEPARATOR+low+UNIQUE_KEY_SEPARATOR+high;
     }
     
     /**************************************************************************/

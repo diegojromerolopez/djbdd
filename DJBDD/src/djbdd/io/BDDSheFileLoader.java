@@ -20,11 +20,13 @@ class BDDSheFileLoaderThread implements Runnable {
     private ArrayList<String> variables;
     private boolean verbose = true;
     private BDD bdd;
+    boolean useApplyInCreation = false;
      
-    public BDDSheFileLoaderThread(int index, ArrayList<String> formulas, ArrayList<String> variables){
+    public BDDSheFileLoaderThread(int index, ArrayList<String> formulas, ArrayList<String> variables, boolean useApplyInCreation){
         this.index = index;
         this.formulas = formulas;
         this.variables = variables;
+        this.useApplyInCreation = useApplyInCreation;
     }
  
     private String[] getVariableOrder(String function){
@@ -42,10 +44,10 @@ class BDDSheFileLoaderThread implements Runnable {
     public void run() {
         String[] _variables = variables.toArray(new String[variables.size()]);
         String[] _variable_order = getVariableOrder(formulas.get(0));
-        bdd = new BDD(formulas.get(0), _variables, _variable_order);
-        bdd.print();
+        bdd = new BDD(formulas.get(0), _variables, _variable_order, this.useApplyInCreation);
         if(verbose){
             System.out.println("\n[Thread "+this.index+"] Formula "+(1)+"/"+formulas.size()+": "+formulas.get(0));
+            bdd.print();
         }
         // Loop throught formulas whose index > 0
         for(int i=1; i<formulas.size(); i++)
@@ -58,12 +60,13 @@ class BDDSheFileLoaderThread implements Runnable {
             //_variable_order = getVariableOrder(formulaI);
             //BDD bddI = new BDD(formulaI, _variables, _variable_order);
             TimeMeasurer t2 = new TimeMeasurer("\n[Thread "+this.index+"] BDD Creation "+(i+1)+"/"+formulas.size());
-            BDD bddI = new BDD(formulaI, variables);
+            BDD bddI = new BDD(formulaI, variables, this.useApplyInCreation);
             t2.end().show();
             TimeMeasurer t3 = new TimeMeasurer("\n[Thread "+this.index+"] BDD APPLY "+(i+1)+"/"+formulas.size());
             BDD bddRes = bdd.apply("and",bddI);
             bdd = bddRes;
-            bdd.print();
+            bdd.reduce();
+            //bdd.print();
             t3.end().show();
             t.end().show();
         }
@@ -280,7 +283,7 @@ public class BDDSheFileLoader {
                 System.out.println("Thread "+i+" has clausules ["+startFormulaIndex+", "+endFormulaIndex+"]");
             }
             ArrayList<String> threadFormulas = new ArrayList<String>(bdd_formulas.subList(startFormulaIndex, endFormulaIndex));
-            Runnable worker = new BDDSheFileLoaderThread(i,threadFormulas,variables);
+            Runnable worker = new BDDSheFileLoaderThread(i,threadFormulas,variables, config.useApplyInCreation);
             executor.execute(worker);
             workers.add((BDDSheFileLoaderThread)worker);
         }
@@ -295,15 +298,24 @@ public class BDDSheFileLoader {
             if(config.verbose){
                 System.out.println("BDD "+i+": "+bddI.function);
                 //BDDPrinter.printBDD(bddI, "bdd_"+i);
-                bddI.toFile("bdd_"+i+".txt");
+                bddI.toFile("thread_bdds/bdd_"+i+".txt");
             }
         }
         System.out.println("Finished all threads");
         BDD bdd = workers.get(0).getBDD();
+        System.err.println("0 "+bdd.size());
+        
         for(int i=1; i<workers.size(); i++){
-            BDD bddI = workers.get(1).getBDD();
+            System.out.println(i+"th Apply");
+            BDD bddI = workers.get(i).getBDD();
+            System.out.println(bdd.size() +" AND "+bddI.size());
             BDD bddRes = bdd.apply("and",bddI);
+            System.out.println(i+"th Apply END");
             bdd = bddRes;
+            System.out.println(i + "th Apply END: "+bdd.size());
+            /*System.out.println(bdd.size());
+            bdd.reduce();
+            System.out.println(bdd.size());*/
         }
         return bdd;//*/
     }
