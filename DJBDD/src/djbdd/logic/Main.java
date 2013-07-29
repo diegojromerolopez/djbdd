@@ -1,6 +1,7 @@
 package djbdd.logic;
 
 import djbdd.*;
+import djbdd.io.BDDPrinter;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 import org.antlr.stringtemplate.*;
@@ -52,7 +53,8 @@ public class Main {
     // the expression
     //String src = "({PXX_H32} || Q || R) && ((P -> R) -> Q)";
     //String src = "(P && Q)";
-    String src = "(WATCHDOG && FOOTBRIDGE) || ((false -> 21285_WATCHDOG) && (21285_WATCHDOG -> false))";
+    //String src = "(WATCHDOG && FOOTBRIDGE) || ((false -> 21285_WATCHDOG) && (21285_WATCHDOG -> false))";
+     String src = "((x1 || x2) && (x3 || x4) && x5)"; 
     // create a lexer & parser
     LogicLexer lexer = new LogicLexer(new ANTLRStringStream(src));
     LogicParser parser = new LogicParser(new CommonTokenStream(lexer));
@@ -60,15 +62,15 @@ public class Main {
     // invoke the entry point of the parser (the parse() method) and get the AST
     CommonTree tree = (CommonTree)parser.parse().getTree();
 
-    //trasverse(tree);
-    
     ArrayList<String> variables = new ArrayList<String>();
-    variables.add("WATCHDOG");
-    variables.add("FOOTBRIDGE");
-    variables.add("21285_WATCHDOG");
-    variables.add("P");    
+    variables.add("x1");
+    variables.add("x2");
+    variables.add("x3");
+    variables.add("x4");
+    variables.add("x5"); 
     BDD bdd = createBDD(tree, variables);
     System.out.println(bdd.function);
+    BDDPrinter.printBDD(bdd, "src.png");
     /*
     // print the DOT representation of the AST 
     DOTTreeGenerator gen = new DOTTreeGenerator();

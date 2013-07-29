@@ -218,9 +218,6 @@ public class BDD {
     }
    
     private void generateTreeUsingApply(){
-        if(this.function.charAt(0)=='(' && this.function.charAt(this.function.length()-1)==')')
-            this.function = this.function.substring(1, this.function.length()-1);
-        
         LogicLexer lexer = new LogicLexer(new ANTLRStringStream(this.function));
         LogicParser parser = new LogicParser(new CommonTokenStream(lexer));
         

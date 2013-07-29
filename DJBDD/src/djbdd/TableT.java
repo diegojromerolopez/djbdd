@@ -13,6 +13,7 @@ import java.util.*;
 public class TableT {
     
     HashMap<Integer,Vertex> T;
+    private int lastKey = 0;
     
     public TableT(){
         this.T = new HashMap<Integer,Vertex>();
@@ -44,8 +45,9 @@ public class TableT {
     }
     
     public Integer getNextKey(){
-        int index = 2;
+        int index = lastKey;
         while(T.containsKey(index)){ index++; }
+        lastKey = index;
         return index;
     }
     

@@ -117,27 +117,32 @@ public class Tester {
     }
     
     public static void test4(){
-        boolean useApplyInCreation = false;
+        boolean useApplyInCreation = true;
         ArrayList<String> variables = new ArrayList<String>();
-        variables.add("x1");
-        variables.add("x2");
-        //variables.add("x3");
-        //variables.add("x4");
+         String function1 = "x1";
+        for(int i=1; i<1000; i++){
+            variables.add("x"+i);
+            function1 += " || x"+i;
+        }
         
-        //String function1 = "( (!x1 || x2) && (x1 || !x2) )";
-        String function1 = "x1";
+        // First operand
+        function1 = "("+function1+")";
         BDD bdd1 = new BDD(function1, variables, useApplyInCreation);
         bdd1.print();//*/
         
-        //String function2 = "( (!x3 || x4) && (x3 || !x4) )";
-        String function2 = "x2";
+        // Second operand
+        String function2 = "(x3 && x4)";
         BDD bdd2 = new BDD(function2, variables, useApplyInCreation);
         bdd2.print();
         
-        System.out.flush();
+        // Result     
+        BDD bddRes = bdd1.apply("and", bdd2);
+        bddRes.print();
         
-        BDD bdd = bdd1.apply("and", bdd2);
-        bdd.print();
+        
+        String function = "("+function1+" && "+function2+")";
+        BDD bdd = new BDD(function, variables, useApplyInCreation);
+        bdd.print();//*/
     }
     
     private static boolean testBooleanOperation(Boolean a, Boolean b, String op){

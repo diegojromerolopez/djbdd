@@ -38,6 +38,9 @@ public class BDDApply {
     /** Unique vertex table **/
     HashMap<String,Vertex> U;
     
+    /** Used vertices table **/
+    HashMap<String,Vertex> used_vertices;
+    
     /** Resulting hash table containing the relations between vertices */
     TableT T;
     
@@ -171,8 +174,9 @@ public class BDDApply {
         // Hash key of the computation of the subtree of these two vertices
         String key = "bdd1-"+v1.index+"+bdd2-"+v2.index;
         
-        if( G.containsKey(key) )
+        if( G.containsKey(key) ){
             return G.get(key);
+        }
         
         if(v1.isLeaf() && v2.isLeaf())
         {
@@ -231,17 +235,26 @@ public class BDDApply {
      */
     public BDD run(){
         TimeMeasurer t = new TimeMeasurer("========= apply =========");
+        for(Vertex v : this.bdd1.T.getVertices())
+            v.T = this.bdd1.T;
+        for(Vertex v : this.bdd2.T.getVertices())
+            v.T = this.bdd2.T;
+        
+        this.used_vertices = new HashMap<String,Vertex>();
+        
         // Cache to avoid repeated computations
         this.G = new HashMap<String,Vertex>();
         
         // Cache to avoid repeating vertices
         this.U = new HashMap<String,Vertex>();
-        //this.U = bdd1.U;
+        this.U = bdd1.U;
         //this.U.putAll(bdd2.U);
         
         
         // Table that contains the structure of or new BDD
         this.T = new TableT();
+        T = bdd1.T;
+                
         
         // Leaf vertices
         // We don't put true and false vertices because we can have a
