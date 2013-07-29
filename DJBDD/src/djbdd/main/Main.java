@@ -193,9 +193,9 @@ public class Main {
         printer.print("./"+fmla);
     }
     
-    protected static void extractOrderSheFile(String filename, FileLoaderConfiguration config){
+    protected static void reduceSheFile(String filename, FileLoaderConfiguration config){
         TimeMeasurer t = new TimeMeasurer("She extracting");
-        OrderExtractor extractor = new OrderExtractor(filename, filename+"ordered");
+        DJBDDFileWriter extractor = new DJBDDFileWriter(filename, filename+".bdd.txt");
         System.out.println(config.text);
         extractor.run(config);
         t.end();
@@ -278,7 +278,7 @@ public class Main {
                 else{
                     System.out.println("You are not using this software correctly");
                 }            
-        }else if(option.equals("--extractorder")){
+        }else if(option.equals("--djbdd-file-conversion")){
             text = "Printing a formula";
                 if(args[1].equalsIgnoreCase("fmla")){
                     text += " get from commandline";
@@ -290,7 +290,7 @@ public class Main {
                 }
                 else if(args[1].equalsIgnoreCase("she")){
                     FileLoaderConfiguration config = loadSheConfig(args);
-                    Main.extractOrderSheFile(args[2], config);
+                    Main.reduceSheFile(args[2], config);
                 }
                 else{
                     System.out.println("You are not using this software correctly");

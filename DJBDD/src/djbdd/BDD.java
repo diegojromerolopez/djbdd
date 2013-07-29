@@ -687,17 +687,19 @@ public class BDD {
      */
     public String toString(boolean verbose){
         String text = "";
-        text = "Tree for "+this.function+"\n";
+        text = "BDD tree for "+this.function+"\n";
+        text += "Variables: "+this.variables.size()+". ";
         if(verbose){
-            text += "Variables: ";
+            text += "";
             for(String var : this.variables)
                 text += var+", ";
             text = text.substring(0, text.length()-2)+"\n";
         }
-        else
-        {
-            text += "Variables: "+this.variables.size()+"\n";
-        }
+        text += "\n";
+        text += "Variable ordering: ";
+        for(Integer varI : this.variable_ordering)
+            text += varI+", ";
+        text = text.substring(0, text.length()-2)+"\n";
         ArrayList<Vertex> vertices = this.T.getVertices();
         text += "Vertices: "+vertices.size()+"\n";
         text += "u\tvar_i\tvar\tlow\thigh\n";
@@ -740,7 +742,76 @@ public class BDD {
             //Close the output stream
             out.close();
         } catch (Exception e) {//Catch exception if any
+            System.err.println("BDD "+this.function+" has create an error");
             System.err.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+    
+    /**
+     * Read the BDD table from a file.
+     */
+    public static BDD fromFile(String path){
+       String function = "";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(path));
+            // Tree formula
+            String line = br.readLine();
+            function = line.substring("BDD tree for".length());
+            
+            // Number of variables
+            line = br.readLine();
+            line = line.substring("Variables:".length());
+            String[] varLine = line.split("\\.");
+            int num_variables = Integer.parseInt(varLine[0].replace("\\s+","").trim());
+            ArrayList<String> variables = new ArrayList<String>(num_variables);
+            for(int i=0; i<num_variables; i++)
+                variables.add("NONE");
+            
+            // Variable ordering
+            ArrayList<Integer> present_variable_indices = new ArrayList<Integer>(num_variables);
+            line = br.readLine().substring("Variable ordering:".length());
+            String[] order = line.split(",\\s*");
+            for(String o : order){
+                o = o.trim();
+                present_variable_indices.add(Integer.parseInt(o));
+            }
+            
+            // Number of vertices
+            line = br.readLine();
+            
+            // Header of the list of vertices
+            line = br.readLine();
+            
+            // Each vertex
+            TableT T = new TableT();
+            while (line != null) {
+                line = br.readLine();
+                if (line != null) {
+                    // Parameteres of the vertex, index, variable index, low & high
+                    String[] vertexParameters = line.split("\\s+");
+                    int index = Integer.parseInt(vertexParameters[0]);
+                    int variable = Integer.parseInt(vertexParameters[1]);
+                    int low = Integer.parseInt(vertexParameters[3]);
+                    int high = Integer.parseInt(vertexParameters[4]);
+                    Vertex v = new Vertex(index, variable, low, high);
+                    T.put(index, v);
+                    // If the vertex has ha real variable
+                    if (variable >= 0) {
+                        String variableName = vertexParameters[2];
+                        variables.set(variable, variableName);
+                    }
+                }
+            }
+            
+        BDD bdd = new BDD(T, function, variables, present_variable_indices);
+        br.close();
+        return bdd;
+        }catch(Exception e){
+            System.err.println("BDD "+function+" has create an error");
+            System.err.println("Error: " + e.getMessage());
+            e.printStackTrace(); 
+        }
+        return null;
     }
 }

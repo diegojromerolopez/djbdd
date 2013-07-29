@@ -118,9 +118,10 @@ public class Tester {
     
     public static void test4(){
         boolean useApplyInCreation = true;
+        int num_variables = 5;
         ArrayList<String> variables = new ArrayList<String>();
          String function1 = "x1";
-        for(int i=1; i<1000; i++){
+        for(int i=2; i<num_variables; i++){
             variables.add("x"+i);
             function1 += " || x"+i;
         }
@@ -143,6 +144,11 @@ public class Tester {
         String function = "("+function1+" && "+function2+")";
         BDD bdd = new BDD(function, variables, useApplyInCreation);
         bdd.print();//*/
+        
+        String file = "test4.bdd.txt";
+        bdd.toFile(file);
+        BDD bddLoaded = BDD.fromFile(file);
+        bddLoaded.print();
     }
     
     private static boolean testBooleanOperation(Boolean a, Boolean b, String op){

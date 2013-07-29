@@ -13,7 +13,7 @@ public class FileLoaderConfiguration {
     public String text;
     
     /** Must saves a file with the BDD as image */
-    public boolean outputInFile = false;
+    public boolean outputInFile = true;
     
     /** Is verbose mode? */
     public boolean verbose = true;
