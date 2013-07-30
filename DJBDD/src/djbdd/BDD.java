@@ -107,7 +107,14 @@ public class BDD {
             _function = _function.replaceAll(Pattern.quote(variable), value);
         }
         //System.out.println(_function);
-        return BooleanEvaluator.run(_function);
+        try{
+            return BooleanEvaluator.run(_function);
+        }catch(Exception e){
+            System.err.println("ERROR evaluating "+this.function +". Its truth values were "+_function);
+            e.printStackTrace();
+            System.exit(-1);
+        }
+        return false;
         //return (Boolean)MVEL.eval(_function);
     }
     
@@ -188,7 +195,58 @@ public class BDD {
             return null;
     }
     
+    private static BDD optimizeORTreeGenerationFromAST(BDD bdd1, BDD bdd2){
+        //System.out.println(bdd1.function + " OR " + bdd2.function);
+        if (bdd1.isTautology) {
+            //System.out.println("Reduction TRUE (1) IN OR");
+            return bdd1;
+        }
+        if (bdd2.isTautology) {
+            //System.out.println("Reduction TRUE (2) IN OR");
+            return bdd2;
+        }
+        if (bdd1.isContradiction) {
+            //System.out.println("Reduction FALSE (1) IN OR");
+            return bdd2;
+        }
+        if (bdd2.isContradiction) {
+            //System.out.println("Reduction FALSE (2) IN OR");
+            return bdd1;
+        }
+        return null;
     
+    }
+    
+    private static BDD optimizeANDTreeGenerationFromAST(BDD bdd1, BDD bdd2){
+        //System.out.println(bdd1.function + " AND " + bdd2.function);
+        if (bdd1.isTautology) {
+            //System.out.println("Reduction TRUE (1) IN AND");
+            return bdd2;
+        }
+        if (bdd2.isTautology) {
+            //System.out.println("Reduction TRUE (2) IN AND");
+            return bdd1;
+        }
+        if (bdd1.isContradiction) {
+            //System.out.println("Reduction FALSE (1) IN AND");
+            return bdd1;
+        }
+        if (bdd2.isContradiction) {
+            //System.out.println("Reduction FALSE (2) IN AND");
+            return bdd2;
+        }
+        return null;
+    
+    }
+    
+   private static BDD optimizeTreeGenerationFromAST(String op, BDD bdd1, BDD bdd2){
+       if (op.equals("||")) {
+           return BDD.optimizeORTreeGenerationFromAST(bdd1, bdd2);
+       } else if (op.equals("&&")) {
+           return BDD.optimizeANDTreeGenerationFromAST(bdd1, bdd2);
+       }
+       return null;
+   }
     
    private static BDD generateTreeFromAST(CommonTree tree, ArrayList<String> variables) {
       int childCount = tree.getChildCount();
@@ -209,7 +267,11 @@ public class BDD {
       BDD bdd = bdds.get(0);
       for(int i=1; i<bdds.size(); i++){
           BDD bddI = bdds.get(i);
-          BDD bddRes = bdd.apply(op, bddI);
+          BDD bddRes = BDD.optimizeTreeGenerationFromAST(op, bdd, bddI);
+          if(bddRes == null){
+            bddRes = bdd.apply(op, bddI);
+          }
+          
           bdd = bddRes;
           bdd.reduce();
       }
@@ -218,6 +280,7 @@ public class BDD {
     }
    
     private void generateTreeUsingApply(){
+        //System.out.println("generateTreeUsingApply");
         LogicLexer lexer = new LogicLexer(new ANTLRStringStream(this.function));
         LogicParser parser = new LogicParser(new CommonTokenStream(lexer));
         
@@ -226,9 +289,10 @@ public class BDD {
         try{
             tree = (CommonTree)parser.parse().getTree();
         }catch(Exception e){
-            System.err.println("Parsing of the expression "+this.function+" has failed. Detailed report:");
+            System.err.println("ERROR. Parsing of the expression "+this.function+" has failed. Detailed report:");
             e.printStackTrace();
         }
+        //System.out.println("XXXXXXXXXXX");
         BDD bdd = BDD.generateTreeFromAST(tree, this.variables);
         this.assign(bdd);
     }
@@ -445,6 +509,7 @@ public class BDD {
         
         // If the formula can be evaluated to true without creating all the tree
         // is a truth BDD, containing only the True vertex
+        //System.out.println("Use apply "+useApplyInCreation);
         if(!useApplyInCreation)// && this.present_variable_indices.size() < MAX_NUMBER_OF_VARIABLES_TO_LAUNCH_RECURSIVE_CREATION)
             this.generateTreeFunction(path, U);
         else{

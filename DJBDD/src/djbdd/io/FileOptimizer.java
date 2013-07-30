@@ -34,6 +34,8 @@ public class FileOptimizer {
      */
     public void run(FileLoaderConfiguration config) {
         config.numberOfCNFByBDD = 1;
+        config.useApplyInCreation = true;
+        
         
         // TODO: parametrize loader
         BDDSheFileLoader loader = new BDDSheFileLoader(inputFilename);
@@ -58,7 +60,7 @@ public class FileOptimizer {
                 System.out.println("Thread "+i+" has clausules ["+startFormulaIndex+", "+endFormulaIndex+"]");
             }
             ArrayList<String> threadFormulas = new ArrayList<String>(loader.bdd_formulas.subList(startFormulaIndex, endFormulaIndex));
-            Runnable worker = new FileOptimizerThread(i, outputFilename+"i.bdd.txt", threadFormulas, loader.variables, config.useApplyInCreation);
+            Runnable worker = new FileOptimizerThread(i, outputFilename+".bdd.txt", threadFormulas, loader.variables, config.useApplyInCreation);
             executor.execute(worker);
             workers.add((FileOptimizerThread)worker);
         }

@@ -120,7 +120,7 @@ public class Tester {
         boolean useApplyInCreation = true;
         int num_variables = 5;
         ArrayList<String> variables = new ArrayList<String>();
-         String function1 = "x1";
+        String function1 = "x1";
         for(int i=2; i<num_variables; i++){
             variables.add("x"+i);
             function1 += " || x"+i;
@@ -228,6 +228,22 @@ public class Tester {
         bdd.print();*/
     }
     
+     public static void test8(){
+        boolean useApplyInCreation = true;
+        int num_variables = 5;
+        ArrayList<String> variables = new ArrayList<String>();
+        String function1 = "true";
+        for(int i=1; i<num_variables; i++){
+            variables.add("x"+i);
+            function1 += " || x"+i;
+        }
+        
+        // First operand
+        function1 = "("+function1+")";
+        BDD bdd1 = new BDD(function1, variables, useApplyInCreation);
+        bdd1.print();//*/
+     }
+    
     public static void run(int testIndex){
         if(testIndex == 0)
             test0();
@@ -245,6 +261,8 @@ public class Tester {
             test6();
         if(testIndex == 7)
             test7();
+        if(testIndex == 8)
+            test8();
     }
     
 }

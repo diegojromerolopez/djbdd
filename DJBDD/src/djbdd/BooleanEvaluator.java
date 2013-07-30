@@ -93,10 +93,17 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   }
   
   public static boolean run(String expression){
-    BooleanEvaluator evaluator = new BooleanEvaluator();
-    boolean result = evaluator.evaluate(expression);
-    //System.out.println (expression+" = "+result);
-    return result;
+     // try{
+        BooleanEvaluator evaluator = new BooleanEvaluator();
+        boolean result = evaluator.evaluate(expression);
+        return result;
+        /*
+      }catch(Exception e){
+          System.err.println("'"+expression+"' can't be evaluated "+e.toString());
+          e.printStackTrace();
+          System.exit(-1);
+      }
+      return false;*/
   }
   
   /**

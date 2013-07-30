@@ -21,7 +21,8 @@ public class FileOptimizerThread implements Runnable {
     private ArrayList<BDD> bdds;
     boolean useApplyInCreation = true;
     String outputFilename;
-    private static final int ITERATIONS = 100; 
+    private static final int ITERATIONS = 100;
+    private static final int MAX_VARIABLES_TO_MAKE_ITERATIONS = 20; 
      
     public FileOptimizerThread(int index, String outputFilename, ArrayList<String> formulas, ArrayList<String> variables, boolean useApplyInCreation){
         this.index = index;
@@ -33,9 +34,10 @@ public class FileOptimizerThread implements Runnable {
     }
  
     private synchronized void writeToFile(PrintWriter writer, BDD bdd, int i){
-        writer.println("# BEGIN BDD T"+this.index+ " " + (i + 1));
-        writer.print(bdd.toString());
-        writer.println("# END BDD T"+this.index+ " " + (i + 1));
+        writer.println("# BEGIN BDD T"+this.index+ " " + (i + 1)+"\n"+bdd.toString()+"# END BDD T"+this.index+ " " + (i + 1)+"\n");
+        writer.flush();
+        //writer.print(bdd.toString());
+        //writer.println("# END BDD T"+this.index+ " " + (i + 1));
     }
     
     private String[] getInitialVariableOrder(String function){
@@ -64,9 +66,17 @@ public class FileOptimizerThread implements Runnable {
                     System.out.println("T"+this.index+ " - Formula " + (i + 1) + "/" + formulas.size() + ": " + formulaI);
                 }
                 String[] _variable_order = this.getInitialVariableOrder(formulaI);
+                // We make ITERATIONS loops, unless we got too many variables
+                // in that case, we make 1 only extra iteration
+                int LOOPS = ITERATIONS;
+                if(_variable_order.length > MAX_VARIABLES_TO_MAKE_ITERATIONS)
+                    LOOPS = 1;
+                
+                // BDD base
                 BDD bdd = new BDD(formulaI, _variables, _variable_order, useApplyInCreation);
+                // Iterations to get a smaller BDD
                 int j = 0;
-                while (j < ITERATIONS) {
+                while (j < LOOPS) {
                     Collections.shuffle(Arrays.asList(_variable_order));
                     BDD bddI = new BDD(formulaI, _variables, _variable_order, useApplyInCreation);
                     j++;

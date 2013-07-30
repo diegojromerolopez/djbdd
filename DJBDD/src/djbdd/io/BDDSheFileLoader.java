@@ -89,7 +89,7 @@ class BDDSheFileLoaderThread implements Runnable {
  */
 public class BDDSheFileLoader {
     /** Number of threads used to load the BDD trees */
-    public final int NUM_THREADS = 8;
+    public final int NUM_THREADS = 1;
     
     /** Path of the DIMACS file */
     String filename;
@@ -121,6 +121,18 @@ public class BDDSheFileLoader {
                 variable_order.add(var);
         }
         return variable_order.toArray(new String[variable_order.size()]);
+    }
+    
+    private String replaceParentheses(String formula){
+        
+        int ands = formula.split("&&", -1).length-1;
+        int ors = formula.split("||", -1).length-1;
+        int imps = formula.split("->", -1).length-1;
+        int dimps = formula.split("<=>", -1).length-1;
+        int total = ands + ors + imps + dimps;
+        if( (ands==total) || (ors==total) || (imps == total) || (dimps == total) )
+            formula.replace("(","").replace(")","");
+        return formula; 
     }
     
     public void init(FileLoaderConfiguration config){
@@ -178,19 +190,22 @@ public class BDDSheFileLoader {
                     String formula = line.trim();
                     original_formulas.add(formula);
                     System.out.println(formula);
-                    String formulaI = formula;//formula.replaceAll("([^\\w\\d]+)(0)([^\\w\\d]+)", "$1 false $3");
-                    //formulaI = formula.replaceAll("([^\\w\\d]+)(1)([^\\w\\d]+)", "$1 true $3");
+                    String formulaI = formula;
                     formulaI = formulaI.replace("|", " || ");
+                    formulaI = formulaI.replace("!!", " ");
                     formulaI = formulaI.replace("&", " && ");
-                    formulaI = formulaI.replaceAll("([^\\w_]+)([1-9]+)([^\\w_]+)", "$1 "+START_VAR+"x$2"+END_VAR+"$3");
-                    formulaI = formulaI.replaceAll("([\\w_\\d]+)", START_VAR+"$1"+END_VAR);
+                    formulaI = formulaI.replaceAll("([^\\w_]+)(x[1-9]+)([^\\w_]+)", "$1 "+START_VAR+"$2"+END_VAR+"$3");
+                    //formulaI = formulaI.replaceAll("(x\\d+)", " "+START_VAR+"$1"+END_VAR+"");
+                    formulaI = formulaI.replaceAll("(\\!?)([\\w_\\d]+)", "$1"+START_VAR+"$2"+END_VAR);
+                    formulaI = formulaI.replace(START_VAR+START_VAR,START_VAR);
                     formulaI = formulaI.replace(END_VAR+END_VAR,END_VAR);
                     formulaI = formulaI.replace(START_VAR+"0"+END_VAR," false ");
                     formulaI = formulaI.replace(START_VAR+"1"+END_VAR," true ");
                     formulaI = formulaI.replace(START_VAR+"false"+END_VAR," false ");
                     formulaI = formulaI.replace(START_VAR+"true"+END_VAR," true ");
-                    
                     formulaI = formulaI.replaceAll(Pattern.quote(START_VAR)+"([\\w\\d_]+)"+Pattern.quote(END_VAR)+"\\s*\\|\\|\\s*true\\s*","true");
+                    formulaI = formulaI.replace("<=>","<->");
+                    //formulaI = replaceParentheses(formulaI);
                     //formulaI = formulaI.replaceAll("(true|false)"+END_VAR,"$1");
                     //System.out.println(formulaI);
                     //System.exit(-1);
