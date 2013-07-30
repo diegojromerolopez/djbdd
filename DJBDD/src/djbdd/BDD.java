@@ -749,12 +749,12 @@ public class BDD {
     }
     
     /**
-     * Read the BDD table from a file.
+     * Read the BDD table from a BufferedReader.
      */
-    public static BDD fromFile(String path){
+    public static BDD fromBufferedReader(BufferedReader br){
        String function = "";
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path));
+            //BufferedReader br = new BufferedReader(new FileReader(path));
             // Tree formula
             String line = br.readLine();
             function = line.substring("BDD tree for".length());
@@ -808,10 +808,46 @@ public class BDD {
         br.close();
         return bdd;
         }catch(Exception e){
+            System.err.println("Error in BDD.fromBufferedReader. Is the BufferedReader null");
             System.err.println("BDD "+function+" has create an error");
             System.err.println("Error: " + e.getMessage());
             e.printStackTrace(); 
         }
         return null;
     }
+    
+    
+    /**
+     * Read the BDD table from a file.
+     */
+    public static BDD fromFile(String path){
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(path));
+            return BDD.fromBufferedReader(br);
+        }
+        catch(Exception e){
+            System.err.println("Error in BDD.fromFile. Unable to create the BufferedReader, does the file exist?");
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    /**
+     * Read the BDD table from a string.
+     */
+    public static BDD fromString(String bddString){
+        try{
+            // convert String into InputStream
+            InputStream is = new ByteArrayInputStream(bddString.getBytes());
+            // read it with BufferedReader
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            return BDD.fromBufferedReader(br);
+        }
+        catch(Exception e){
+            System.err.println("Error in BDD.fromString. Unable to create the BufferedReader, is the string null?");
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
 }

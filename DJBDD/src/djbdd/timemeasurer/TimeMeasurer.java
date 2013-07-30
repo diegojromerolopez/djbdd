@@ -7,7 +7,7 @@ package djbdd.timemeasurer;
 public class TimeMeasurer {
     
     /** Switch to stop measuring times */
-    public final static boolean MEASURE_TIME = true;
+    public final static boolean MEASURE_TIME = false;
     
     /** Message to warn developers if MEASURE_TIME = false */
     public final static String DISABLED_MEASUREMENT_CONTEXT = "IT IS NOT MEASURING";
