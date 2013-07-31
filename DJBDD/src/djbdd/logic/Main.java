@@ -1,7 +1,7 @@
 package djbdd.logic;
 
 import djbdd.*;
-import djbdd.io.BDDPrinter;
+import djbdd.io.Printer;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 import org.antlr.stringtemplate.*;
@@ -70,7 +70,7 @@ public class Main {
     variables.add("x5"); 
     BDD bdd = createBDD(tree, variables);
     System.out.println(bdd.function);
-    BDDPrinter.printBDD(bdd, "src.png");
+    Printer.printBDD(bdd, "src.png");
     /*
     // print the DOT representation of the AST 
     DOTTreeGenerator gen = new DOTTreeGenerator();

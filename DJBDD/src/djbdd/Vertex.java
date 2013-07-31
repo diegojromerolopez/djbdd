@@ -31,8 +31,6 @@ public class Vertex {
     /** Index of the high child of this vertex in the hash T of the TBDD */
     private int high = NULL_INDEX;
     
-    public TableT T = null;
-
     /** Constructs the vertex */
     public Vertex(int index, int var, int low, int high){
         this.index = index;
@@ -115,11 +113,6 @@ public class Vertex {
     public int high(){ return this.high; }
     
     public int low(){ return this.low; }
-    
-    
-    public Vertex highV(){ return this.T.get(this.high); }
-    
-    public Vertex lowV(){ return this.T.get(this.low); }
     
     public void setHigh(int highIndex){ this.high = highIndex; }
     public void setLow(int lowIndex){ this.low = lowIndex; }

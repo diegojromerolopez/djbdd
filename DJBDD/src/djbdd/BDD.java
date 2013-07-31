@@ -762,7 +762,7 @@ public class BDD {
         }
         text += "\n";
         text += "Variable ordering: ";
-        for(Integer varI : this.variable_ordering)
+        for(Integer varI : this.present_variable_indices)
             text += varI+", ";
         text = text.substring(0, text.length()-2)+"\n";
         ArrayList<Vertex> vertices = this.T.getVertices();
@@ -819,7 +819,6 @@ public class BDD {
     public static BDD fromBufferedReader(BufferedReader br){
        String function = "";
         try {
-            //BufferedReader br = new BufferedReader(new FileReader(path));
             // Tree formula
             String line = br.readLine();
             function = line.substring("BDD tree for".length());
@@ -835,11 +834,20 @@ public class BDD {
             
             // Variable ordering
             ArrayList<Integer> present_variable_indices = new ArrayList<Integer>(num_variables);
-            line = br.readLine().substring("Variable ordering:".length());
-            String[] order = line.split(",\\s*");
-            for(String o : order){
-                o = o.trim();
-                present_variable_indices.add(Integer.parseInt(o));
+            line = br.readLine();
+          
+            if(line.equals("Variable ordering")){
+                // There are no present_variables, BDD is true or false
+                // DO NOTHING!
+            }
+            else{
+                line = line.substring("Variable ordering:".length()).trim();
+                //System.out.println("VAR ORDER '"+line+"'");
+                String[] order = line.split(",\\s*");
+                for(String o : order){
+                    o = o.trim();
+                    present_variable_indices.add(Integer.parseInt(o));
+                }
             }
             
             // Number of vertices
@@ -873,10 +881,11 @@ public class BDD {
         br.close();
         return bdd;
         }catch(Exception e){
-            System.err.println("Error in BDD.fromBufferedReader. Is the BufferedReader null");
+            System.err.println("Error in BDD.fromBufferedReader.");
             System.err.println("BDD "+function+" has create an error");
             System.err.println("Error: " + e.getMessage());
             e.printStackTrace(); 
+            System.exit(-1);
         }
         return null;
     }

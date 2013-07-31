@@ -7,12 +7,15 @@ package djbdd;
 import java.util.*;
 
 /**
- *
+ * Wrapper of the hashmap that contains the vertices of a BDD.
  * @author diegoj
  */
 public class TableT {
     
+    /** Hashmaps that wraps */
     HashMap<Integer,Vertex> T;
+    
+    /** Used to increase key creation performance */
     private int lastKey = 0;
     
     public TableT(){
@@ -47,7 +50,7 @@ public class TableT {
     public Integer getNextKey(){
         int index = lastKey;
         while(T.containsKey(index)){ index++; }
-        lastKey = index;
+        lastKey = index+1;
         return index;
     }
     

@@ -38,7 +38,7 @@ public class FileOptimizer {
         
         
         // TODO: parametrize loader
-        BDDSheFileLoader loader = new BDDSheFileLoader(inputFilename);
+        SheFileLoader loader = new SheFileLoader(inputFilename);
         loader.init(config);
         
         // Generic part
@@ -50,6 +50,15 @@ public class FileOptimizer {
         if(config.verbose){
             System.out.println( "There are "+loader.bdd_formulas.size()+" formulas" );
         }
+        
+        PrintWriter writer = null;
+        try{
+            writer = new PrintWriter(new FileOutputStream(new File(this.outputFilename),true));
+        }catch(Exception e){
+            System.err.println("Error creating the PrintWriter");
+            e.printStackTrace();
+        }
+         
         for (int i = 0; i < numThreads; i++)
         {
             int startFormulaIndex = i*numFormulasByThread;
@@ -60,7 +69,7 @@ public class FileOptimizer {
                 System.out.println("Thread "+i+" has clausules ["+startFormulaIndex+", "+endFormulaIndex+"]");
             }
             ArrayList<String> threadFormulas = new ArrayList<String>(loader.bdd_formulas.subList(startFormulaIndex, endFormulaIndex));
-            Runnable worker = new FileOptimizerThread(i, outputFilename+".bdd.txt", threadFormulas, loader.variables, config.useApplyInCreation);
+            Runnable worker = new FileOptimizerThread(i, writer, threadFormulas, loader.variables, config.useApplyInCreation);
             executor.execute(worker);
             workers.add((FileOptimizerThread)worker);
         }
@@ -68,6 +77,7 @@ public class FileOptimizer {
         while (!executor.isTerminated()) {
             //leep?
         }
+        writer.close();
 
      }
 }

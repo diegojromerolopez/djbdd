@@ -168,9 +168,7 @@ public class BDDApply {
      * @return Vertex Result of doing a recursive call to app.
      */
     private Vertex app(Vertex v1, Vertex v2){
-        //System.out.println(v1+"-"+v2);
-        //System.out.flush();
-        
+       
         // Hash key of the computation of the subtree of these two vertices
         String key = "bdd1-"+v1.index+"+bdd2-"+v2.index;
         
@@ -231,16 +229,14 @@ public class BDDApply {
     
     /**
      * Public call to execute the apply algorithm.
+     * Note: the first BDD1 is MODIFIED.
+     * The returned BDD is the same as BDD1, it is keept to don't break anything.
      * @return BDD BDD Tree with the operatian computed for bdd1 and bdd2.
      */
     public BDD run(){
         TimeMeasurer t = new TimeMeasurer("========= apply =========");
-        for(Vertex v : this.bdd1.T.getVertices())
-            v.T = this.bdd1.T;
-        for(Vertex v : this.bdd2.T.getVertices())
-            v.T = this.bdd2.T;
         
-        this.used_vertices = new HashMap<String,Vertex>();
+        //this.used_vertices = new HashMap<String,Vertex>();
         
         // Cache to avoid repeated computations
         this.G = new HashMap<String,Vertex>();
@@ -248,6 +244,7 @@ public class BDDApply {
         // Cache to avoid repeating vertices
         this.U = new HashMap<String,Vertex>();
         this.U = bdd1.U;
+        // If the indices had a prefix we could make this...
         //this.U.putAll(bdd2.U);
         
         

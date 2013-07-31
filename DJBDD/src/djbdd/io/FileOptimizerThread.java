@@ -20,24 +20,23 @@ public class FileOptimizerThread implements Runnable {
     private boolean verbose = true;
     private ArrayList<BDD> bdds;
     boolean useApplyInCreation = true;
-    String outputFilename;
+    //String outputFilename;
+    PrintWriter writer ;
     private static final int ITERATIONS = 100;
-    private static final int MAX_VARIABLES_TO_MAKE_ITERATIONS = 20; 
+    private static final int MAX_VARIABLES_TO_MAKE_ITERATIONS = 100; 
      
-    public FileOptimizerThread(int index, String outputFilename, ArrayList<String> formulas, ArrayList<String> variables, boolean useApplyInCreation){
+    public FileOptimizerThread(int index, PrintWriter writer, ArrayList<String> formulas, ArrayList<String> variables, boolean useApplyInCreation){
         this.index = index;
         this.formulas = formulas;
         this.variables = variables;
         this.useApplyInCreation = useApplyInCreation;
-        this.outputFilename = outputFilename;
+        this.writer = writer;
         this.bdds = new ArrayList<BDD>(formulas.size());
     }
- 
-    private synchronized void writeToFile(PrintWriter writer, BDD bdd, int i){
-        writer.println("# BEGIN BDD T"+this.index+ " " + (i + 1)+"\n"+bdd.toString()+"# END BDD T"+this.index+ " " + (i + 1)+"\n");
-        writer.flush();
-        //writer.print(bdd.toString());
-        //writer.println("# END BDD T"+this.index+ " " + (i + 1));
+    
+    private synchronized void writeToFile(BDD bdd, int i){
+        this.writer.println("# BEGIN BDD T"+this.index+ " " + (i + 1)+"\n"+bdd.toString()+"# END BDD T"+this.index+ " " + (i + 1)+"\n");
+        this.writer.flush();
     }
     
     private String[] getInitialVariableOrder(String function){
@@ -58,7 +57,7 @@ public class FileOptimizerThread implements Runnable {
         
         try {
             //PrintWriter writer = new PrintWriter(this.outputFilename, "UTF-8");
-            PrintWriter writer = new PrintWriter(new FileOutputStream(new File(this.outputFilename),true));
+           
             for (int i = 0; i < formulas.size(); i++) {
                 TimeMeasurer t = new TimeMeasurer("\nFMLA " + (i + 1) + "/" + formulas.size());
                 String formulaI = formulas.get(i);
@@ -85,7 +84,7 @@ public class FileOptimizerThread implements Runnable {
                     }
                 }
                 bdds.add(bdd);
-                this.writeToFile(writer, bdd, i);
+                this.writeToFile(bdd, i);
                 /*
                 writer.println("# BEGIN BDD " + (i + 1));
                 writer.print(bdd.toString());
@@ -93,15 +92,13 @@ public class FileOptimizerThread implements Runnable {
                 t.end();
                 t.show();
             }
-
-            writer.close();
         } catch (Exception e) {
             System.err.println("System has failed!");
             e.printStackTrace();
         }
     }
     
-    public String getOutputFilename(){ return this.outputFilename; }
+    //public String getOutputFilename(){ return this.outputFilename; }
     
     public ArrayList<BDD> getBDDs(){ return this.bdds; }
   

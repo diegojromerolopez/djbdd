@@ -7,11 +7,12 @@ package djbdd.main;
 import djbdd.BDD;
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.io.*;
-import djbdd.io.BDDDimacsLoader;
-import djbdd.io.BDDPrinter;
+import djbdd.io.DimacsFileLoader;
+import djbdd.io.Printer;
 import djbdd.test.Tester;
-import djbdd.io.BDDSheFileLoader;
+import djbdd.io.SheFileLoader;
 import java.util.*;
+import java.io.*;
 
 /**
  *
@@ -145,14 +146,14 @@ public class Main {
      */
     private static void printDimacsFile(String filename, FileLoaderConfiguration config){
         TimeMeasurer t = new TimeMeasurer("dimacs loading");
-        BDDDimacsLoader loader = new BDDDimacsLoader(filename);
+        DimacsFileLoader loader = new DimacsFileLoader(filename);
         System.out.println(config.text);
         BDD bdd = loader.loadFile(config);
         t.end();
         t.show();
         bdd.print();
         if(config.outputInFile){
-            BDDPrinter printer = new BDDPrinter(bdd);
+            Printer printer = new Printer(bdd);
             printer.print("./"+filename);
         }
     }
@@ -166,7 +167,7 @@ public class Main {
      */
     private static void printSheFile(String filename, FileLoaderConfiguration config){
         TimeMeasurer t = new TimeMeasurer("She loading");
-        BDDSheFileLoader loader = new BDDSheFileLoader(filename);
+        SheFileLoader loader = new SheFileLoader(filename);
         System.out.println(config.text);
         BDD bdd = loader.loadFile(config);
         t.end();
@@ -174,7 +175,7 @@ public class Main {
         bdd.print();
         bdd.toFile(filename+".bdd.txt");
         if(config.outputInFile){
-            BDDPrinter printer = new BDDPrinter(bdd);
+            Printer printer = new Printer(bdd);
             printer.print("./"+filename);
         }
     }
@@ -189,7 +190,7 @@ public class Main {
      */
     protected static void printFmla(String fmla, ArrayList<String> variables){
         BDD bdd = new BDD(fmla, variables, false);
-        BDDPrinter printer = new BDDPrinter(bdd);
+        Printer printer = new Printer(bdd);
         printer.print("./"+fmla);
     }
     
@@ -215,6 +216,13 @@ public class Main {
         System.out.println(Arrays.toString(P));*/
     }
     
+    /**
+     * Combines some BDDs.
+     */
+    protected static BDD combineBDDFile(String inputFile, String operator){
+        Combinator c = new Combinator(inputFile, operator);
+        return c.run();
+    }
     
     /**
      * @param args the command line arguments
@@ -262,30 +270,16 @@ public class Main {
                 else{
                     System.out.println("You are not using this software correctly");
                 }
-        }else if(option.equals("--simplify")){
-                if(args[1].equalsIgnoreCase("fmla")){
-                    text += " get from commandline";
-                    System.out.println("TODO");
-                }
-                else if(args[1].equalsIgnoreCase("dimacs")){
-                    FileLoaderConfiguration config = loadDimacsConfig(args);
-                    Simplifier.simplifyDimacsFile(args[2], args[2]+"simplified", config);
-                }
-                else if(args[1].equalsIgnoreCase("she")){
-                    FileLoaderConfiguration config = loadSheConfig(args);
-                    Simplifier.simplifySheFile(args[2], args[2]+"simplified", config);
-                }
-                else{
-                    System.out.println("You are not using this software correctly");
-                }            
+        // Convert formulas to bdd file
         }else if(option.equals("--djbdd-file-conversion") || option.equals("--convert")){
-            text = "Printing a formula";
+            text = "Converts a formula";
                 if(args[1].equalsIgnoreCase("fmla")){
                     text += " get from commandline";
                     System.out.println("TODO");
                 }
                 else if(args[1].equalsIgnoreCase("dimacs")){
                     FileLoaderConfiguration config = loadDimacsConfig(args);
+                     System.out.println("TODO");
                     //Main.extractDimacsFile(args[2], config);
                 }
                 else if(args[1].equalsIgnoreCase("she")){
@@ -295,6 +289,21 @@ public class Main {
                 else{
                     System.out.println("You are not using this software correctly");
                 }
+        // Reads the converted file, operate its bdds and prints to other file
+        }else if(option.equals("--combine-bdd-file") || option.equals("--combine")){
+            System.out.println(args[1]);
+            if(args.length<3){
+                System.err.println("java -jar BDD.jar --combine <inputfile> <outputfile> [operator]");
+                System.exit(-1);
+            }
+            String inputFile = args[1];
+            String outputFile = args[2];
+            String operator = "and";
+            if(args.length >= 4)
+                operator = args[3];
+            text = "Reads a formula and applies ";
+            BDD bdd = Main.combineBDDFile(inputFile, operator);
+            bdd.toFile(outputFile);
         }else if(option.equals("--prob")){
                 text = "Computing probabilities";
                 if(args[1].equalsIgnoreCase("fmla")){
