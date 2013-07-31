@@ -267,7 +267,7 @@ public class BDD {
       BDD bdd = bdds.get(0);
       for(int i=1; i<bdds.size(); i++){
           BDD bddI = bdds.get(i);
-          BDD bddRes = BDD.optimizeTreeGenerationFromAST(op, bdd, bddI);
+          BDD bddRes = null;//BDD.optimizeTreeGenerationFromAST(op, bdd, bddI);
           if(bddRes == null){
             bddRes = bdd.apply(op, bddI);
           }
@@ -521,8 +521,10 @@ public class BDD {
         // Reduction of the BDD tree
         this.reduce();
         if (T.keySet().size() == 1) {
-            this.isTautology = T.get(1) == this.True;
-            this.isContradiction = T.get(0) == this.False;
+            if(T.containsKey(1))
+                this.isTautology = T.get(1) == this.True;
+            if(T.containsKey(0))
+                this.isContradiction = T.get(0) == this.False;
         }
         t.end().show();
     }
@@ -631,6 +633,12 @@ public class BDD {
         this.T = T;
         // Reduction of the BDD tree
         this.reduceForApply();
+        if (T.keySet().size() == 1) {
+            if(T.containsKey(1))
+                this.isTautology = T.get(1) == this.True;
+            if(T.containsKey(0))
+                this.isContradiction = T.get(0) == this.False;
+        }
         //t.end().show();
     }
     
@@ -740,6 +748,9 @@ public class BDD {
     public ArrayList<String> getVariables(){
         return this.variables();
     }
+    
+    public boolean isContradiction(){ return this.isContradiction; }
+    public boolean isTautology(){ return this.isTautology; }
     
     /**************************************************************************/
     /**************************************************************************/
@@ -852,13 +863,16 @@ public class BDD {
             
             // Number of vertices
             line = br.readLine();
+            String num_vertices_s = line.split("\\s+")[1].trim();
+            int num_vertices = Integer.parseInt(num_vertices_s);
             
             // Header of the list of vertices
             line = br.readLine();
             
             // Each vertex
             TableT T = new TableT();
-            while (line != null) {
+            int i=0;
+            while (line != null && i<num_vertices) {
                 line = br.readLine();
                 if (line != null) {
                     // Parameteres of the vertex, index, variable index, low & high
@@ -875,6 +889,7 @@ public class BDD {
                         variables.set(variable, variableName);
                     }
                 }
+                i++;
             }
             
         BDD bdd = new BDD(T, function, variables, present_variable_indices);

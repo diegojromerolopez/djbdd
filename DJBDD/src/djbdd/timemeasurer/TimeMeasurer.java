@@ -9,6 +9,9 @@ public class TimeMeasurer {
     /** Switch to stop measuring times */
     public final static boolean MEASURE_TIME = false;
     
+    /** Overload switch to measure time */
+    public boolean force_measurement = false;
+    
     /** Message to warn developers if MEASURE_TIME = false */
     public final static String DISABLED_MEASUREMENT_CONTEXT = "IT IS NOT MEASURING";
     
@@ -45,14 +48,24 @@ public class TimeMeasurer {
     
     public TimeMeasurer(String context){
         this.context = DISABLED_MEASUREMENT_CONTEXT;
+        this.force_measurement = false;
         if(MEASURE_TIME){
             this.startTime = System.nanoTime();
             this.context = context;
         }
     }
     
+    public TimeMeasurer(String context, boolean force_measurement){
+        this.context = DISABLED_MEASUREMENT_CONTEXT;
+        this.force_measurement = force_measurement;
+        if(MEASURE_TIME || this.force_measurement){
+            this.startTime = System.nanoTime();
+            this.context = context;
+        }
+    }
+    
     public TimeMeasurer end(){
-        if(MEASURE_TIME){
+        if(MEASURE_TIME || this.force_measurement){
             this.endTime = System.nanoTime();
             this.elapsedTime = this.endTime - this.startTime;
         }
@@ -60,7 +73,7 @@ public class TimeMeasurer {
     }
     
     public void show(){
-        if(MEASURE_TIME)
+        if(MEASURE_TIME || this.force_measurement)
             System.out.println(context+" "+this.getElapsedTimeAsHumanText());
     }
     

@@ -62,19 +62,25 @@ public class Combinator {
                             bdd = BDD.fromString(bddString);
                             firstBDD = false;
                             sb = new StringBuilder();
-                            if(verbose)
+                            if(verbose){
                                 System.out.println("BDD " + i + " (" + bdd.size() + " vertices)");
+                            }
 
                         } else {
                             i++;
                             bddString = sb.toString();
                             //System.out.println("OTHER\n" + bddString);
                             BDD bddI = BDD.fromString(bddString);
-                            //System.out.println("END");
-                            bdd = bdd.apply(operation, bddI);
+                            if(!bddI.isContradiction())
+                            {
+                                //System.out.println("END");
+                                bdd = bdd.apply(operation, bddI);
+                                if(verbose){
+                                    System.out.println("BDD " + i + " (" + bdd.size() + " vertices)");
+                                    //System.out.println(bdd.toString());
+                                }
+                            }
                             sb = new StringBuilder();
-                            if(verbose)
-                                System.out.println("BDD " + i + " (" + bdd.size() + " vertices)");
                         }
                     }
                 }
