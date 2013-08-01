@@ -15,22 +15,22 @@ import java.util.*;
  */
 public class BDDApply {
     /** First bdd */
-    BDD bdd1;
+    private final BDD bdd1;
     
     /** Second bdd */
-    BDD bdd2;
+    private final BDD bdd2;
     
     /** Resulting bdd */
     BDD bdd;
     
     /** Leaf vertex with True value */
-    Vertex True;
+    private final Vertex True;
     
     /** Leaf vertex with False value */
-    Vertex False;
+    private final Vertex False;
     
     /** Operation index */
-    int operation;
+    private final int operation;
     
     /** Cache table **/
     HashMap<String,Vertex> G;
@@ -91,19 +91,30 @@ public class BDDApply {
     private String getFunction(){
         String function1 = bdd1.function.trim();
         String function2 = bdd2.function.trim();
-        if(operation == OP_AND)
-            return function1+" && "+function2;
-        if(operation == OP_OR)
-            return function1+" || "+function2;
-        if(operation == OP_NOR)
-            return "!("+function1+" || "+function2+")";
-        if(operation == OP_NAND)
-            return "!("+function1+" &&"+function2+")";
-        if(operation == OP_IFF)
-            return "("+function1+" || !("+function2+")) && (!("+function1+") || "+function2+")";
-         if(operation == OP_IF)
-            return "(!("+function1+") || ("+function2+"))";
-        return "Undefined operator";
+        // Get the function based on the operation
+        if (operation == OP_AND) {
+            return function1 + " && " + function2;
+        }
+        if (operation == OP_OR) {
+            return function1 + " || " + function2;
+        }
+        if (operation == OP_IFF) {
+            return "(" + function1 + " || !(" + function2 + ")) && (!(" + function1 + ") || " + function2 + ")";
+        }
+        if (operation == OP_IF) {
+            return "(!(" + function1 + ") || (" + function2 + "))";
+        }
+        if (operation == OP_NOR) {
+            return "!(" + function1 + " || " + function2 + ")";
+        }
+        if (operation == OP_NAND) {
+            return "!(" + function1 + " &&" + function2 + ")";
+        }
+        // I don't want exceptions, only FATAL ERRORS
+        System.err.println("Operation '" + this.operation + "' not recognized");
+        System.err.flush();
+        System.exit(-1);
+        return "Operator '" + operation + "' undefined in BDDApply.getFunction";
         //throw new Exception("Operator "+operation+" undefined");
     }
     
@@ -138,12 +149,18 @@ public class BDDApply {
             return v1Value && v2Value;
         if(this.operation == OP_OR)
             return v1Value || v2Value;
+        if(this.operation == OP_IF)
+            return (!v1Value || v2Value);
+        if(this.operation == OP_IFF)
+            return (v1Value || !v2Value) && (!v1Value || v2Value);
         if(this.operation == OP_NOR)
             return !(v1Value || v2Value);
         if(this.operation == OP_NAND)
             return !(v1Value && v2Value);
-        if(this.operation == OP_IFF)
-            return (v1Value || !v2Value) && (!v1Value || v2Value);
+        // I don't want exceptions, only FATAL ERRORS
+        System.err.println("Operation '"+this.operation+"' not recognized");
+        System.err.flush();
+        System.exit(-1);
         return false;
     }
 
@@ -170,7 +187,7 @@ public class BDDApply {
     private Vertex app(Vertex v1, Vertex v2){
        
         // Hash key of the computation of the subtree of these two vertices
-        String key = "bdd1-"+v1.index+"+bdd2-"+v2.index;
+        String key = "1-"+v1.index+"+2-"+v2.index;
         
         if( G.containsKey(key) ){
             return G.get(key);
@@ -251,7 +268,7 @@ public class BDDApply {
      * @return BDD BDD Tree with the operatian computed for bdd1 and bdd2.
      */
     public BDD run(){
-        TimeMeasurer t = new TimeMeasurer("========= apply =========", true);
+        TimeMeasurer t = new TimeMeasurer("========= apply =========");
         
         //this.used_vertices = new HashMap<String,Vertex>();
         

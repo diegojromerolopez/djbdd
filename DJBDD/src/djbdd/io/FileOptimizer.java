@@ -58,6 +58,12 @@ public class FileOptimizer {
             System.err.println("Error creating the PrintWriter");
             e.printStackTrace();
         }
+        
+        writer.println("# Variables");
+        for(String variable : loader.variables){
+            writer.println(variable);
+        }
+        writer.println("");
          
         for (int i = 0; i < numThreads; i++)
         {

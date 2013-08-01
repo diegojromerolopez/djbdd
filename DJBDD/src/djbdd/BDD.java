@@ -408,6 +408,16 @@ public class BDD {
     private void assignRoot(){
         ArrayList<Integer> vertexKeys = new ArrayList<Integer>(this.T.keySet());
         this.root = this.T.get(Collections.max(vertexKeys));
+        /*
+        // Test results HAVE BEEN RIGHT, the root is RIGHT!
+        // Test if root calculation is wrong O(N)
+        for(Vertex v : this.T.values()){
+            if(v.low() == this.root.index || v.high() == this.root.index){
+                System.err.println("PETOSKY");
+                System.exit(-1);
+            }
+        }*/
+                
     }
     
     /**

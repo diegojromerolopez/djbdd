@@ -62,5 +62,9 @@ public class TableT {
         return new ArrayList<Vertex>(this.T.values());
     }
     
+    public Collection<Vertex> values(){
+        return this.T.values();
+    }
+    
     
 }
