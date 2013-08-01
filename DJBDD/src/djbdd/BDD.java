@@ -837,7 +837,7 @@ public class BDD {
     /**
      * Read the BDD table from a BufferedReader.
      */
-    public static BDD fromBufferedReader(BufferedReader br){
+    public static BDD fromBufferedReader(BufferedReader br, ArrayList<String> variables){
        String function = "";
         try {
             // Tree formula
@@ -849,9 +849,11 @@ public class BDD {
             line = line.substring("Variables:".length());
             String[] varLine = line.split("\\.");
             int num_variables = Integer.parseInt(varLine[0].replace("\\s+","").trim());
-            ArrayList<String> variables = new ArrayList<String>(num_variables);
-            for(int i=0; i<num_variables; i++)
-                variables.add("NONE");
+            if(variables == null){
+                variables = new ArrayList<String>(num_variables);
+                for(int i=0; i<num_variables; i++)
+                    variables.add("var_"+(i+1)+"");
+            }
             
             // Variable ordering
             ArrayList<Integer> present_variable_indices = new ArrayList<Integer>(num_variables);
@@ -915,6 +917,13 @@ public class BDD {
         return null;
     }
     
+    /**
+     * Read the BDD table from a BufferedReader.
+     */
+    public static BDD fromBufferedReader(BufferedReader br){
+        return BDD.fromBufferedReader(br, null);
+    }
+    
     
     /**
      * Read the BDD table from a file.
@@ -934,13 +943,13 @@ public class BDD {
     /**
      * Read the BDD table from a string.
      */
-    public static BDD fromString(String bddString){
+    public static BDD fromString(String bddString, ArrayList<String> variables){
         try{
             // convert String into InputStream
             InputStream is = new ByteArrayInputStream(bddString.getBytes());
             // read it with BufferedReader
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            return BDD.fromBufferedReader(br);
+            return BDD.fromBufferedReader(br, variables);
         }
         catch(Exception e){
             System.err.println("Error in BDD.fromString. Unable to create the BufferedReader, is the string null?");

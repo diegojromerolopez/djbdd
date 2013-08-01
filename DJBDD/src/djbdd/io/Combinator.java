@@ -42,9 +42,30 @@ public class Combinator {
         BDD bdd = null;
         int i = 0;
         try {
+            
             BufferedReader br = new BufferedReader(new FileReader(inputFile));
             StringBuilder sb = new StringBuilder();
+            
+            // First line must be " # Variables: <number of variables>
             String line = br.readLine();
+            String[] _variables = line.split(":");
+            int num_variables = Integer.parseInt(_variables[1].trim());
+            
+            // We get the variables
+            ArrayList<String> variables = new ArrayList<String>(num_variables);
+            line = br.readLine();
+            int var_i = 0;
+            while(line!=null && var_i<num_variables){
+                variables.add(line);
+                line = br.readLine();
+                var_i++;
+            }
+            
+            // We get the first line
+            // of the BDDS enumeration
+            line = br.readLine();
+            
+            // We get each of the BDDs
             String bddString = "";
             while (line != null) {
                 if (!line.equals("")) {
@@ -55,22 +76,25 @@ public class Combinator {
                             sb.append('\n');
                             line = br.readLine();
                         }
-
+                        
+                        // If is the first BDD, we don't make apply
                         if (firstBDD) {
                             i = 1;
                             bddString = sb.toString();
-                            bdd = BDD.fromString(bddString);
+                            bdd = BDD.fromString(bddString, variables);
                             firstBDD = false;
                             sb = new StringBuilder();
                             if(verbose){
                                 System.out.println("BDD " + i + " (" + bdd.size() + " vertices)");
                             }
-
+                        
+                        // For the next BDDs, we make apply between the current
+                        // BDD and the "total" BDD
                         } else {
                             i++;
                             bddString = sb.toString();
                             //System.out.println("OTHER\n" + bddString);
-                            BDD bddI = BDD.fromString(bddString);
+                            BDD bddI = BDD.fromString(bddString, variables);
                             if(!bddI.isContradiction())
                             {
                                 //System.out.println("END");

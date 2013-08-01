@@ -59,7 +59,7 @@ public class FileOptimizer {
             e.printStackTrace();
         }
         
-        writer.println("# Variables");
+        writer.println("# Variables: "+loader.variables.size());
         for(String variable : loader.variables){
             writer.println(variable);
         }
