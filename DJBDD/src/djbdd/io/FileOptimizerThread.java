@@ -23,7 +23,9 @@ public class FileOptimizerThread implements Runnable {
     //String outputFilename;
     PrintWriter writer ;
     private static final int ITERATIONS = 100;
-    private static final int MAX_VARIABLES_TO_MAKE_ITERATIONS = 100; 
+    private static final int MAX_VARIABLES_TO_MAKE_ITERATIONS = 200;
+    private static int BDD_I = 1;
+    private static int RANDOM_SEED = 1;
      
     public FileOptimizerThread(int index, PrintWriter writer, ArrayList<String> formulas, ArrayList<String> variables, boolean useApplyInCreation){
         this.index = index;
@@ -35,8 +37,10 @@ public class FileOptimizerThread implements Runnable {
     }
     
     private synchronized void writeToFile(BDD bdd, int i){
-        this.writer.println("# BEGIN BDD T"+this.index+ " " + (i + 1)+"\n"+bdd.toString()+"# END BDD T"+this.index+ " " + (i + 1)+"\n");
+        String bddName = "BDD "+BDD_I+" (T "+this.index+" "+(i+1)+")";
+        this.writer.println("# BEGIN "+bddName+"\n"+bdd.toString()+"# END "+bddName+"\n");
         this.writer.flush();
+        BDD_I++;
     }
     
     private String[] getInitialVariableOrder(String function){
@@ -72,25 +76,22 @@ public class FileOptimizerThread implements Runnable {
                     LOOPS = 1;
                 
                 // BDD base
+                TimeMeasurer t_loops = new TimeMeasurer(">>>>>>>>>>>> runned of "+_variable_order.length+" variables <<<<<<<<<<", true);
                 BDD bdd = new BDD(formulaI, _variables, _variable_order, useApplyInCreation);
                 // Iterations to get a smaller BDD
                 int j = 0;
                 while (j < LOOPS) {
-                    Collections.shuffle(Arrays.asList(_variable_order));
+                    Collections.shuffle(Arrays.asList(_variable_order), new Random(RANDOM_SEED));
                     BDD bddI = new BDD(formulaI, _variables, _variable_order, useApplyInCreation);
                     j++;
                     if (bddI.size() < bdd.size()) {
                         bdd = bddI;
                     }
                 }
+                t_loops.end().show();
                 bdds.add(bdd);
                 this.writeToFile(bdd, i);
-                /*
-                writer.println("# BEGIN BDD " + (i + 1));
-                writer.print(bdd.toString());
-                writer.println("# END BDD " + (i + 1));*/
-                t.end();
-                t.show();
+                t.end().show();
             }
         } catch (Exception e) {
             System.err.println("System has failed!");

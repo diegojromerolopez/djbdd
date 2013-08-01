@@ -7,7 +7,7 @@ package djbdd.timemeasurer;
 public class TimeMeasurer {
     
     /** Switch to stop measuring times */
-    public final static boolean MEASURE_TIME = true;
+    public final static boolean MEASURE_TIME = false;
     
     /** Overload switch to measure time */
     public boolean force_measurement = false;

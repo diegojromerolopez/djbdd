@@ -95,7 +95,7 @@ public class Combinator {
                             bddString = sb.toString();
                             //System.out.println("OTHER\n" + bddString);
                             BDD bddI = BDD.fromString(bddString, variables);
-                            if(!bddI.isContradiction())
+                            if(!bddI.isTautology() && operation.equals("and"))
                             {
                                 //System.out.println("END");
                                 bdd = bdd.apply(operation, bddI);

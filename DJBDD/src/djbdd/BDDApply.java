@@ -39,7 +39,7 @@ public class BDDApply {
     HashMap<String,Vertex> U;
     
     /** Used vertices table **/
-    //HashMap<Integer,Vertex> used_vertices;
+    HashMap<Integer,Vertex> used_vertices;
     
     /** Resulting hash table containing the relations between vertices */
     TableT T;
@@ -249,7 +249,8 @@ public class BDDApply {
         return u;
     }
 
-    /*private void cleanGarbage(){
+    private void cleanGarbage(){
+        TimeMeasurer t = new TimeMeasurer("========= cleanGarbage =========", true);
         Set<Integer> keys = this.T.keySet();
         ArrayList<Integer> garbageKeys = new ArrayList<Integer>(keys.size());
         
@@ -259,7 +260,8 @@ public class BDDApply {
         
         for(Integer k : garbageKeys)
             this.T.remove(k);
-    }*/
+        t.end().show();
+    }
     
     /**
      * Public call to execute the apply algorithm.
@@ -268,7 +270,7 @@ public class BDDApply {
      * @return BDD BDD Tree with the operatian computed for bdd1 and bdd2.
      */
     public BDD run(){
-        TimeMeasurer t = new TimeMeasurer("========= apply =========");
+        TimeMeasurer t = new TimeMeasurer("========= apply =========", true);
         
         //this.used_vertices = new HashMap<String,Vertex>();
         

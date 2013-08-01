@@ -194,11 +194,22 @@ public class Main {
         printer.print("./"+fmla);
     }
     
+    /**
+     * Convert a she file in an optimized file.
+     * @param filename Name of the she file that will be converted.
+     * @param config Configuration used in the she file loading.
+     */
     protected static void convertSheFile(String filename, FileLoaderConfiguration config){
         TimeMeasurer t = new TimeMeasurer("She conversion");
-        FileOptimizer extractor = new FileOptimizer(filename, filename+".bdd.txt");
+        
+        config.numberOfCNFByBDD = 1;
+        config.useApplyInCreation = true;
+        SheFileLoader loader = new SheFileLoader(filename);
+        loader.init(config);
         System.out.println(config.text);
-        extractor.run(config);
+        
+        FileOptimizer extractor = new FileOptimizer(loader.variables, loader.bdd_formulas, filename+".bdd.txt");
+        extractor.run();
         t.end();
         t.show();
     }

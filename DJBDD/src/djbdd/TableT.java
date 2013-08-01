@@ -12,6 +12,9 @@ import java.util.*;
  */
 public class TableT {
     
+    public static int INITIAL_CAPACITY = 1000;
+    public static final float LOAD_FACTOR = 0.75f;
+    
     /** Hashmaps that wraps */
     HashMap<Integer,Vertex> T;
     
@@ -19,7 +22,11 @@ public class TableT {
     private int lastKey = 0;
     
     public TableT(){
-        this.T = new HashMap<Integer,Vertex>();
+        this.T = new HashMap<Integer,Vertex>(INITIAL_CAPACITY, LOAD_FACTOR);
+    }
+    
+    public TableT(int initialCapacity){
+        this.T = new HashMap<Integer,Vertex>(initialCapacity, LOAD_FACTOR);
     }
     
     public boolean containsKey(Integer key){
