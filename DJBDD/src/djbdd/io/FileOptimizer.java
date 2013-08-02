@@ -67,36 +67,61 @@ public class FileOptimizer {
         
         PrintWriter writer = null;
         try{
+            File f = new File(this.outputFilename);
+            if(f.exists())
+                f.delete();
             writer = new PrintWriter(new FileOutputStream(new File(this.outputFilename),true));
         }catch(Exception e){
             System.err.println("Error creating the PrintWriter");
             e.printStackTrace();
         }
         
+        // Number of variables
         writer.println("# Variables: "+this.variables.size());
         for(String variable : this.variables){
             writer.println(variable);
         }
         writer.println("");
-         
+        
+        // Creating the optimized BDD file
         for (int i = 0; i < numThreads; i++)
         {
             int startFormulaIndex = i*numFormulasByThread;
             int endFormulaIndex = startFormulaIndex + numFormulasByThread;
             if(i==numThreads-1)
                 endFormulaIndex = this.formulas.size();
-            if(VERBOSE){
+            if(true){
                 System.out.println("Thread "+i+" has clausules ["+startFormulaIndex+", "+endFormulaIndex+"]");
             }
             ArrayList<String> threadFormulas = new ArrayList<String>(this.formulas.subList(startFormulaIndex, endFormulaIndex));
-            Runnable worker = new FileOptimizerThread(i, writer, threadFormulas, this.variables, USE_APPLY_IN_BDD_CREATION);
+            Runnable worker = new FileOptimizerThread(i, writer, threadFormulas, this.variables, USE_APPLY_IN_BDD_CREATION, "and");
             executor.execute(worker);
             workers.add((FileOptimizerThread)worker);
         }
+        //System.exit(-1);
         executor.shutdown();
         while (!executor.isTerminated()) {
             //leep?
         }
+
+        // Number of BDDs
+        int num_bdds = 0;
+        for(FileOptimizerThread thread : workers){
+            num_bdds += thread.getBDDs().size();
+        }
+        writer.println("# BDDs: "+num_bdds);
+        writer.println("");
+        
+        // Print the BDDs
+        int i=1;
+        for(FileOptimizerThread thread : workers){
+            for(BDD bdd : thread.getBDDs()){
+                thread.writeToFile(bdd, i);
+                i++;
+            }
+        }
+        
+        // Close the file
         writer.close();
 
      }

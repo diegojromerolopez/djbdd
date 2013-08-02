@@ -270,7 +270,7 @@ public class BDDApply {
      * @return BDD BDD Tree with the operatian computed for bdd1 and bdd2.
      */
     public BDD run(){
-        TimeMeasurer t = new TimeMeasurer("========= apply =========", true);
+        TimeMeasurer t = new TimeMeasurer("========= apply =========");
         
         //this.used_vertices = new HashMap<String,Vertex>();
         

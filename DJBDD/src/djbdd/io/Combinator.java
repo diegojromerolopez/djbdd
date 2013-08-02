@@ -64,6 +64,13 @@ public class Combinator {
             // We get the first line
             // of the BDDS enumeration
             line = br.readLine();
+            int num_bdds = Integer.parseInt(line.split(":")[1].trim());
+            
+            // New line
+            line = br.readLine();
+
+            // First line with useful information
+            line = br.readLine();
             
             // We get each of the BDDs
             String bddString = "";
@@ -85,7 +92,7 @@ public class Combinator {
                             firstBDD = false;
                             sb = new StringBuilder();
                             if(verbose){
-                                System.out.println("BDD " + i + " (" + bdd.size() + " vertices)");
+                                System.out.println("BDD " + i +"/"+num_bdds+" (" + bdd.size() + " vertices)");
                             }
                         
                         // For the next BDDs, we make apply between the current
@@ -93,14 +100,20 @@ public class Combinator {
                         } else {
                             i++;
                             bddString = sb.toString();
-                            //System.out.println("OTHER\n" + bddString);
                             BDD bddI = BDD.fromString(bddString, variables);
+                            if(verbose){
+                                System.out.println("__________________________");
+                                System.out.println("__________________________");
+                                System.out.println("Apply Loop "+i);
+                                System.out.println("bdd.size " + bdd.size());
+                                System.out.println("bddI.size " + bddI.size());
+                            }
                             if(!bddI.isTautology() && operation.equals("and"))
                             {
                                 //System.out.println("END");
                                 bdd = bdd.apply(operation, bddI);
                                 if(verbose){
-                                    System.out.println("BDD " + i + " (" + bdd.size() + " vertices)");
+                                    System.out.println("BDD " + i +"/"+num_bdds+" (" + bdd.size() + " vertices)");
                                     //System.out.println(bdd.toString());
                                 }
                             }

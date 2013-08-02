@@ -19,10 +19,25 @@ public class FileOptimizerThread implements Runnable {
     private ArrayList<String> variables;
     private boolean verbose = true;
     private ArrayList<BDD> bdds;
-    boolean useApplyInCreation = true;
-    //String outputFilename;
+    
+    /** Should the thread join the BDDs using a logical operation? */
+    private final boolean joinBDDs;
+    
+    /** BDD to store the total bdd, that is bdd_0 <op> bdd_1 <op> bdd_2 <op> .. <op> bdd_N  */
+    private BDD joinedBDD;
+    
+    /** Operation used to join the BDD if joinBDDs is true */
+    private String operation;
+    
+    /** Should me have to use apply in BDD creation? */
+    public final boolean useApplyInCreation;
+    
+    /** Writer to file, shared with all threads */
     PrintWriter writer ;
-    private static final int ITERATIONS = 100;
+    
+    // Constants
+    
+    private static final int ITERATIONS = 50;
     private static final int MAX_VARIABLES_TO_MAKE_ITERATIONS = 200;
     private static int BDD_I = 1;
     private static int RANDOM_SEED = 1;
@@ -34,13 +49,32 @@ public class FileOptimizerThread implements Runnable {
         this.useApplyInCreation = useApplyInCreation;
         this.writer = writer;
         this.bdds = new ArrayList<BDD>(formulas.size());
+        this.joinBDDs = false;
     }
     
-    private synchronized void writeToFile(BDD bdd, int i){
+    public FileOptimizerThread(int index, PrintWriter writer, ArrayList<String> formulas, ArrayList<String> variables, boolean useApplyInCreation, String bddJoinOperation){
+        this.index = index;
+        this.formulas = formulas;
+        this.variables = variables;
+        this.useApplyInCreation = useApplyInCreation;
+        this.writer = writer;
+        this.bdds = new ArrayList<BDD>(formulas.size());
+        this.operation = bddJoinOperation;
+        this.joinBDDs = true;
+    }
+    
+    public synchronized void writeToFile(BDD bdd, int i){
         String bddName = "BDD "+BDD_I+" (T "+this.index+" "+(i+1)+")";
         this.writer.println("# BEGIN "+bddName+"\n"+bdd.toString()+"# END "+bddName+"\n");
         this.writer.flush();
         BDD_I++;
+    }
+    
+    public synchronized void writeBDDsToFile(){
+        // Write the reduced bdds to a file
+        for (int i = 0; i < bdds.size(); i++) {
+            this.writeToFile(bdds.get(i), i);
+        }
     }
     
     private String[] getInitialVariableOrder(String function){
@@ -61,8 +95,9 @@ public class FileOptimizerThread implements Runnable {
         
         try {
             //PrintWriter writer = new PrintWriter(this.outputFilename, "UTF-8");
-           
-            for (int i = 0; i < formulas.size(); i++) {
+            boolean firstBDD = false;
+            for (int i = 0; i < formulas.size(); i++)
+            {
                 TimeMeasurer t = new TimeMeasurer("\nFMLA " + (i + 1) + "/" + formulas.size());
                 String formulaI = formulas.get(i);
                 if (verbose) {
@@ -90,12 +125,40 @@ public class FileOptimizerThread implements Runnable {
                 }
                 t_loops.end().show();
                 bdds.add(bdd);
-                this.writeToFile(bdd, i);
                 t.end().show();
             }
+            
+            if(this.joinBDDs){
+                firstBDD = true;
+                int MAX_SIZE_TO_JOIN = 3;
+                ArrayList<BDD> remainingBDDs = new ArrayList<BDD>(this.bdds.size());
+                for(int i=0; i<this.bdds.size(); i++){
+                    BDD bddI = this.bdds.get(i);
+                    boolean musJoinBddI = bddI.size() <= MAX_SIZE_TO_JOIN;
+                    if (verbose) {
+                        System.out.println("T"+this.index+ " - Should we join " + (i + 1) + "/" + formulas.size() + "?: " + (musJoinBddI?"Yes":"No"));
+                    }
+                    if(musJoinBddI){
+                        if(firstBDD){
+                            this.joinedBDD = bddI;
+                            firstBDD = false;
+                        }else {
+                            this.joinedBDD = this.joinedBDD.apply(this.operation, bddI);
+                        }
+                        bddI = null;
+                        this.bdds.set(i, null);
+                    }else{
+                        remainingBDDs.add(bddI);
+                    }
+                }
+                remainingBDDs.add(this.joinedBDD);
+                this.bdds = remainingBDDs;
+            }
+            
         } catch (Exception e) {
             System.err.println("System has failed!");
             e.printStackTrace();
+            System.exit(-1);
         }
     }
     
