@@ -56,6 +56,9 @@ public class BDD {
     
     /** Hash table useful for doing apply */
     public HashMap<String,Vertex> U;
+    
+    /** Hash table useful for doing apply */
+    public HashMap<Integer,ArrayList<Vertex>> levels;
 
     /** Root of the BDD tree */
     Vertex root = null;
@@ -72,7 +75,10 @@ public class BDD {
     /** Informs if this BDD is a contradiction (always false) */
     boolean isContradiction = false;
 
-    
+    /**
+     * Assign operation of one BDD in another.
+     * @param bdd BDD that will be copied in caller.
+     */
     private void assign(BDD bdd){
         this.name = bdd.name;
         this.function = bdd.function;
@@ -91,6 +97,68 @@ public class BDD {
     /**************************************************************************/
     /**************************************************************************/
     /**** TREE GENERATION ****/ 
+    
+    
+    /* LEVELS & WHATEVER  */
+    protected void addVertexToLevel(Vertex v, int level){
+        // If level doesn't exist, we create it
+        if(!levels.containsKey(level))
+            levels.put(level, new ArrayList<Vertex>(level*10));
+        
+        // We add the vertex to the level
+        levels.get(level).add(v);
+    }
+    
+    protected void addVerticesToLevel(Collection<Vertex> vertices, int level){
+        // If level doesn't exist, we create it
+        if(!levels.containsKey(level))
+            levels.put(level, new ArrayList<Vertex>(level*10));
+        
+        // We add each vertex to the level
+        for(Vertex v : vertices)
+            levels.get(level).add(v);
+    }
+    
+    protected void addAllVerticesToLevel(int level){
+        // If level doesn't exist, we create it
+        if(!levels.containsKey(level))
+            levels.put(level, new ArrayList<Vertex>(level*10));
+        
+        // We add each vertex to the level
+        for(Vertex v : this.T.values())
+            levels.get(level).add(v);
+    }
+    
+    private void updateLevels(Vertex v, int level){
+        
+        if(v.isLeaf()){
+            return;
+        }
+        else{
+            this.addVertexToLevel(v, level);
+            updateLevels(this.T.get(v.low()), level+1);
+            updateLevels(this.T.get(v.high()), level+1);
+        }
+    }
+    
+    private void swapLevel(int i){
+        ArrayList<Vertex> levelI = this.levels.get(i);
+        //ArrayList<Vertex> levelI1 = this.levels.get(i+1);
+        
+        for(Vertex v : levelI){
+            int lowIndex = T.getNextKey();
+            Vertex low = new Vertex(lowIndex,0,0,0);
+            
+            int highIndex = T.getNextKey();
+            Vertex high = new Vertex(highIndex,0,0,0);
+            
+            int index = T.getNextKey();
+            Vertex vReplacement = new Vertex(index, 0, low.index, high.index);
+            this.T.put(v.index, vReplacement); 
+        }
+    }
+    
+    /* END LEVELS & WHATEVER */
     
     /**
      * Evaluates the formula given a path (an assignement of variables)
@@ -153,6 +221,7 @@ public class BDD {
                 // If low and high are the same vertex, we do not create their
                 // parent, because it is redundant. We return the child.
                 if(v_low.index == v_high.index){
+                    this.addVertexToLevel(v_low, path_len);
                     return v_low;
                 }
                 
@@ -168,7 +237,9 @@ public class BDD {
                 // descendents, return that
                 String vKey = var_index+"-"+v_low.index+"-"+v_high.index;
                 if(U.containsKey(vKey)){
-                    return U.get(vKey);
+                    Vertex v = U.get(vKey);
+                    this.addVertexToLevel(v, path_len);
+                    return v;
                 }
                 
                 // There are no vertex with
@@ -178,6 +249,7 @@ public class BDD {
                 Vertex v = new Vertex(index, var_index, v_low, v_high);
                 this.T.put(index, v);
                 U.put(vKey, v);
+                this.addVertexToLevel(v, path_len);
                 return v;
             }
             else if(path_len == this.present_variable_indices.size())
@@ -186,9 +258,11 @@ public class BDD {
                 boolean value = this.evaluatePath(path);
                 if(value){
                     this.T.put(1,this.True);
+                    this.addVertexToLevel(this.True, path_len);
                     return this.True;
                 }
                 this.T.put(0,this.False);
+                this.addVertexToLevel(this.False, path_len);
                 return this.False;
             }
             //System.out.println("WRONG");
@@ -247,44 +321,65 @@ public class BDD {
        }
        return null;
    }
-    
-   private static BDD generateTreeFromAST(CommonTree tree, ArrayList<String> variables) {
-      int childCount = tree.getChildCount();
-      if (childCount == 0) {
-          //System.out.println("Leaf " + tree.getText());
-          return new BDD(tree.getText(), variables, false);
-      }
-      
-      String op = tree.getText();
-      //System.out.println("OP es "+op);
-      List<CommonTree> children = (List<CommonTree>) tree.getChildren();
-      ArrayList<BDD> bdds = new ArrayList<BDD>(childCount);
-      for (CommonTree child : children) {
-          BDD bddI = BDD.generateTreeFromAST(child, variables);
-          //System.out.println("Función "+bddI.function);
-          bdds.add(bddI);
-      }
-      BDD bdd = bdds.get(0);
-      for(int i=1; i<bdds.size(); i++){
-          BDD bddI = bdds.get(i);
-          BDD bddRes = null;//BDD.optimizeTreeGenerationFromAST(op, bdd, bddI);
-          if(bddRes == null){
-            bddRes = bdd.apply(op, bddI);
-          }
-          
-          bdd = bddRes;
-          bdd.reduce();
-      }
-      //bdd.print();
-      return bdd;
+   
+  
+    /**
+     * Generate the BDD tree using a Abstract Syntax Tree (based in ANTL3 library).
+     * @param tree AST 
+     * @param variables List with the variables of the tree.
+     * @return BDD Binary Decision Tree for the formula described in the AST tree.
+     */
+    private static BDD generateTreeFromAST(CommonTree tree, ArrayList<String> variables) {
+        // Get the number of children of the tree
+        int childCount = tree.getChildCount();
+        
+        // If we have a leaf, the node has a variable not an operation
+        // we create the BDD using recursion (it's only one step deep)
+        if (childCount == 0) {
+            BDD bdd = new BDD(tree.getText(), variables, false);
+            return bdd;
+        }
+        
+        // Otherwise, we get an operation node
+        String op = tree.getText();
+        
+        // For each children, we recursively call generateTreeFromAST
+        // And assign current node as parent of the subtree generated
+        List<CommonTree> children = (List<CommonTree>) tree.getChildren();
+        ArrayList<BDD> bdds = new ArrayList<BDD>(childCount);
+        for (CommonTree child : children) {
+            BDD bddI = BDD.generateTreeFromAST(child, variables);
+            //System.out.println("Función "+bddI.function);
+            bdds.add(bddI);
+        }
+        
+        // For ech children, we apply the operation given in their parent node
+        // and construct a new BDD for the parention node
+        BDD bdd = bdds.get(0);
+        for (int i = 1; i < bdds.size(); i++) {
+            BDD bddI = bdds.get(i);
+            BDD bddRes = null;//BDD.optimizeTreeGenerationFromAST(op, bdd, bddI);
+            if (bddRes == null) {
+                bddRes = bdd.apply(op, bddI);
+            }
+
+            bdd = bddRes;
+            bdd.reduce();
+        }
+        //bdd.print();
+        return bdd;
     }
    
+   /**
+    * Generate the Tree usin the APPLY operation.
+    * The 'this' object IS MODIFIED.
+    */
     private void generateTreeUsingApply(){
-        //System.out.println("generateTreeUsingApply");
+        // Creating the lexer and the parser for the logic formula
         LogicLexer lexer = new LogicLexer(new ANTLRStringStream(this.function));
         LogicParser parser = new LogicParser(new CommonTokenStream(lexer));
         
-        // invoke the entry point of the parser (the parse() method) and get the AST
+        // Invoke the entry point of the parser (the parse() method) and get the AST
         CommonTree tree = null;
         try{
             tree = (CommonTree)parser.parse().getTree();
@@ -292,9 +387,13 @@ public class BDD {
             System.err.println("ERROR. Parsing of the expression "+this.function+" has failed. Detailed report:");
             e.printStackTrace();
         }
-        //System.out.println("XXXXXXXXXXX");
+        
+        // Call to create the BDD from an AST
+        int level = 0;
         BDD bdd = BDD.generateTreeFromAST(tree, this.variables);
         this.assign(bdd);
+        this.assignRoot();
+        //this.updateLevels(this.root, level);
     }
     
     /**************************************************************************/
@@ -508,6 +607,9 @@ public class BDD {
         this.True = new Vertex(true);
         // HashMap
         this.T = new TableT();
+
+        // Levels
+        this.levels = new HashMap<Integer,ArrayList<Vertex>>(this.present_variable_indices.size());
         
         // If we insert the False and True vertices,
         // we can't have true or false BDDs
@@ -519,8 +621,7 @@ public class BDD {
         
         // If the formula can be evaluated to true without creating all the tree
         // is a truth BDD, containing only the True vertex
-        //System.out.println("Use apply "+useApplyInCreation);
-        if(!useApplyInCreation)// && this.present_variable_indices.size() < MAX_NUMBER_OF_VARIABLES_TO_LAUNCH_RECURSIVE_CREATION)
+        if(!useApplyInCreation)
             this.generateTreeFunction(path, U);
         else{
             this.generateTreeUsingApply();
@@ -813,6 +914,21 @@ public class BDD {
      */
     public void print(){
         System.out.println(this.toString());
+        System.out.flush();
+    }
+    
+    
+    /**
+     * Prints the BDD table.
+     */
+    public void printLevels(){
+        for(Integer l : this.levels.keySet()){
+            ArrayList<Vertex> vertices = this.levels.get(l);
+            System.out.println("Level "+l);
+            for(Vertex v : vertices){
+                System.out.println("Vertex"+v.toString());
+            }
+        }
         System.out.flush();
     }
     

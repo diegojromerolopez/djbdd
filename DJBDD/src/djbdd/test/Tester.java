@@ -35,10 +35,11 @@ public class Tester {
         variable_ordering.add(1);// b
         variable_ordering.add(4);// e
         variable_ordering.add(5);// f
-        boolean useApplyInCreation = false;
+        boolean useApplyInCreation = true;
         // Construction of the BDD
         BDD bdd = new BDD(function, variables, variable_ordering, useApplyInCreation);
         bdd.print();
+        bdd.printLevels();
         Printer.printBDD(bdd, "test0_"+bdd.variable_ordering.toString());
     }
     
