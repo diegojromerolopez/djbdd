@@ -181,6 +181,7 @@ public class SheFileLoader {
              e.printStackTrace();
         }
         
+        BDD.initVariables(variables);
         // Now we are going to create the bdd one clausule at a time
         bdd_formulas = new ArrayList<String>( formulas.size()/config.numberOfCNFByBDD );
         String formulaBDDI = "";
@@ -231,7 +232,7 @@ public class SheFileLoader {
                 System.out.println("Thread "+i+" has clausules ["+startFormulaIndex+", "+endFormulaIndex+"]");
             }
             ArrayList<String> threadFormulas = new ArrayList<String>(bdd_formulas.subList(startFormulaIndex, endFormulaIndex));
-            Runnable worker = new SheFileLoaderThread(i,threadFormulas,variables, config.useApplyInCreation);
+            Runnable worker = new SheFileLoaderThread(i, threadFormulas, config.useApplyInCreation);
             executor.execute(worker);
             workers.add((SheFileLoaderThread)worker);
         }

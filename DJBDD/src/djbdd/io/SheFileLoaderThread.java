@@ -20,22 +20,20 @@ import djbdd.parallel.*;
 class SheFileLoaderThread implements Runnable {
     private int index;
     private ArrayList<String> formulas;
-    private ArrayList<String> variables;
     private boolean verbose = true;
     private BDD bdd;
     boolean useApplyInCreation = false;
      
-    public SheFileLoaderThread(int index, ArrayList<String> formulas, ArrayList<String> variables, boolean useApplyInCreation){
+    public SheFileLoaderThread(int index, ArrayList<String> formulas, boolean useApplyInCreation){
         this.index = index;
         this.formulas = formulas;
-        this.variables = variables;
         this.useApplyInCreation = useApplyInCreation;
     }
  
     private String[] getVariableOrder(String function){
-        ArrayList<String> variable_order = new ArrayList<String>(variables.size());
-        for(int i=0; i<variables.size(); i++){
-            String var = variables.get(i);
+        ArrayList<String> variable_order = new ArrayList<String>(BDD.variables().size());
+        for(int i=0; i<BDD.variables().size(); i++){
+            String var = BDD.variables().get(i);
             Boolean exists_variable = function.contains(var);
             if(exists_variable)
                 variable_order.add(var);
@@ -45,9 +43,9 @@ class SheFileLoaderThread implements Runnable {
     
     @Override
     public void run() {
-        String[] _variables = variables.toArray(new String[variables.size()]);
+        String[] _variables = BDD.variables().toArray(new String[BDD.variables().size()]);
         String[] _variable_order = getVariableOrder(formulas.get(0));
-        bdd = new BDD(formulas.get(0), _variables, _variable_order, this.useApplyInCreation);
+        bdd = new BDD(formulas.get(0), _variable_order, this.useApplyInCreation);
         if(verbose){
             System.out.println("\n[Thread "+this.index+"] Formula "+(1)+"/"+formulas.size()+": "+formulas.get(0));
             bdd.print();
@@ -63,7 +61,7 @@ class SheFileLoaderThread implements Runnable {
             //_variable_order = getVariableOrder(formulaI);
             //BDD bddI = new BDD(formulaI, _variables, _variable_order);
             TimeMeasurer t2 = new TimeMeasurer("\n[Thread "+this.index+"] BDD Creation "+(i+1)+"/"+formulas.size());
-            BDD bddI = new BDD(formulaI, variables, this.useApplyInCreation);
+            BDD bddI = new BDD(formulaI, this.useApplyInCreation);
             t2.end().show();
             TimeMeasurer t3 = new TimeMeasurer("\n[Thread "+this.index+"] BDD APPLY "+(i+1)+"/"+formulas.size());
             BDD bddRes = bdd.apply("and",bddI);

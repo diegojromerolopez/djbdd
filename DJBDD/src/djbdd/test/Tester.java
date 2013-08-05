@@ -37,7 +37,8 @@ public class Tester {
         variable_ordering.add(5);// f
         boolean useApplyInCreation = true;
         // Construction of the BDD
-        BDD bdd = new BDD(function, variables, variable_ordering, useApplyInCreation);
+        BDD.initVariables(variables);
+        BDD bdd = new BDD(function, variable_ordering, useApplyInCreation);
         bdd.print();
         bdd.printLevels();
         Printer.printBDD(bdd, "test0_"+bdd.variable_ordering.toString());
@@ -48,14 +49,15 @@ public class Tester {
         // Un test para estudiar el orden de las variables
         String function = "(a_ && b_) || (c_ && d_) || (e_ && f_)";
         final String[] variables={"a_", "b_", "c_", "d_", "e_", "f_"};
+        BDD.initVariables(variables);
         // Small BDD
         final String[] variable_ordering1={"a_", "b_", "c_", "d_", "e_", "f_"};
-        BDD bdd1 = new BDD(function, variables, variable_ordering1, useApplyInCreation);
+        BDD bdd1 = new BDD(function, variable_ordering1, useApplyInCreation);
         bdd1.print();
         Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_"+bdd1.variable_ordering.toString());
         // Big an inefficient BDD
         final String[] variable_ordering2={"c_", "a_", "e_", "b_", "f_", "d_"};
-        BDD bdd2 = new BDD(function, variables, variable_ordering2, useApplyInCreation);
+        BDD bdd2 = new BDD(function, variable_ordering2, useApplyInCreation);
         bdd2.print();
         Printer.printBDD(bdd2, "test1_bdd2_"+bdd2.size()+"_"+bdd2.variable_ordering.toString());
         // Heuristic BDD
@@ -64,7 +66,7 @@ public class Tester {
         int iterations = 1000;
         int i = 0;
         while(i< iterations){
-            BDD bddH = new BDD(function, variables, variable_orderingH, useApplyInCreation);
+            BDD bddH = new BDD(function, variable_orderingH, useApplyInCreation);
             if(bddMin == null || bddH.size() < bddMin.size()){
                 bddMin = bddH;
             }
@@ -83,7 +85,8 @@ public class Tester {
         final String[] variables={"PPC?", "MAC?", "ADB?", "ADB_IOP?"};
         // Small BDD
         final String[] variable_ordering1={"PPC?", "MAC?", "ADB?", "ADB_IOP?"};
-        BDD bdd1 = new BDD(function, variables, variable_ordering1, useApplyInCreation);
+        BDD.initVariables(variables);
+        BDD bdd1 = new BDD(function, variable_ordering1, useApplyInCreation);
         bdd1.print();
         Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_"+bdd1.variable_ordering.toString());      
    }
@@ -95,8 +98,9 @@ public class Tester {
         variables.add("x2");
         variables.add("x3");
         variables.add("x4");
+        BDD.initVariables(variables);
         boolean useApplyInCreation = false;
-        BDD bdd = new BDD(function, variables, useApplyInCreation);
+        BDD bdd = new BDD(function, useApplyInCreation);
         bdd.print();
         System.out.println(
         "Tree for "+function+"\n"+
@@ -124,12 +128,13 @@ public class Tester {
         
         // First operand
         function1 = "("+function1+")";
-        BDD bdd1 = new BDD(function1, variables, useApplyInCreation);
+        BDD.initVariables(variables);
+        BDD bdd1 = new BDD(function1, useApplyInCreation);
         bdd1.print();//*/
         
         // Second operand
         String function2 = "(x3 && x4)";
-        BDD bdd2 = new BDD(function2, variables, useApplyInCreation);
+        BDD bdd2 = new BDD(function2, useApplyInCreation);
         bdd2.print();
         
         // Result     
@@ -138,7 +143,7 @@ public class Tester {
         
         
         String function = "("+function1+" && "+function2+")";
-        BDD bdd = new BDD(function, variables, useApplyInCreation);
+        BDD bdd = new BDD(function, useApplyInCreation);
         bdd.print();//*/
         
         String file = "test4.bdd.txt";
@@ -205,7 +210,8 @@ public class Tester {
         
         // First operand
         function1 = "("+function1+")";
-        BDD bdd1 = new BDD(function1, variables, useApplyInCreation);
+        BDD.initVariables(variables);
+        BDD bdd1 = new BDD(function1, useApplyInCreation);
         bdd1.print();//*/
      }
     

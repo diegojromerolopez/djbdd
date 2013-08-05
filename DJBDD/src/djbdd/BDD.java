@@ -37,8 +37,8 @@ public class BDD {
     /** String representation of the boolean logic function of this BDD */
     public String function;
     
-    /** All the variables that will be know by this BDD in no particular order */
-    public ArrayList<String> variables;
+    /** All the variables that will be know by all BDDs in no particular order */
+    private static ArrayList<String> VARIABLES = null;
     
     /** Informs if a variable exists in this BDD */
     public HashMap<String,Boolean> variable_existence;
@@ -82,7 +82,6 @@ public class BDD {
     private void assign(BDD bdd){
         this.name = bdd.name;
         this.function = bdd.function;
-        this.variables = bdd.variables;
         this.variable_existence = bdd.variable_existence;
         this.variable_ordering = bdd.variable_ordering;
         this.present_variable_indices = bdd.present_variable_indices;
@@ -100,6 +99,7 @@ public class BDD {
     
     
     /* LEVELS & WHATEVER  */
+    /*
     protected void addVertexToLevel(Vertex v, int level){
         // If level doesn't exist, we create it
         if(!levels.containsKey(level))
@@ -156,7 +156,7 @@ public class BDD {
             Vertex vReplacement = new Vertex(index, 0, low.index, high.index);
             this.T.put(v.index, vReplacement); 
         }
-    }
+    }*/
     
     /* END LEVELS & WHATEVER */
     
@@ -170,7 +170,7 @@ public class BDD {
         String _function = this.function;
         for(int i=0; i<this.present_variable_indices.size(); i++){
             int variable_index = present_variable_indices.get(i);
-            String variable = this.variables.get(variable_index);
+            String variable = VARIABLES.get(variable_index);
             String value = path.get(i)?"true":"false";
             _function = _function.replaceAll(Pattern.quote(variable), value);
         }
@@ -221,7 +221,7 @@ public class BDD {
                 // If low and high are the same vertex, we do not create their
                 // parent, because it is redundant. We return the child.
                 if(v_low.index == v_high.index){
-                    this.addVertexToLevel(v_low, path_len);
+                    //this.addVertexToLevel(v_low, path_len);
                     return v_low;
                 }
                 
@@ -238,7 +238,7 @@ public class BDD {
                 String vKey = var_index+"-"+v_low.index+"-"+v_high.index;
                 if(U.containsKey(vKey)){
                     Vertex v = U.get(vKey);
-                    this.addVertexToLevel(v, path_len);
+                    //this.addVertexToLevel(v, path_len);
                     return v;
                 }
                 
@@ -249,7 +249,7 @@ public class BDD {
                 Vertex v = new Vertex(index, var_index, v_low, v_high);
                 this.T.put(index, v);
                 U.put(vKey, v);
-                this.addVertexToLevel(v, path_len);
+                //this.addVertexToLevel(v, path_len);
                 return v;
             }
             else if(path_len == this.present_variable_indices.size())
@@ -258,11 +258,11 @@ public class BDD {
                 boolean value = this.evaluatePath(path);
                 if(value){
                     this.T.put(1,this.True);
-                    this.addVertexToLevel(this.True, path_len);
+                    //this.addVertexToLevel(this.True, path_len);
                     return this.True;
                 }
                 this.T.put(0,this.False);
-                this.addVertexToLevel(this.False, path_len);
+                //this.addVertexToLevel(this.False, path_len);
                 return this.False;
             }
             //System.out.println("WRONG");
@@ -329,14 +329,14 @@ public class BDD {
      * @param variables List with the variables of the tree.
      * @return BDD Binary Decision Tree for the formula described in the AST tree.
      */
-    private static BDD generateTreeFromAST(CommonTree tree, ArrayList<String> variables) {
+    private static BDD generateTreeFromAST(CommonTree tree) {
         // Get the number of children of the tree
         int childCount = tree.getChildCount();
         
         // If we have a leaf, the node has a variable not an operation
         // we create the BDD using recursion (it's only one step deep)
         if (childCount == 0) {
-            BDD bdd = new BDD(tree.getText(), variables, false);
+            BDD bdd = new BDD(tree.getText(), false);
             return bdd;
         }
         
@@ -348,7 +348,7 @@ public class BDD {
         List<CommonTree> children = (List<CommonTree>) tree.getChildren();
         ArrayList<BDD> bdds = new ArrayList<BDD>(childCount);
         for (CommonTree child : children) {
-            BDD bddI = BDD.generateTreeFromAST(child, variables);
+            BDD bddI = BDD.generateTreeFromAST(child);
             //System.out.println("Función "+bddI.function);
             bdds.add(bddI);
         }
@@ -390,7 +390,7 @@ public class BDD {
         
         // Call to create the BDD from an AST
         int level = 0;
-        BDD bdd = BDD.generateTreeFromAST(tree, this.variables);
+        BDD bdd = BDD.generateTreeFromAST(tree);
         this.assign(bdd);
         this.assignRoot();
         //this.updateLevels(this.root, level);
@@ -524,10 +524,11 @@ public class BDD {
      */
     private void updateU(){
         //System.out.flush();
+        /*
         this.U = new HashMap<String,Vertex>();
         for(Vertex v : this.T.getVertices()){
             this.U.put(v.uniqueKey(),v);
-        }
+        }*/
     }
     
     /**
@@ -568,39 +569,31 @@ public class BDD {
      * @param variables Name of the variables and order of them in the BDD.
      * @param variable_ordering Order of the variables given this way: variable_ordering[i]=j => jth variable is in ith position.
      */
-    private void initVariableParameters(ArrayList<String> variables, ArrayList<Integer> variable_ordering){
-        this.variables = variables;
+    private void initVariableOrder(ArrayList<Integer> variable_ordering){
         this.variable_ordering = variable_ordering;
         this.present_variable_indices = new ArrayList<Integer>();
         this.variable_existence = new HashMap<String,Boolean>();
         for(int i=0; i<variable_ordering.size(); i++){
             int variable_index = variable_ordering.get(i);
-            String var = variables.get(variable_index);
+            String var = VARIABLES.get(variable_index);
             Boolean exists_variable = function.contains(var);
             this.variable_existence.put(var,exists_variable);
             if(exists_variable)
                 this.present_variable_indices.add(variable_index);
         }
-        /*
-        System.out.println(variables);
-        System.out.println(variable_ordering);
-        System.out.println(present_variable_indices);
-         * 
-         */
     }
     
     /**
      * Initialize parameters of the BDD given by its constructor.
      * @param function_str String containing the boolean formula. Use Java representation of the formula. Don't forget using parentheses.
-     * @param variables Name of the variables and order of them in the BDD.
      * @param variable_ordering Order of the variables given this way: variable_ordering[i]=j => jth variable is in ith position.
      * @param useApplyInCreation 
      */
-    private void init(ArrayList<String> variables, ArrayList<Integer> variable_ordering, boolean useApplyInCreation){
+    private void init(ArrayList<Integer> variable_ordering, boolean useApplyInCreation){
         TimeMeasurer t = new TimeMeasurer(" ::::::::::::. BDD constructor "+this.function+".::::::::::::");
         //TimeMeasurer _t = new TimeMeasurer(" :::::::: BDD preprocess :::::::");
         //this.function = function_str;
-        this.initVariableParameters(variables, variable_ordering);
+        this.initVariableOrder(variable_ordering);
 
         // Leaf vertices
         this.False = new Vertex(false);
@@ -640,63 +633,66 @@ public class BDD {
         t.end().show();
     }
     
-    /**
-     * Constructor of BDD.
-     * @param function_str String containing the boolean formula. Use Java representation of the formula. Don't forget using parentheses.
-     * @param variables Name of the variables and order of them in the BDD.
-     */
-    public BDD(String function_str, ArrayList<String> variables, boolean useApplyInCreation){
-        this.function = function_str;
-        // We use the trivial ordering,
-        // that is the ith variable has the ith position
-        ArrayList<Integer> trivial_variable_ordering = new ArrayList<Integer>(variables.size());
-        for(int i=0; i<variables.size(); i++)
-            trivial_variable_ordering.add(i);
-        // Init the BDD
-        this.init(variables, trivial_variable_ordering, useApplyInCreation);
+    public static void initVariables(ArrayList<String> variables){
+        BDD.VARIABLES = variables;
+    }
+    
+    public static void initVariables(String[] variables){
+        BDD.VARIABLES = new ArrayList<String>(Arrays.asList(variables));
     }
     
     /**
      * Constructor of BDD.
      * @param function_str String containing the boolean formula. Use Java representation of the formula. Don't forget using parentheses.
      * @param variables Name of the variables and order of them in the BDD.
+     */
+    public BDD(String function_str, boolean useApplyInCreation){
+        this.function = function_str;
+        // We use the trivial ordering,
+        // that is the ith variable has the ith position
+        ArrayList<Integer> trivial_variable_ordering = new ArrayList<Integer>(VARIABLES.size());
+        for(int i=0; i<VARIABLES.size(); i++)
+            trivial_variable_ordering.add(i);
+        // Init the BDD
+        this.init(trivial_variable_ordering, useApplyInCreation);
+    }
+    
+    /**
+     * Constructor of BDD.
+     * @param function_str String containing the boolean formula. Use Java representation of the formula. Don't forget using parentheses.
      * @param variable_ordering Order of the variables identified each one by its index, so if variable_ordering[i] = j, jth variable comes in ith position.
      */
-    public BDD(String function_str, ArrayList<String> variables, ArrayList<Integer> variable_ordering, boolean useApplyInCreation){
+    public BDD(String function_str, ArrayList<Integer> variable_ordering, boolean useApplyInCreation){
         this.function = function_str;
-        this.init(variables, variable_ordering, useApplyInCreation);
+        this.init(variable_ordering, useApplyInCreation);
     }
 
     /**
      * Constructor of BDD.
      * @param function_str String containing the boolean formula. Use Java representation of the formula. Don't forget using parentheses.
-     * @param variables Name of the variables and order of them in the BDD.
      * @param variable_ordering Order of the variables identified each one by its index, so if variable_ordering[i] = j, jth variable comes in ith position.
      */
-    public BDD(String function_str, String[] variables, Integer[] variable_ordering, boolean useApplyInCreation){
+    public BDD(String function_str, Integer[] variable_ordering, boolean useApplyInCreation){
         this.function = function_str;
-        ArrayList<String> variable_list = new ArrayList<String>(Arrays.asList(variables));
         ArrayList<Integer> variable_ordering_list = new ArrayList<Integer>(Arrays.asList(variable_ordering));
-        this.init(variable_list, variable_ordering_list, useApplyInCreation);
+        this.init(variable_ordering_list, useApplyInCreation);
     }
     
     /**
      * Constructor of BDD.
      * @param function_str String containing the boolean formula. Use Java representation of the formula. Don't forget using parentheses.
-     * @param variables Name of the variables and order of them in the BDD.
      * @param variable_ordering Order of the variables identified its position. Thats it, if variable_order_by_position[i] = "a", variable "a" is in ith position.
      */
-    public BDD(String function_str, String[] variables, String[] variable_order_by_position, boolean useApplyInCreation){
+    public BDD(String function_str, String[] variable_order_by_position, boolean useApplyInCreation){
         this.function = function_str;
-        ArrayList<String> variable_list = new ArrayList<String>(Arrays.asList(variables));
         ArrayList<Integer> variable_ordering_list = new ArrayList<Integer>(variable_order_by_position.length);
         for(int i=0; i<variable_order_by_position.length; i++){
-            int indexOfVariable = variable_list.indexOf(variable_order_by_position[i]);
+            int indexOfVariable = VARIABLES.indexOf(variable_order_by_position[i]);
             variable_ordering_list.add(indexOfVariable);
         }
         //System.out.println(variable_list);
         //System.out.println(variable_ordering_list);
-        this.init(variable_list, variable_ordering_list, useApplyInCreation);
+        this.init(variable_ordering_list, useApplyInCreation);
         /*System.out.println(this.variables);
         System.out.println(this.variable_ordering);
         System.out.println(this.present_variable_indices);
@@ -709,21 +705,21 @@ public class BDD {
      * @param variables Name of the variables and order of them in the BDD.
      * @param hash_variable_ordering Order of the variables identified each one by its name, so if variable_ordering[x134] = i, x134 is in ith position.
      */
-    public BDD(String function_str, ArrayList<String> variables, HashMap<String,Integer> hash_variable_ordering, boolean useApplyInCreation){
+    public BDD(String function_str, HashMap<String,Integer> hash_variable_ordering, boolean useApplyInCreation){
         this.function = function_str;
-        ArrayList<Integer> _variable_ordering = new ArrayList<Integer>(variables.size());
+        ArrayList<Integer> _variable_ordering = new ArrayList<Integer>(VARIABLES.size());
         // Create initial elements
-        for(int i=0; i<variables.size(); i++){
+        for(int i=0; i<VARIABLES.size(); i++){
             _variable_ordering.add(i);
         }
         // Assign order
         for(String variable : hash_variable_ordering.keySet()){
             Integer position = hash_variable_ordering.get(variable);
-            Integer variable_index = variables.indexOf(variable);
+            Integer variable_index = VARIABLES.indexOf(variable);
             _variable_ordering.set(position, variable_index);
         }
         // Initialize variable parameters
-        this.init(variables, _variable_ordering, useApplyInCreation);
+        this.init(_variable_ordering, useApplyInCreation);
     }
     
     /**
@@ -731,12 +727,12 @@ public class BDD {
      * Note that this does not need variable ordering.
      * @param T Table that contains the BDD tree.
      * @param function_str Boolean logic function in string form.
-     * @param variables Variables the BDD uses.
+     * @param variable_ordering Variable ordering.
      */
-    public BDD(TableT T, String function_str, ArrayList<String> variables, ArrayList<Integer> variable_ordering){
+    public BDD(TableT T, String function_str, ArrayList<Integer> variable_ordering){
         //TimeMeasurer t = new TimeMeasurer("BDD constructor from T");
         this.function = function_str;
-        this.initVariableParameters(variables, variable_ordering);
+        this.initVariableOrder(variable_ordering);
         // Leaf vertices
         this.False = T.get(0);
         this.True = T.get(1);
@@ -852,8 +848,8 @@ public class BDD {
         return this.T.getVertices().size();
     }
     
-    public ArrayList<String> variables(){
-        return this.variables;
+    public static ArrayList<String> variables(){
+        return VARIABLES;
     }
     
     public ArrayList<String> getVariables(){
@@ -875,10 +871,10 @@ public class BDD {
     public String toString(boolean verbose){
         String text = "";
         text = "BDD tree for "+this.function+"\n";
-        text += "Variables: "+this.variables.size()+". ";
+        text += "Variables: "+VARIABLES.size()+". ";
         if(verbose){
             text += "";
-            for(String var : this.variables)
+            for(String var : VARIABLES)
                 text += var+", ";
             text = text.substring(0, text.length()-2)+"\n";
         }
@@ -893,7 +889,7 @@ public class BDD {
         for(Vertex v : vertices){
             String variable = Boolean.toString(v.value());
             if(v.variable > -1)
-                variable = this.variables.get(v.variable);
+                variable = VARIABLES.get(v.variable);
             text += v.index+"\t"+v.variable+"\t"+variable+"\t"+v.low()+"\t"+v.high()+"\n";
         }
         return text;
@@ -1020,7 +1016,7 @@ public class BDD {
                 i++;
             }
             
-        BDD bdd = new BDD(T, function, variables, present_variable_indices);
+        BDD bdd = new BDD(T, function, present_variable_indices);
         br.close();
         return bdd;
         }catch(Exception e){

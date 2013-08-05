@@ -24,7 +24,7 @@ public class FileOptimizer {
     String outputFilename;
     
     /** Variables used for the formulas */
-    private ArrayList<String> variables;
+    //private ArrayList<String> variables;
     
     /** Formulas each one of them will be one BDD */
     private ArrayList<String> formulas;
@@ -45,9 +45,8 @@ public class FileOptimizer {
      * @param formulas List of formulas that will be translated to a optimized BDD.
      * @param outputFilename File that will contain the BDDs translated from the formulas.
      */
-    public FileOptimizer(ArrayList<String>variables, ArrayList<String>formulas, String outputFilename){
+    public FileOptimizer(ArrayList<String>formulas, String outputFilename){
         this.outputFilename = outputFilename;
-        this.variables = variables;
         this.formulas = formulas;
     }
     
@@ -56,10 +55,10 @@ public class FileOptimizer {
      */
     public void run() {
         // Generic part
-        //int numThreads = Math.min(loader.numClausules, NUM_THREADS);
         int numThreads = NUM_THREADS;
+        //this.formulas = new ArrayList<String>(this.formulas.subList(0, 200));
         int numFormulasByThread = this.formulas.size()/numThreads;
-        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        ExecutorService executor; 
         ArrayList<FileOptimizerThread> workers = new ArrayList<FileOptimizerThread>();
         if(VERBOSE){
             System.out.println( "There are "+this.formulas.size()+" formulas" );
@@ -77,13 +76,14 @@ public class FileOptimizer {
         }
         
         // Number of variables
-        writer.println("# Variables: "+this.variables.size());
-        for(String variable : this.variables){
+        writer.println("# Variables: "+BDD.variables().size());
+        for(String variable : BDD.variables()){
             writer.println(variable);
         }
         writer.println("");
         
         // Creating the optimized BDD file
+        executor = Executors.newFixedThreadPool(numThreads);
         for (int i = 0; i < numThreads; i++)
         {
             int startFormulaIndex = i*numFormulasByThread;
@@ -94,7 +94,7 @@ public class FileOptimizer {
                 System.out.println("Thread "+i+" has clausules ["+startFormulaIndex+", "+endFormulaIndex+"]");
             }
             ArrayList<String> threadFormulas = new ArrayList<String>(this.formulas.subList(startFormulaIndex, endFormulaIndex));
-            Runnable worker = new FileOptimizerThread(i, writer, threadFormulas, this.variables, USE_APPLY_IN_BDD_CREATION, "and");
+            Runnable worker = new FileOptimizerThread(i, writer, threadFormulas, USE_APPLY_IN_BDD_CREATION, "and");
             executor.execute(worker);
             workers.add((FileOptimizerThread)worker);
         }
@@ -112,13 +112,112 @@ public class FileOptimizer {
         writer.println("# BDDs: "+num_bdds);
         writer.println("");
         
-        // Print the BDDs
-        int i=1;
         for(FileOptimizerThread thread : workers){
-            for(BDD bdd : thread.getBDDs()){
-                thread.writeToFile(bdd, i);
-                i++;
+            thread.writeBDDsToFile();
+        }
+        
+        ////////////////////////////////////////////////////////////////////////
+        // If we are a genious y correct the memory greedy BDDs
+        boolean GROUP_BY_VARIABLE_SETS = false;
+        if(GROUP_BY_VARIABLE_SETS)
+        {
+
+            // Join the BDDs by variables
+            boolean firstBDD = true;
+            HashMap<TreeSet<Integer>,ArrayList<BDD>> groups = new HashMap<TreeSet<Integer>,ArrayList<BDD>>();
+            for(FileOptimizerThread thread : workers){
+                for(BDD bdd : thread.getBDDs()){
+                    TreeSet<Integer> vars = new TreeSet<Integer>(bdd.present_variable_indices);
+                    if(firstBDD){
+                        ArrayList<BDD> bdds = new ArrayList<BDD>(1);
+                        bdds.add(bdd);
+                        groups.put(vars,bdds);
+                        firstBDD = false;
+                    }
+                    else{
+                        boolean foundGroup = false;
+                        for(TreeSet t : groups.keySet()){
+                            TreeSet<Integer> intersection = new TreeSet<Integer>(vars);
+                            intersection.retainAll(t);
+                            if(intersection.size()>0){
+                                groups.get(t).add(bdd);
+                                foundGroup = true;
+                                break;
+                            }
+                        }
+                        if(!foundGroup){
+                            ArrayList<BDD> bdds = new ArrayList<BDD>(1);
+                            bdds.add(bdd);
+                            groups.put(vars,bdds);
+                        }
+                    }
+                }
             }
+
+            workers = null;
+            // DEBUG printing
+            if(true){
+                System.out.println("---------------------------------------------");
+                System.out.println("There are "+groups.keySet().size()+" groups of BDDs");
+                int sum = 0;
+                for (TreeSet t : groups.keySet()) {
+                    System.out.println("========================");
+                    System.out.println(t.toString() + ": " + groups.get(t).size());
+                    sum += groups.get(t).size();
+                    /*for (BDD bdd : groups.get(t)) {
+                        bdd.print();
+                    }*/
+                }
+                System.out.println("---------------------------------------------");
+                System.out.println("There are a total of "+sum);
+            }
+
+            // Join the BDDs grouped by variables
+            executor = Executors.newFixedThreadPool(numThreads);
+            ArrayList<BDDGroupJoinerThread> joiners = new ArrayList<BDDGroupJoinerThread>();
+            // We join each list of BDDs
+
+            int i=1;
+            ArrayList<ArrayList<BDD>> bddGroups = new ArrayList<ArrayList<BDD>>(groups.values());
+            int numGroupsByThread = bddGroups.size()/numThreads;
+            System.out.println("Threre are "+bddGroups.size()+" groups");
+            for(i=0; i<numThreads; i++)
+            {
+                int start = i*numGroupsByThread;
+                int end = start + numGroupsByThread;
+                if(i==numThreads-1){
+                    end = bddGroups.size();
+                }
+
+               ArrayList<ArrayList<BDD>> threadBddGroups = new ArrayList<ArrayList<BDD>>(bddGroups.subList(start, end));
+
+                String sizeString = "Thread "+i+" ["+start+", "+end+"]: ";
+                for(ArrayList<BDD> bdds : threadBddGroups)
+                    sizeString += bdds.size()+", ";
+                System.out.println(sizeString);
+
+                Runnable worker = new BDDGroupJoinerThread(i, writer, threadBddGroups, "and");
+                worker.run();
+                //executor.execute(worker);
+                //joiners.add((BDDGroupJoinerThread)worker);//*/
+            }
+
+            //executor.shutdown();
+            //executor.awaitTermination();
+            //while (!executor.isTerminated()) {
+                //leep?
+            //}
+            /*
+            int BDD_I = 1;
+            for(BDDGroupJoinerThread worker : joiners){
+                ArrayList<BDD> bdds = worker.getBDDs();
+                for(BDD bdd : bdds){
+                    String bddName = "BDD "+BDD_I;
+                    writer.println("# BEGIN "+bddName+"\n"+bdd.toString()+"# END "+bddName+"\n");
+                    writer.flush();
+                    BDD_I++;
+                }
+            }*/
         }
         
         // Close the file

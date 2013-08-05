@@ -22,11 +22,11 @@ public class Main {
         }
     }
     
-  private static BDD createBDD(CommonTree tree, ArrayList<String> variables) {
+  private static BDD createBDD(CommonTree tree) {
       int childCount = tree.getChildCount();
       if (childCount == 0) {
           System.out.println("Leaf " + tree.getText());
-          return new BDD(tree.getText(), variables, false);
+          return new BDD(tree.getText(), false);
       }
       
       String op = tree.getText();
@@ -34,7 +34,7 @@ public class Main {
       List<CommonTree> children = (List<CommonTree>) tree.getChildren();
       ArrayList<BDD> bdds = new ArrayList<BDD>(childCount);
       for (CommonTree child : children) {
-          BDD bddI = createBDD(child, variables);
+          BDD bddI = createBDD(child);
           System.out.println("Función "+bddI.function);
           bdds.add(bddI);
       }
@@ -68,7 +68,8 @@ public class Main {
     variables.add("x3");
     variables.add("x4");
     variables.add("x5"); 
-    BDD bdd = createBDD(tree, variables);
+    BDD.initVariables(variables);
+    BDD bdd = createBDD(tree);
     System.out.println(bdd.function);
     Printer.printBDD(bdd, "src.png");
     /*

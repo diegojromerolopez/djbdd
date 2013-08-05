@@ -5,6 +5,7 @@
 package djbdd.io;
 
 import djbdd.BDD;
+import djbdd.timemeasurer.TimeMeasurer;
 import java.io.*;
 import java.util.*;
 
@@ -61,6 +62,8 @@ public class Combinator {
                 var_i++;
             }
             
+            BDD.initVariables(variables);
+            
             // We get the first line
             // of the BDDS enumeration
             line = br.readLine();
@@ -110,11 +113,14 @@ public class Combinator {
                             }
                             if(!bddI.isTautology() && operation.equals("and"))
                             {
+                                TimeMeasurer t = new TimeMeasurer("APPLY_I", true);
                                 //System.out.println("END");
                                 bdd = bdd.apply(operation, bddI);
                                 if(verbose){
+                                    System.out.println("=======================");
                                     System.out.println("BDD " + i +"/"+num_bdds+" (" + bdd.size() + " vertices)");
                                     //System.out.println(bdd.toString());
+                                    t.end().show();
                                 }
                             }
                             sb = new StringBuilder();

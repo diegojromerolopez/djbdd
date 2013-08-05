@@ -189,7 +189,8 @@ public class Main {
      * @param ArrayList<String> variables Variables used in the formula. Note that this parameter gives the order of them.
      */
     protected static void printFmla(String fmla, ArrayList<String> variables){
-        BDD bdd = new BDD(fmla, variables, false);
+        BDD.initVariables(variables);
+        BDD bdd = new BDD(fmla, false);
         Printer printer = new Printer(bdd);
         printer.print("./"+fmla);
     }
@@ -208,7 +209,8 @@ public class Main {
         loader.init(config);
         System.out.println(config.text);
         
-        FileOptimizer extractor = new FileOptimizer(loader.variables, loader.bdd_formulas, filename+".bdd.txt");
+        BDD.initVariables(loader.variables);
+        FileOptimizer extractor = new FileOptimizer(loader.bdd_formulas, filename+".bdd.txt");
         extractor.run();
         t.end();
         t.show();

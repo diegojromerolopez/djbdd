@@ -305,7 +305,7 @@ public class BDDApply {
         //this.cleanGarbage();
         
         // Construction of new BDD
-        this.bdd = new BDD(this.T, function, bdd1.variables, bdd1.variable_ordering);
+        this.bdd = new BDD(this.T, function, bdd1.variable_ordering);
         t.end().show();
         
         // Return the new BDD computed

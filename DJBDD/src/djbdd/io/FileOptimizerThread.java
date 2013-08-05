@@ -16,7 +16,6 @@ import djbdd.BDD;
 public class FileOptimizerThread implements Runnable {
     private int index;
     private ArrayList<String> formulas;
-    private ArrayList<String> variables;
     private boolean verbose = true;
     private ArrayList<BDD> bdds;
     
@@ -42,20 +41,18 @@ public class FileOptimizerThread implements Runnable {
     private static int BDD_I = 1;
     private static int RANDOM_SEED = 1;
      
-    public FileOptimizerThread(int index, PrintWriter writer, ArrayList<String> formulas, ArrayList<String> variables, boolean useApplyInCreation){
+    public FileOptimizerThread(int index, PrintWriter writer, ArrayList<String> formulas, boolean useApplyInCreation){
         this.index = index;
         this.formulas = formulas;
-        this.variables = variables;
         this.useApplyInCreation = useApplyInCreation;
         this.writer = writer;
         this.bdds = new ArrayList<BDD>(formulas.size());
         this.joinBDDs = false;
     }
     
-    public FileOptimizerThread(int index, PrintWriter writer, ArrayList<String> formulas, ArrayList<String> variables, boolean useApplyInCreation, String bddJoinOperation){
+    public FileOptimizerThread(int index, PrintWriter writer, ArrayList<String> formulas, boolean useApplyInCreation, String bddJoinOperation){
         this.index = index;
         this.formulas = formulas;
-        this.variables = variables;
         this.useApplyInCreation = useApplyInCreation;
         this.writer = writer;
         this.bdds = new ArrayList<BDD>(formulas.size());
@@ -78,9 +75,9 @@ public class FileOptimizerThread implements Runnable {
     }
     
     private String[] getInitialVariableOrder(String function){
-        ArrayList<String> variable_order = new ArrayList<String>(variables.size());
-        for(int i=0; i<variables.size(); i++){
-            String var = variables.get(i);
+        ArrayList<String> variable_order = new ArrayList<String>(BDD.variables().size());
+        for(int i=0; i<BDD.variables().size(); i++){
+            String var = BDD.variables().get(i);
             Boolean exists_variable = function.contains(var);
             if(exists_variable)
                 variable_order.add(var);
@@ -90,7 +87,7 @@ public class FileOptimizerThread implements Runnable {
     
     @Override
     public void run() {
-        String[] _variables = variables.toArray(new String[variables.size()]);
+        String[] _variables = BDD.variables().toArray(new String[BDD.variables().size()]);
         //String[] _variable_order = this.getInitialVariableOrder(formulas.get(0));
         
         try {
@@ -112,12 +109,12 @@ public class FileOptimizerThread implements Runnable {
                 
                 // BDD base
                 TimeMeasurer t_loops = new TimeMeasurer(">>>>>>>>>>>> runned of "+_variable_order.length+" variables <<<<<<<<<<", true);
-                BDD bdd = new BDD(formulaI, _variables, _variable_order, useApplyInCreation);
+                BDD bdd = new BDD(formulaI, _variable_order, useApplyInCreation);
                 // Iterations to get a smaller BDD
                 int j = 0;
                 while (j < LOOPS) {
                     Collections.shuffle(Arrays.asList(_variable_order), new Random(RANDOM_SEED));
-                    BDD bddI = new BDD(formulaI, _variables, _variable_order, useApplyInCreation);
+                    BDD bddI = new BDD(formulaI, _variable_order, useApplyInCreation);
                     j++;
                     if (bddI.size() < bdd.size()) {
                         bdd = bddI;
@@ -128,9 +125,25 @@ public class FileOptimizerThread implements Runnable {
                 t.end().show();
             }
             
+            ArrayList<BDD> nonTrivialBDDs = new ArrayList<BDD>(bdds.size());
+            ArrayList<BDD> trivialBDDs = new ArrayList<BDD>(bdds.size());
+            for(BDD bdd : bdds){
+                if(bdd.size()==1)
+                    trivialBDDs.add(bdd);
+                else
+                    nonTrivialBDDs.add(bdd);
+            }
+            
+            bdds = nonTrivialBDDs;
+            
+            for(BDD trivialBdd : trivialBDDs){
+                System.out.println("TRIVIAL");
+                bdds.set(0,bdds.get(0).apply(this.operation, trivialBdd));
+            }
+            /*
             if(this.joinBDDs){
                 firstBDD = true;
-                int MAX_SIZE_TO_JOIN = 3;
+                int MAX_SIZE_TO_JOIN = 1;
                 ArrayList<BDD> remainingBDDs = new ArrayList<BDD>(this.bdds.size());
                 for(int i=0; i<this.bdds.size(); i++){
                     BDD bddI = this.bdds.get(i);
@@ -153,7 +166,7 @@ public class FileOptimizerThread implements Runnable {
                 }
                 remainingBDDs.add(this.joinedBDD);
                 this.bdds = remainingBDDs;
-            }
+            }*/
             
         } catch (Exception e) {
             System.err.println("System has failed!");
