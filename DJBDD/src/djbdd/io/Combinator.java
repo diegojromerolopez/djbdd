@@ -38,14 +38,10 @@ public class Combinator {
      * Loads a file and return the BDD gotten of applying the operation between them.
      * @return BDD BDD object.
      */
-    public BDD run() {
-        boolean firstBDD = true;
-        BDD bdd = null;
-        int i = 0;
+    public void run() {
         try {
             
             BufferedReader br = new BufferedReader(new FileReader(inputFile));
-            StringBuilder sb = new StringBuilder();
             
             // First line must be " # Variables: <number of variables>
             String line = br.readLine();
@@ -62,6 +58,7 @@ public class Combinator {
                 var_i++;
             }
             
+            // Initialize the BDD variables
             BDD.initVariables(variables);
             
             // We get the first line
@@ -75,66 +72,87 @@ public class Combinator {
             // First line with useful information
             line = br.readLine();
             
-            // We get each of the BDDs
-            String bddString = "";
+            String outputFilename = "bdd_results.txt";
+            PrintWriter writer = null;
+            try {
+                File f = new File(outputFilename);
+                if (f.exists()) {
+                    f.delete();
+                }
+                writer = new PrintWriter(new FileOutputStream(new File(outputFilename), true));
+            } catch (Exception e) {
+                System.err.println("Error creating the PrintWriter");
+                e.printStackTrace();
+            }
+            
+            // The idea is to be grouping the BDDs according to the variable
+            // occurrence of its formulas
+            StringBuilder sb = new StringBuilder();
+            HashMap<Integer,BDD> groups = new HashMap<Integer,BDD>();
+            int maxGroupId = 1;
             while (line != null) {
                 if (!line.equals("")) {
                     if (line.charAt(0) == '#') {
+                        // # BEGIN BDD \d+-\d+
+                        System.out.println(line);
+                        int groupId = Integer.parseInt(line.replace("# BEGIN BDD ", "").split("-")[0]);
                         line = br.readLine();
                         while (line != null && line.charAt(0) != '#') {
                             sb.append(line);
                             sb.append('\n');
                             line = br.readLine();
                         }
-                        
-                        // If is the first BDD, we don't make apply
-                        if (firstBDD) {
-                            i = 1;
-                            bddString = sb.toString();
-                            bdd = BDD.fromString(bddString, variables);
-                            firstBDD = false;
-                            sb = new StringBuilder();
-                            if(verbose){
-                                System.out.println("BDD " + i +"/"+num_bdds+" (" + bdd.size() + " vertices)");
-                            }
-                        
-                        // For the next BDDs, we make apply between the current
-                        // BDD and the "total" BDD
-                        } else {
-                            i++;
-                            bddString = sb.toString();
-                            BDD bddI = BDD.fromString(bddString, variables);
-                            if(verbose){
-                                System.out.println("__________________________");
-                                System.out.println("__________________________");
-                                System.out.println("Apply Loop "+i);
-                                System.out.println("bdd.size " + bdd.size());
-                                System.out.println("bddI.size " + bddI.size());
-                            }
-                            if(!bddI.isTautology() && operation.equals("and"))
-                            {
-                                TimeMeasurer t = new TimeMeasurer("APPLY_I", true);
-                                //System.out.println("END");
-                                bdd = bdd.apply(operation, bddI);
-                                if(verbose){
-                                    System.out.println("=======================");
-                                    System.out.println("BDD " + i +"/"+num_bdds+" (" + bdd.size() + " vertices)");
-                                    //System.out.println(bdd.toString());
-                                    t.end().show();
+                        String bddString = sb.toString();
+                        BDD bdd = BDD.fromString(bddString);
+                        sb = new StringBuilder();
+                        // If exists the group, apply the operation and store the result
+                        if(groups.containsKey(groupId))
+                        {
+                            System.out.println("Grupo existente "+groupId);
+                            BDD currentBdd = groups.get(groupId);
+                            BDD bddRes = bdd.apply(this.operation, currentBdd);
+                            groups.put(groupId, bddRes);
+                            System.out.println("El grupo "+groupId+" tiene "+bddRes.size()+" nodos");
+                        }
+                        // If doesn't exist the group, insert the BDD
+                        else
+                        {
+                            maxGroupId = groupId;
+                            System.out.println("Nuevo grupo "+groupId);
+                            groups.put(groupId, bdd);
+                            System.out.println("Máximo grupo "+maxGroupId);
+                            for(int i=0; i<maxGroupId; i++){
+                                if(groups.containsKey(i)){
+                                    writer.println("# BEGIN BDD "+i);
+                                    groups.get(i).writeToFile(writer);
+                                    writer.println("# END BDD "+i);
+                                    groups.remove(i);
                                 }
                             }
-                            sb = new StringBuilder();
+                            writer.flush();
                         }
                     }
                 }
                 line = br.readLine();
             }
-            //String everything = sb.toString();
+             
+            // If there are some bdd groups that are not writed to file
+            // write them
+            for (int i = 0; i < maxGroupId; i++) {
+                if (groups.containsKey(i)) {
+                    writer.print("# BEGIN BDD " + i);
+                    groups.get(i).writeToFile(writer);
+                    writer.println("# END BDD " + i);
+                    groups.remove(i);
+                }
+            }
+            writer.flush();
+            writer.close();
             br.close();
         } catch (Exception e) {
             System.err.println("Something is wrong in Combinator.run");
             e.printStackTrace();
         }
-        return bdd;
+        //return bdd;
     }
 }

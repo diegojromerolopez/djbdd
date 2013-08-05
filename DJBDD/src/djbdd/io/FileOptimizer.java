@@ -112,13 +112,9 @@ public class FileOptimizer {
         writer.println("# BDDs: "+num_bdds);
         writer.println("");
         
-        for(FileOptimizerThread thread : workers){
-            thread.writeBDDsToFile();
-        }
-        
         ////////////////////////////////////////////////////////////////////////
         // If we are a genious y correct the memory greedy BDDs
-        boolean GROUP_BY_VARIABLE_SETS = false;
+        boolean GROUP_BY_VARIABLE_SETS = true;
         if(GROUP_BY_VARIABLE_SETS)
         {
 
@@ -172,6 +168,20 @@ public class FileOptimizer {
                 System.out.println("There are a total of "+sum);
             }
 
+            ArrayList<ArrayList<BDD>> bddGroups = new ArrayList<ArrayList<BDD>>(groups.values());
+            int groupIndex = 1;
+            for(ArrayList<BDD> bddGroup : bddGroups){
+                int bddIndex = 1;
+                for(BDD bdd : bddGroup){
+                    String bddName = "BDD "+groupIndex+"-"+bddIndex;
+                    writer.println("# BEGIN "+bddName+"\n"+bdd.toString()+"# END "+bddName+"\n");
+                    writer.flush();
+                    bddIndex++;
+                }
+                groupIndex++;
+            }
+            
+            /*
             // Join the BDDs grouped by variables
             executor = Executors.newFixedThreadPool(numThreads);
             ArrayList<BDDGroupJoinerThread> joiners = new ArrayList<BDDGroupJoinerThread>();
@@ -199,8 +209,8 @@ public class FileOptimizer {
                 Runnable worker = new BDDGroupJoinerThread(i, writer, threadBddGroups, "and");
                 worker.run();
                 //executor.execute(worker);
-                //joiners.add((BDDGroupJoinerThread)worker);//*/
-            }
+                //joiners.add((BDDGroupJoinerThread)worker);
+            }*/
 
             //executor.shutdown();
             //executor.awaitTermination();

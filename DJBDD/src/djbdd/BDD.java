@@ -917,7 +917,7 @@ public class BDD {
     /**
      * Prints the BDD table.
      */
-    public void printLevels(){
+    /*public void printLevels(){
         for(Integer l : this.levels.keySet()){
             ArrayList<Vertex> vertices = this.levels.get(l);
             System.out.println("Level "+l);
@@ -926,6 +926,10 @@ public class BDD {
             }
         }
         System.out.flush();
+    }*/
+    
+    public void writeToFile(PrintWriter writer){
+        writer.print(this.toString());
     }
     
      /**
@@ -949,7 +953,7 @@ public class BDD {
     /**
      * Read the BDD table from a BufferedReader.
      */
-    public static BDD fromBufferedReader(BufferedReader br, ArrayList<String> variables){
+    public static BDD fromBufferedReader(BufferedReader br){
        String function = "";
         try {
             // Tree formula
@@ -961,10 +965,10 @@ public class BDD {
             line = line.substring("Variables:".length());
             String[] varLine = line.split("\\.");
             int num_variables = Integer.parseInt(varLine[0].replace("\\s+","").trim());
-            if(variables == null){
-                variables = new ArrayList<String>(num_variables);
+            if(BDD.VARIABLES == null){
+                BDD.VARIABLES = new ArrayList<String>(num_variables);
                 for(int i=0; i<num_variables; i++)
-                    variables.add("var_"+(i+1)+"");
+                    BDD.VARIABLES.add("var_"+(i+1)+"");
             }
             
             // Variable ordering
@@ -1010,7 +1014,7 @@ public class BDD {
                     // If the vertex has ha real variable
                     if (variable >= 0) {
                         String variableName = vertexParameters[2];
-                        variables.set(variable, variableName);
+                        BDD.VARIABLES.set(variable, variableName);
                     }
                 }
                 i++;
@@ -1030,14 +1034,6 @@ public class BDD {
     }
     
     /**
-     * Read the BDD table from a BufferedReader.
-     */
-    public static BDD fromBufferedReader(BufferedReader br){
-        return BDD.fromBufferedReader(br, null);
-    }
-    
-    
-    /**
      * Read the BDD table from a file.
      */
     public static BDD fromFile(String path){
@@ -1055,13 +1051,13 @@ public class BDD {
     /**
      * Read the BDD table from a string.
      */
-    public static BDD fromString(String bddString, ArrayList<String> variables){
+    public static BDD fromString(String bddString){
         try{
             // convert String into InputStream
             InputStream is = new ByteArrayInputStream(bddString.getBytes());
             // read it with BufferedReader
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            return BDD.fromBufferedReader(br, variables);
+            return BDD.fromBufferedReader(br);
         }
         catch(Exception e){
             System.err.println("Error in BDD.fromString. Unable to create the BufferedReader, is the string null?");

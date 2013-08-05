@@ -232,9 +232,9 @@ public class Main {
     /**
      * Combines some BDDs.
      */
-    protected static BDD combineBDDFile(String inputFile, String operator){
+    protected static void combineBDDFile(String inputFile, String operator){
         Combinator c = new Combinator(inputFile, operator);
-        return c.run();
+        c.run();
     }
     
     /**
@@ -315,8 +315,9 @@ public class Main {
             if(args.length >= 4)
                 operator = args[3];
             text = "Reads a formula and applies ";
-            BDD bdd = Main.combineBDDFile(inputFile, operator);
-            bdd.toFile(outputFile);
+            //BDD bdd = Main.combineBDDFile(inputFile, operator);
+            //bdd.toFile(outputFile);
+            Main.combineBDDFile(inputFile, operator);
         }else if(option.equals("--prob")){
                 text = "Computing probabilities";
                 if(args[1].equalsIgnoreCase("fmla")){

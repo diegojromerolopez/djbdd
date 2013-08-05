@@ -39,7 +39,7 @@ public class BDDApply {
     HashMap<String,Vertex> U;
     
     /** Used vertices table **/
-    HashMap<Integer,Vertex> used_vertices;
+    //HashMap<Integer,Vertex> used_vertices;
     
     /** Resulting hash table containing the relations between vertices */
     TableT T;
@@ -248,7 +248,8 @@ public class BDDApply {
         this.U.put(uniqueVertexKey, u);
         return u;
     }
-
+    
+    /*
     private void cleanGarbage(){
         TimeMeasurer t = new TimeMeasurer("========= cleanGarbage =========", true);
         Set<Integer> keys = this.T.keySet();
@@ -261,7 +262,7 @@ public class BDDApply {
         for(Integer k : garbageKeys)
             this.T.remove(k);
         t.end().show();
-    }
+    }*/
     
     /**
      * Public call to execute the apply algorithm.

@@ -40,7 +40,7 @@ public class Tester {
         BDD.initVariables(variables);
         BDD bdd = new BDD(function, variable_ordering, useApplyInCreation);
         bdd.print();
-        bdd.printLevels();
+        //bdd.printLevels();
         Printer.printBDD(bdd, "test0_"+bdd.variable_ordering.toString());
     }
     
