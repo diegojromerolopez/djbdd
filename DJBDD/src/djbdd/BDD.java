@@ -6,7 +6,6 @@ package djbdd;
 
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.logic.*;
-import org.antlr.runtime.tree.*;
 
 import java.util.*;
 import java.io.*;
@@ -14,7 +13,6 @@ import java.util.regex.*;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
-import org.antlr.stringtemplate.*;
 
 //import org.mvel2.MVEL;
 
@@ -554,8 +552,6 @@ public class BDD {
         //this.assignNewIndices();
         // Asignamos U
         this.updateU();
-        // Asignamos la raiz
-        this.assignRoot();
         t.end().show();
     }
 
@@ -1021,6 +1017,7 @@ public class BDD {
             }
             
         BDD bdd = new BDD(T, function, present_variable_indices);
+        bdd.assignRoot();
         br.close();
         return bdd;
         }catch(Exception e){

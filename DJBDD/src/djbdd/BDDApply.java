@@ -299,7 +299,7 @@ public class BDDApply {
         String function = this.getFunction();
         
         // Fill this.T with vertices of bdd1 and bdd2
-        this.app(bdd1.root, bdd2.root);
+        Vertex root = this.app(bdd1.root, bdd2.root);
         
         // Delete all vertices non-used in this process
         // Collect the gabarge (old non-efficient process)
@@ -307,6 +307,7 @@ public class BDDApply {
         
         // Construction of new BDD
         this.bdd = new BDD(this.T, function, bdd1.variable_ordering);
+        this.bdd.root = root;
         t.end().show();
         
         // Return the new BDD computed

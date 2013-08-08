@@ -5,6 +5,7 @@
 package djbdd.test;
 
 import djbdd.io.Printer;
+import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.*;
 import java.util.*;
 import java.io.*;
@@ -40,7 +41,6 @@ public class Tester {
         BDD.initVariables(variables);
         BDD bdd = new BDD(function, variable_ordering, useApplyInCreation);
         bdd.print();
-        //bdd.printLevels();
         Printer.printBDD(bdd, "test0_"+bdd.variable_ordering.toString());
     }
     
@@ -117,18 +117,24 @@ public class Tester {
     }
     
     public static void test4(){
+        TimeMeasurer t = new TimeMeasurer("test4", true);
         boolean useApplyInCreation = true;
-        int num_variables = 5;
+        int num_variables = 1000;
         ArrayList<String> variables = new ArrayList<String>();
         String function1 = "x1";
         for(int i=2; i<num_variables; i++){
             variables.add("x"+i);
-            function1 += " || x"+i;
+            if(i%2==0)
+                function1 += " || x"+i;
+            else
+                function1 += " && x"+i;
         }
+        
+        // Initialize the variables
+        BDD.initVariables(variables);
         
         // First operand
         function1 = "("+function1+")";
-        BDD.initVariables(variables);
         BDD bdd1 = new BDD(function1, useApplyInCreation);
         bdd1.print();//*/
         
@@ -150,6 +156,7 @@ public class Tester {
         bdd.toFile(file);
         BDD bddLoaded = BDD.fromFile(file);
         bddLoaded.print();
+        t.end().show();
     }
     
     private static boolean testBooleanOperation(Boolean a, Boolean b, String op){
