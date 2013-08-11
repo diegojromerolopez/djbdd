@@ -3886,7 +3886,7 @@
 {x509}
 {x510}
 
-# BDDs: 4243
+# BDDs: 3
 
 # BEGIN BDD 1-1
 BDD tree for {TCG_TPM} || (!(false) || ({TCG_ATMEL})) && (!({TCG_ATMEL}) || (false))

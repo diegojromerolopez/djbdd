@@ -90,9 +90,10 @@ public class Combinator {
             StringBuilder sb = new StringBuilder();
             HashMap<Integer,BDD> groups = new HashMap<Integer,BDD>();
             int maxGroupId = 1;
+            int bddIndex=0;
             while (line != null) {
                 if (!line.equals("")) {
-                    if (line.charAt(0) == '#') {
+                    if (line.charAt(0) == '#' && bddIndex<num_bdds) {
                         // # BEGIN BDD \d+-\d+
                         System.out.println(line);
                         int groupId = Integer.parseInt(line.replace("# BEGIN BDD ", "").split("-")[0]);
@@ -131,6 +132,7 @@ public class Combinator {
                             }
                             writer.flush();
                         }
+                        bddIndex++;
                     }
                 }
                 line = br.readLine();
