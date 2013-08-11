@@ -83,6 +83,7 @@ public class BDD {
         this.variable_existence = bdd.variable_existence;
         this.variable_ordering = bdd.variable_ordering;
         this.present_variable_indices = bdd.present_variable_indices;
+        this.root = bdd.root;
         this.T = bdd.T;
         this.U = bdd.U;
         this.True = bdd.True;
@@ -387,10 +388,10 @@ public class BDD {
         }
         
         // Call to create the BDD from an AST
-        int level = 0;
+        //int level = 0;
         BDD bdd = BDD.generateTreeFromAST(tree);
         this.assign(bdd);
-        this.assignRoot();
+        //this.assignRoot();
         //this.updateLevels(this.root, level);
     }
     
