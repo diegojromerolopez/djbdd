@@ -10,14 +10,23 @@ package djbdd;
  */
 public class Vertex {
 
+    /** Index of the false leaf node */
     public static final int FALSE_INDEX = 0;
+    
+    /** Index of the true leaf node */
     public static final int TRUE_INDEX = 1;
     
-    public static final int FALSE_VARIABLE = -2;
-    public static final int TRUE_VARIABLE = -1;
-    public static final String UNIQUE_KEY_SEPARATOR="-";
-    
+    /** Initial null index */
     public static final int NULL_INDEX = -1; 
+    
+    /** Index of the variable of the false node */
+    public static final int FALSE_VARIABLE = -2;
+    
+    /** Index of the variable of the true node */
+    public static final int TRUE_VARIABLE = -1;
+    
+    /** Separator for the computation of the unique key */
+    public static final String UNIQUE_KEY_SEPARATOR="-";
     
     /** Unique key of the vertex in the hash T of the TBDD */
     public final int index;
@@ -26,25 +35,18 @@ public class Vertex {
     public int variable = NULL_INDEX;
     
     /** Index of the low child of this vertex in the hash T of the TBDD */
-    private int low = NULL_INDEX;
+    private Vertex low = null;
     
     /** Index of the high child of this vertex in the hash T of the TBDD */
-    private int high = NULL_INDEX;
+    private Vertex high = null;
     
-    /** Constructs the vertex */
-    public Vertex(int index, int var, int low, int high){
-        this.index = index;
-        this.variable = var;
-        this.low = low;
-        this.high = high;
-    }
     
     /** Constructs the vertex */
     public Vertex(int index, int var, Vertex low, Vertex high){
         this.index = index;
         this.variable = var;
-        this.low = low.index;
-        this.high = high.index;
+        this.setLow(low);
+        this.setHigh(high);
     }
     
     /** Construct a leaf vertex */
@@ -75,7 +77,7 @@ public class Vertex {
     }
     
     public boolean isRedundant(){
-        return (this.low == this.high && this.low!=Vertex.NULL_INDEX);
+        return (this.low == this.high && this.low!=null);
     }
     
     public boolean isDuplicate(Vertex v){
@@ -86,46 +88,85 @@ public class Vertex {
         return (this.index == v.index && this.low == v.low && this.high == v.high && this.variable == v.variable);
     }
     
-    public Vertex getHighParents(TableT T){
-        for(Vertex v : T.getVertices())
-            if(v.low == this.index)
-                return v;
-        return null;
-    }
-    
-    public Vertex getLowParents(TableT T){
-        for(Vertex v : T.getVertices())
-            if(v.high == this.index)
-                return v;
-        return null;    
-    }
-    
     public String uniqueKey(){
         return Vertex.computeUniqueKey(this.variable, this.low, this.high);
     }
     
-    public static String computeUniqueKey(int variable, int low, int high){
-        return variable+UNIQUE_KEY_SEPARATOR+low+UNIQUE_KEY_SEPARATOR+high;
+    public static String computeUniqueKey(int variable, Vertex low, Vertex high){
+        if(low == null && high==null){
+            return variable+UNIQUE_KEY_SEPARATOR+"NULL"+UNIQUE_KEY_SEPARATOR+"NULL";
+        }
+        return variable+UNIQUE_KEY_SEPARATOR+low.index+UNIQUE_KEY_SEPARATOR+high.index;
     }
     
     /**************************************************************************/
+    /**************************************************************************/
+    
+    /**************************************************************************/
     /**************************************************************************/   
-    public int high(){ return this.high; }
+    public Vertex high(){ return this.high; }
+    public Vertex highVertex(){ return this.high; }
+    public int highIndex(){
+        if(this.high!=null)
+            return this.high.index;
+        return -1;
+    }
     
-    public int low(){ return this.low; }
-    
-    public void setHigh(int highIndex){ this.high = highIndex; }
-    public void setLow(int lowIndex){ this.low = lowIndex; }
+    public Vertex low(){ return this.low; }
+    public Vertex lowVertex(){ return this.low; }
+    public int lowIndex(){
+        if(this.low!=null)
+            return this.low.index;
+        return -1;
+    }
     
     /**************************************************************************/
     /**************************************************************************/
+
+    public final void setHigh(Vertex newHigh){
+        /*if(this.high != NULL_INDEX && BDD.T.containsKey(this.high)){
+            BDD.T.get(this.high).decParents();
+        }
+        this.high = newHigh.index;
+        newHigh.incParents();*/
+        this.high = newHigh;
+    }
     
+    /*
+    public final void setHigh(int newHighIndex){
+        Vertex newHigh = BDD.T.get(newHighIndex);
+        this.setHigh(newHigh);
+    }*/
+    
+    public final void setLow(Vertex newLow){
+        /*if(this.low != NULL_INDEX && BDD.T.containsKey(this.low)){
+            BDD.T.get(this.low).decParents();
+        }
+        this.low = newLow.index;
+        newLow.incParents();*/
+        this.low = newLow;
+    }
+    
+    /*
+    public final void setLow(int newLowIndex){
+        Vertex newLow = BDD.T.get(newLowIndex);
+        this.setLow(newLow);
+    }*/
+
+    /**************************************************************************/
+    /**************************************************************************/
+    
+    /**
+     * Gets the string representation of a vertex.
+     * @return String Vertex in human legible format.
+     */
     @Override
     public String toString(){
         if(this.index == FALSE_INDEX)
             return "<Vertex FALSE>";
         else if(this.index == TRUE_INDEX)
             return "<Vertex TRUE>";
-        return "<Vertex index="+this.index+", var="+this.variable+", (low="+this.low+", high="+this.high+")>";
+        String variableName = BDD.variables().get(this.variable);
+        return "<Vertex index="+this.index+", var="+this.variable+" ("+variableName+"), (low="+this.low.index+", high="+this.high.index+")>";
     }
 }

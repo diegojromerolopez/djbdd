@@ -23,6 +23,12 @@ import org.antlr.runtime.tree.*;
  */
 public class BDD {
     
+    /** Hash table that contains the BDD tree itself */
+    public static TableT T = null;
+    
+    /** All the variables that will be know by all BDDs in no particular order */
+    private static ArrayList<String> VARIABLES = null;
+    
     /** Maximum number of variables accepted in recursive creation */
     public static final int MAX_NUMBER_OF_VARIABLES_TO_LAUNCH_RECURSIVE_CREATION = 100;
     
@@ -34,10 +40,7 @@ public class BDD {
     
     /** String representation of the boolean logic function of this BDD */
     public String function;
-    
-    /** All the variables that will be know by all BDDs in no particular order */
-    private static ArrayList<String> VARIABLES = null;
-    
+   
     /** Informs if a variable exists in this BDD */
     public HashMap<String,Boolean> variable_existence;
     
@@ -48,24 +51,15 @@ public class BDD {
     // NOT: it is important to note that this indices has the ordering given by
     // variable ordering, don't forget that
     public ArrayList<Integer> present_variable_indices;
-    
-    /** Hash table that contains the BDD tree itself */
-    public TableT T;
-    
+   
     /** Hash table useful for doing apply */
-    public HashMap<String,Vertex> U;
-    
-    /** Hash table useful for doing apply */
-    public HashMap<Integer,ArrayList<Vertex>> levels;
+    //public HashMap<Integer,ArrayList<Vertex>> levels;
 
     /** Root of the BDD tree */
-    Vertex root = null;
+    public Vertex root = null;
     
-    /** True leaf vertex */
-    public Vertex True;
-    
-    /** False leaf vertex */
-    public Vertex False;
+    /** Size of this BDD */
+    private int size = -1;
     
     /** Informs if this BDD is a tautology (always true) */
     boolean isTautology = false;
@@ -73,20 +67,92 @@ public class BDD {
     /** Informs if this BDD is a contradiction (always false) */
     boolean isContradiction = false;
 
+    /** Is the BDD dereferenciated? That is, is waiting to be garbage collected? */
+    boolean dereferenciated = false;
+    
+    /************************* INIT BDD SYSTEM ********************************/
+    
+    /**
+     * Initialize the table of nodes.
+     */
+    public static void initT(){
+        // Creation of vertex table
+        BDD.T = new TableT();
+    }
+    
+    /**
+     * Initialize variables
+     * @param variables List of variables existing in the system.
+     */
+    private static void initVariables(ArrayList<String> variables){
+        BDD.VARIABLES = variables;
+    }
+    
+    /**
+     * Initialize variables
+     * @param variables List of variables existing in the system.
+     */
+    private static void initVariables(String[] variables){
+        BDD.VARIABLES = new ArrayList<String>(Arrays.asList(variables));
+    }
+
+    /**
+     * Initialize BDD system.
+     * @param variables List of variables existing in the system.
+     */
+    public static void init(ArrayList<String> variables){
+        BDD.initT();
+        BDD.initVariables(variables);
+     }
+    
+    /**
+     * Initialize BDD system.
+     * @param variables Array of variables existing in the system.
+     */
+    public static void init(String[] variables){
+        BDD.initT();
+        BDD.initVariables(variables);
+    }
+    
+    /************************* END INIT BDD SYSTEM ****************************/
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    /* Root assignement */
+    
+    public final void assignRoot(Vertex newRoot){
+        if(this.root!=null && this.root.index == newRoot.index){
+            //System.out.println("xxx");
+            return;
+        }
+        
+        this.root = newRoot;
+        //System.out.println(this.root);
+        if (this.root.isLeaf()) {
+            this.isTautology = this.root == BDD.T.True;
+            this.isContradiction = this.root == BDD.T.False;
+        }
+    }
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    /* BDD assignement */
+    
     /**
      * Assign operation of one BDD in another.
      * @param bdd BDD that will be copied in caller.
      */
-    private void assign(BDD bdd){
+    private void assignInTreeGeneration(BDD bdd){
         this.name = bdd.name;
         this.function = bdd.function;
+        this.size = bdd.size;
+        this.dereferenciated = bdd.dereferenciated;
+        // The reference count is updated in bdd
+        // we have no loger to re-update it
+        this.root = bdd.root;
         this.variable_existence = bdd.variable_existence;
         this.variable_ordering = bdd.variable_ordering;
         this.present_variable_indices = bdd.present_variable_indices;
-        this.T = bdd.T;
-        this.U = bdd.U;
-        this.True = bdd.True;
-        this.False = bdd.False;
         this.isTautology = bdd.isTautology;
         this.isContradiction = bdd.isContradiction;
     }
@@ -94,69 +160,6 @@ public class BDD {
     /**************************************************************************/
     /**************************************************************************/
     /**** TREE GENERATION ****/ 
-    
-    
-    /* LEVELS & WHATEVER  */
-    /*
-    protected void addVertexToLevel(Vertex v, int level){
-        // If level doesn't exist, we create it
-        if(!levels.containsKey(level))
-            levels.put(level, new ArrayList<Vertex>(level*10));
-        
-        // We add the vertex to the level
-        levels.get(level).add(v);
-    }
-    
-    protected void addVerticesToLevel(Collection<Vertex> vertices, int level){
-        // If level doesn't exist, we create it
-        if(!levels.containsKey(level))
-            levels.put(level, new ArrayList<Vertex>(level*10));
-        
-        // We add each vertex to the level
-        for(Vertex v : vertices)
-            levels.get(level).add(v);
-    }
-    
-    protected void addAllVerticesToLevel(int level){
-        // If level doesn't exist, we create it
-        if(!levels.containsKey(level))
-            levels.put(level, new ArrayList<Vertex>(level*10));
-        
-        // We add each vertex to the level
-        for(Vertex v : this.T.values())
-            levels.get(level).add(v);
-    }
-    
-    private void updateLevels(Vertex v, int level){
-        
-        if(v.isLeaf()){
-            return;
-        }
-        else{
-            this.addVertexToLevel(v, level);
-            updateLevels(this.T.get(v.low()), level+1);
-            updateLevels(this.T.get(v.high()), level+1);
-        }
-    }
-    
-    private void swapLevel(int i){
-        ArrayList<Vertex> levelI = this.levels.get(i);
-        //ArrayList<Vertex> levelI1 = this.levels.get(i+1);
-        
-        for(Vertex v : levelI){
-            int lowIndex = T.getNextKey();
-            Vertex low = new Vertex(lowIndex,0,0,0);
-            
-            int highIndex = T.getNextKey();
-            Vertex high = new Vertex(highIndex,0,0,0);
-            
-            int index = T.getNextKey();
-            Vertex vReplacement = new Vertex(index, 0, low.index, high.index);
-            this.T.put(v.index, vReplacement); 
-        }
-    }*/
-    
-    /* END LEVELS & WHATEVER */
     
     /**
      * Evaluates the formula given a path (an assignement of variables)
@@ -181,7 +184,6 @@ public class BDD {
             System.exit(-1);
         }
         return false;
-        //return (Boolean)MVEL.eval(_function);
     }
     
     /**
@@ -190,7 +192,7 @@ public class BDD {
      * @param U HashMap that ensures the uniqueness of the generated vertices.
      * @return Vertex of each level.
      */
-    private Vertex generateTreeFunction(ArrayList<Boolean> path, HashMap<String,Vertex> U){
+    private Vertex generateTreeFunction(ArrayList<Boolean> path){
             int path_len = path.size();
             //System.out.println(path.toString());
             //System.out.println(path_len);
@@ -205,12 +207,12 @@ public class BDD {
                 // Low path
                 ArrayList<Boolean> path_low = new ArrayList<Boolean>(path);
                 path_low.add(false);
-                Vertex v_low = this.generateTreeFunction(path_low, U);
+                Vertex v_low = this.generateTreeFunction(path_low);
                 
                 // High path
                 ArrayList<Boolean> path_high = new ArrayList<Boolean>(path);
                 path_high.add(true);
-                Vertex v_high = this.generateTreeFunction(path_high, U);
+                Vertex v_high = this.generateTreeFunction(path_high);
                 
                 //////////////// Constraints:
                 
@@ -230,12 +232,13 @@ public class BDD {
                         
                 // Variable of the new vertex
                 int var_index = this.present_variable_indices.get(path_len);
-                
+                return T.add(var_index, v_low, v_high);
+                /*
                 // If exists a vertex with the same variable and the same
                 // descendents, return that
-                String vKey = var_index+"-"+v_low.index+"-"+v_high.index;
-                if(U.containsKey(vKey)){
-                    Vertex v = U.get(vKey);
+                String vKey = Vertex.computeUniqueKey(var_index, v_low.index, v_high.index);
+                if(T.containsVertex(vKey)){
+                    Vertex v = T.get(vKey);
                     //this.addVertexToLevel(v, path_len);
                     return v;
                 }
@@ -245,23 +248,22 @@ public class BDD {
                 // We create a new vertex
                 int index = T.getNextKey();
                 Vertex v = new Vertex(index, var_index, v_low, v_high);
-                this.T.put(index, v);
-                U.put(vKey, v);
+                this.T.put(index, v);*/
                 //this.addVertexToLevel(v, path_len);
-                return v;
+                //return v;
             }
             else if(path_len == this.present_variable_indices.size())
             {
                 // reached leafes
                 boolean value = this.evaluatePath(path);
                 if(value){
-                    this.T.put(1,this.True);
+                    //this.T.put(1,this.True);
                     //this.addVertexToLevel(this.True, path_len);
-                    return this.True;
+                    return BDD.T.True;
                 }
-                this.T.put(0,this.False);
+                //this.T.put(0,this.False);
                 //this.addVertexToLevel(this.False, path_len);
-                return this.False;
+                return BDD.T.False;
             }
             //System.out.println("WRONG");
             return null;
@@ -334,7 +336,8 @@ public class BDD {
         // If we have a leaf, the node has a variable not an operation
         // we create the BDD using recursion (it's only one step deep)
         if (childCount == 0) {
-            BDD bdd = new BDD(tree.getText(), false);
+            BDD bdd = new BDD(tree.getText());
+            //System.out.println(bdd.root);
             return bdd;
         }
         
@@ -358,11 +361,13 @@ public class BDD {
             BDD bddI = bdds.get(i);
             BDD bddRes = null;//BDD.optimizeTreeGenerationFromAST(op, bdd, bddI);
             if (bddRes == null) {
-                bddRes = bdd.apply(op, bddI);
+                bddRes = bdd._apply(op, bddI);
+                bdd = null;
+                bddI = null;
             }
 
             bdd = bddRes;
-            bdd.reduce();
+            //bdd.reduce();
         }
         //bdd.print();
         return bdd;
@@ -372,7 +377,7 @@ public class BDD {
     * Generate the Tree usin the APPLY operation.
     * The 'this' object IS MODIFIED.
     */
-    private void generateTreeUsingApply(){
+    private Vertex generateTreeUsingApply(){
         // Creating the lexer and the parser for the logic formula
         LogicLexer lexer = new LogicLexer(new ANTLRStringStream(this.function));
         LogicParser parser = new LogicParser(new CommonTokenStream(lexer));
@@ -387,174 +392,14 @@ public class BDD {
         }
         
         // Call to create the BDD from an AST
-        int level = 0;
+        //int level = 0;
         BDD bdd = BDD.generateTreeFromAST(tree);
-        this.assign(bdd);
-        this.assignRoot();
+        this.assignInTreeGeneration(bdd);
+        return this.root;
+        //this.assignRoot();
         //this.updateLevels(this.root, level);
     }
     
-    /**************************************************************************/
-    /**************************************************************************/
-    /**** TREE REDUCTION ****/ 
-    
-    /**
-     * Deletes a vertex from the BDD.
-     * Updates the references of the vertices of the BDD accordingly our deletion.
-     * Modifies the hash T
-     * @param deletedVertex Vertex to be deleted.
-     */
-    private void deleteRedundantVertex(Vertex deletedVertex){
-        int low = deletedVertex.low();
-        int high = deletedVertex.high();
-        T.remove(deletedVertex.index);
-        // Update the low and high pointers to the new values
-        // (the low and high of the deleted vertex resp.)
-        ArrayList<Integer> vertexIndices = new ArrayList<Integer>(T.keySet());
-        for(Integer i : vertexIndices){
-            Vertex v = T.get(i);
-            if(v.low() == deletedVertex.index)
-                v.setLow(low);
-            if(v.high() == deletedVertex.index)
-                v.setHigh(high);
-        }
-    }
-    
-    /**
-     * Delete all redundante vertices of the tree.
-     * That is, all vertex with the same low and high values.
-     * Of course modifies the T table.
-     * @return boolean True if there has been a deletion of a redundant vertex. False otherwise.
-     */
-    private boolean deleteRedundantVertices(){
-        TimeMeasurer t = new TimeMeasurer("---- deleteRedundantVertices ----");
-        boolean deleted = false;
-        for(Vertex v : this.T.getVertices()){
-            //Vertex v = this.T.get(i);
-            if(v.isRedundant()){
-                //System.out.println("Eliminamos el "+v.index);
-                deleted = true;
-                this.deleteRedundantVertex(v);
-            }
-        }//*/
-        t.end().show();
-        return deleted;
-    }
-    
-    
-    private ArrayList<Integer> getDuplicateVertexIndices(Vertex v){
-        
-        ArrayList<Integer> vertixKeys = new ArrayList<Integer>(this.T.keySet());
-        ArrayList<Integer> duplicates = new ArrayList<Integer>();
-        
-        for(int k : vertixKeys){
-            if(k!=Vertex.TRUE_INDEX && k!=Vertex.FALSE_INDEX && k != v.index){
-                Vertex w = T.get(k);
-                if(v.isDuplicate(w))
-                    duplicates.add(w.index);
-            }
-        }
-        return duplicates;
-    }
-    
-    
-    /**
-     * Delete all duplicate vertices.
-     */
-    private boolean deleteDuplicateVertices(){
-        TimeMeasurer t = new TimeMeasurer("++++++ deleteDuplicateVertices ++++++");
-        // Uniqueness
-        boolean _change = false;
-        boolean change = false;
-        do{
-            change = false;
-            ArrayList<Integer> vertexKeys = new ArrayList<Integer>(this.T.keySet());
-            // For every vertex that is not True or False
-            for(Integer k : vertexKeys){
-                if(k!=Vertex.TRUE_INDEX && k!=Vertex.FALSE_INDEX){
-                    Vertex v = T.get(k);
-                    if(v != null){
-                        // Get all of its duplicates
-                        ArrayList<Integer> duplicateIndices = getDuplicateVertexIndices(v);
-                        change = change || duplicateIndices.size()>0;
-                        for(Integer d : duplicateIndices){
-                            ArrayList<Integer> remining = new ArrayList<Integer>(this.T.keySet());
-                            for(Integer q : remining){
-                                Vertex vQ = T.get(q);
-                                if(vQ.low() == d)
-                                    vQ.setLow(k);
-                                if(vQ.high() == d)
-                                    vQ.setHigh(k);
-                            }
-                            T.remove(d);
-                            _change = true;
-                        }
-                    }
-                }
-            }
-        }
-        while(change);
-        t.end().show();
-        return _change;
-    }
-    
-    
-    /**
-     * Assign the root of the BDD.
-     */
-    private void assignRoot(){
-        ArrayList<Integer> vertexKeys = new ArrayList<Integer>(this.T.keySet());
-        this.root = this.T.get(Collections.max(vertexKeys));
-        /*
-        // Test results HAVE BEEN RIGHT, the root is RIGHT!
-        // Test if root calculation is wrong O(N)
-        for(Vertex v : this.T.values()){
-            if(v.low() == this.root.index || v.high() == this.root.index){
-                System.err.println("PETOSKY");
-                System.exit(-1);
-            }
-        }*/
-                
-    }
-    
-    /**
-     * Updates the H table.
-     */
-    private void updateU(){
-        //System.out.flush();
-        /*
-        this.U = new HashMap<String,Vertex>();
-        for(Vertex v : this.T.getVertices()){
-            this.U.put(v.uniqueKey(),v);
-        }*/
-    }
-    
-    /**
-     * Reduces the BDD deleting redundant and duplicate vertices.
-     */
-    public void reduce(){
-        TimeMeasurer t = new TimeMeasurer("********* REDUCE *********");
-        boolean change = false;
-        do{
-            change = this.deleteRedundantVertices();
-            change = change || this.deleteDuplicateVertices();
-        }while(change);
-        //this.assignNewIndices();
-        // Asignamos U
-        this.updateU();
-        // Asignamos la raiz
-        this.assignRoot();
-        t.end().show();
-    }
-    
-    private void reduceForApply(){
-        TimeMeasurer t = new TimeMeasurer("********* REDUCE FOR APPLY *********");
-        //this.assignNewIndices();
-        // Asignamos U
-        this.updateU();
-        t.end().show();
-    }
-
     
     /**************************************************************************/
     /**************************************************************************/
@@ -585,20 +430,20 @@ public class BDD {
      * @param variable_ordering Order of the variables given this way: variable_ordering[i]=j => jth variable is in ith position.
      * @param useApplyInCreation 
      */
-    private void init(ArrayList<Integer> variable_ordering, boolean useApplyInCreation){
+    private void initBDD(ArrayList<Integer> variable_ordering, boolean useApplyInCreation){
         TimeMeasurer t = new TimeMeasurer(" ::::::::::::. BDD constructor "+this.function+".::::::::::::");
         //TimeMeasurer _t = new TimeMeasurer(" :::::::: BDD preprocess :::::::");
         //this.function = function_str;
         this.initVariableOrder(variable_ordering);
 
         // Leaf vertices
-        this.False = new Vertex(false);
-        this.True = new Vertex(true);
+        //this.False = new Vertex(false);
+        //this.True = new Vertex(true);
         // HashMap
-        this.T = new TableT();
+        //this.T = new TableT();
 
         // Levels
-        this.levels = new HashMap<Integer,ArrayList<Vertex>>(this.present_variable_indices.size());
+        //this.levels = new HashMap<Integer,ArrayList<Vertex>>(this.present_variable_indices.size());
         
         // If we insert the False and True vertices,
         // we can't have true or false BDDs
@@ -606,37 +451,52 @@ public class BDD {
         //T.put(1, this.True);
         // Generation of the BDD tree
         ArrayList<Boolean> path = new ArrayList<Boolean>(this.present_variable_indices.size());
-        HashMap<String,Vertex> U = new HashMap<String,Vertex>();
+        //HashMap<String,Vertex> U = new HashMap<String,Vertex>();
         
         // If the formula can be evaluated to true without creating all the tree
         // is a truth BDD, containing only the True vertex
+        Vertex newRoot = null;
         if(!useApplyInCreation)
-            this.generateTreeFunction(path, U);
+            newRoot = this.generateTreeFunction(path);
         else{
-            this.generateTreeUsingApply();
+            newRoot = this.generateTreeUsingApply();
         }
+        this.assignRoot(newRoot);
         //_t.end();
         //_t.show();
         //this.print();
         // Reduction of the BDD tree
-        this.reduce();
+        //this.reduce();
         if (T.keySet().size() == 1) {
             if(T.containsKey(1))
-                this.isTautology = T.get(1) == this.True;
+                this.isTautology = T.get(1) == BDD.T.True;
             if(T.containsKey(0))
-                this.isContradiction = T.get(0) == this.False;
+                this.isContradiction = T.get(0) == BDD.T.False;
         }
         t.end().show();
     }
     
-    public static void initVariables(ArrayList<String> variables){
-        BDD.VARIABLES = variables;
+    /**
+     * Constructor for use in this class.
+     * NOT FOR PUBLIC USE.
+     * Constructs a BDD for a single variable. Optimized to use in the creation of other BDDs.
+     * @param variable Variable to build its simple BDD.
+     */
+    private BDD(String variable){
+        this.function = variable;
+        int var_index = -1;
+        ArrayList<Integer> trivial_variable_ordering = new ArrayList<Integer>(VARIABLES.size());
+        for(int i=0; i<VARIABLES.size(); i++){
+            trivial_variable_ordering.add(i);
+            if(variable.equals(VARIABLES.get(i)))
+                var_index = i;
+        }
+        //System.out.println(var_index);
+        this.assignRoot( BDD.T.add(var_index, BDD.T.False, BDD.T.True) );
+        this.initVariableOrder(trivial_variable_ordering);
+        //System.out.println("POLLAS");
+        //System.out.println(this.root);
     }
-    
-    public static void initVariables(String[] variables){
-        BDD.VARIABLES = new ArrayList<String>(Arrays.asList(variables));
-    }
-    
     /**
      * Constructor of BDD.
      * @param function_str String containing the boolean formula. Use Java representation of the formula. Don't forget using parentheses.
@@ -650,7 +510,7 @@ public class BDD {
         for(int i=0; i<VARIABLES.size(); i++)
             trivial_variable_ordering.add(i);
         // Init the BDD
-        this.init(trivial_variable_ordering, useApplyInCreation);
+        this.initBDD(trivial_variable_ordering, useApplyInCreation);
     }
     
     /**
@@ -660,7 +520,7 @@ public class BDD {
      */
     public BDD(String function_str, ArrayList<Integer> variable_ordering, boolean useApplyInCreation){
         this.function = function_str;
-        this.init(variable_ordering, useApplyInCreation);
+        this.initBDD(variable_ordering, useApplyInCreation);
     }
 
     /**
@@ -671,7 +531,7 @@ public class BDD {
     public BDD(String function_str, Integer[] variable_ordering, boolean useApplyInCreation){
         this.function = function_str;
         ArrayList<Integer> variable_ordering_list = new ArrayList<Integer>(Arrays.asList(variable_ordering));
-        this.init(variable_ordering_list, useApplyInCreation);
+        this.initBDD(variable_ordering_list, useApplyInCreation);
     }
     
     /**
@@ -686,13 +546,7 @@ public class BDD {
             int indexOfVariable = VARIABLES.indexOf(variable_order_by_position[i]);
             variable_ordering_list.add(indexOfVariable);
         }
-        //System.out.println(variable_list);
-        //System.out.println(variable_ordering_list);
-        this.init(variable_ordering_list, useApplyInCreation);
-        /*System.out.println(this.variables);
-        System.out.println(this.variable_ordering);
-        System.out.println(this.present_variable_indices);
-        System.out.println(this.function);*/
+        this.initBDD(variable_ordering_list, useApplyInCreation);
     }
     
     /**
@@ -715,59 +569,52 @@ public class BDD {
             _variable_ordering.set(position, variable_index);
         }
         // Initialize variable parameters
-        this.init(_variable_ordering, useApplyInCreation);
+        this.initBDD(_variable_ordering, useApplyInCreation);
     }
     
     /**
      * Constructor used in the apply operation.
+     * NOT FOR PUBLIC USE.
      * Note that this does not need variable ordering.
      * @param T Table that contains the BDD tree.
      * @param function_str Boolean logic function in string form.
      * @param variable_ordering Variable ordering.
      */
-    public BDD(TableT T, String function_str, ArrayList<Integer> variable_ordering){
+    BDD(String function_str, Vertex root, ArrayList<Integer> variable_ordering){
         //TimeMeasurer t = new TimeMeasurer("BDD constructor from T");
         this.function = function_str;
         this.initVariableOrder(variable_ordering);
-        // Leaf vertices
-        this.False = T.get(0);
-        this.True = T.get(1);
-        // HashMap
-        this.T = T;
         // Reduction of the BDD tree
-        this.reduceForApply();
-        if (T.keySet().size() == 1) {
-            if(T.containsKey(1))
-                this.isTautology = T.get(1) == this.True;
-            if(T.containsKey(0))
-                this.isContradiction = T.get(0) == this.False;
-        }
+        //this.reduceForApply();
+        this.assignRoot(root);
         //t.end().show();
     }
     
     /* END Constructors */
     /**************************************************************************/
     /**************************************************************************/
-    
-    /*public static BDD factoryWithBetterVariableOrder(String function_str, String[] variables, String[] variable_order){
-        BDD bdd = new BDD(function_str, variables, variable_order);
-        int i=0;
-        while(i<1){
-            Collections.shuffle( Arrays.asList(variable_order) );
-            BDD bddI = new BDD(function_str, variables, variable_order);
-            System.out.println(bddI.size()+ "<?" +bdd.size());
-            if(bddI.size() < bdd.size()){
-                bdd = bddI;
-                System.out.println("MEJORA");
-            }
-            i++;
-        }
-        return bdd;
-    }*/
-    
+  
     /**************************************************************************/
     /**************************************************************************/
     /* Apply algorithm */
+    
+    private BDD _apply(String op, BDD bdd2){
+        try
+        {
+            TimeMeasurer t = new TimeMeasurer(" AAAAAAAAAAAAAAAAAAAAAAAA apply AAAAAAAAAAAAA");
+            BDDApply applicator = new BDDApply(op, this, bdd2);     
+            BDD bddRes = applicator.run();
+            t.end().show();
+            return bddRes;
+        }
+        catch(Exception e)
+        {
+            System.err.println(e);
+            e.printStackTrace();
+        }
+        // This code is not executed:
+        return null;
+    }
     
     public BDD apply(String op, BDD bdd2){
         try
@@ -775,7 +622,6 @@ public class BDD {
             TimeMeasurer t = new TimeMeasurer(" AAAAAAAAAAAAAAAAAAAAAAAA apply AAAAAAAAAAAAA");
             BDDApply applicator = new BDDApply(op, this, bdd2);     
             BDD bddRes = applicator.run();
-            bddRes.reduceForApply();
             t.end().show();
             return bddRes;
         }
@@ -804,9 +650,9 @@ public class BDD {
         if(!v.isLeaf())
         {
             if(!truthAssignement.get(v.variable))
-                return this.evaluateFromVertex(this.T.get(v.low()), truthAssignement);
+                return this.evaluateFromVertex(v.low(), truthAssignement);
             else
-                return this.evaluateFromVertex(this.T.get(v.high()), truthAssignement);
+                return this.evaluateFromVertex(v.high(), truthAssignement);
         }
         else
         {
@@ -833,6 +679,7 @@ public class BDD {
     /* Get information about BDD zone */
     
     public Vertex root(){
+        //System.out.println(this.root);
         return this.root;
     }
     
@@ -840,20 +687,52 @@ public class BDD {
      * Return the number of vertices of this BDD.
      * @return Number of vertices of the BDD.
      */
+    public static int totalSize(){
+        return BDD.T.getVertices().size();
+    }
+    
+    private int size(Vertex v){
+        if(v.isLeaf())
+            return 1;
+        return ( this.size(v.lowVertex()) + this.size(v.highVertex()) );
+    }
+    
     public int size(){
-        return this.T.getVertices().size();
+        if(this.size == -1){
+            this.size = this.size(this.root);
+        }
+        return this.size;
     }
     
     public static ArrayList<String> variables(){
         return VARIABLES;
     }
     
-    public ArrayList<String> getVariables(){
-        return this.variables();
-    }
-    
     public boolean isContradiction(){ return this.isContradiction; }
     public boolean isTautology(){ return this.isTautology; }
+    
+    /**
+     * Return the vertices of the BDD.
+     */
+    private ArrayList<Vertex> vertices(Vertex v){
+        if(v.isLeaf()){
+            ArrayList<Vertex> vertices = new ArrayList<Vertex>(1);
+            vertices.add(v);
+            return vertices;
+        }
+        
+        ArrayList<Vertex> vertices = new ArrayList<Vertex>(1000);
+        vertices.addAll( this.vertices(v.lowVertex()) );
+        vertices.addAll( this.vertices(v.highVertex()) );
+        return vertices;
+    }
+    
+    /**
+     * Return the vertices of the BDD.
+     */
+    public ArrayList<Vertex> vertices(){
+        return this.vertices(this.root);
+    }
     
     /**************************************************************************/
     /**************************************************************************/
@@ -864,29 +743,26 @@ public class BDD {
      * @param verbose Must show all variables and other explicit information?
      * @return String String that contains the hastable representation of the BDD.
      */
-    public String toString(boolean verbose){
+    public String toString(boolean showVertices){
         String text = "";
         text = "BDD tree for "+this.function+"\n";
         text += "Variables: "+VARIABLES.size()+". ";
-        if(verbose){
-            text += "";
-            for(String var : VARIABLES)
-                text += var+", ";
-            text = text.substring(0, text.length()-2)+"\n";
-        }
         text += "\n";
         text += "Variable ordering: ";
         for(Integer varI : this.present_variable_indices)
             text += varI+", ";
         text = text.substring(0, text.length()-2)+"\n";
-        ArrayList<Vertex> vertices = this.T.getVertices();
+        ArrayList<Vertex> vertices = this.vertices();
         text += "Vertices: "+vertices.size()+"\n";
-        text += "u\tvar_i\tvar\tlow\thigh\n";
-        for(Vertex v : vertices){
-            String variable = Boolean.toString(v.value());
-            if(v.variable > -1)
-                variable = VARIABLES.get(v.variable);
-            text += v.index+"\t"+v.variable+"\t"+variable+"\t"+v.low()+"\t"+v.high()+"\n";
+        text += "Root vertex: "+this.root.index+"\n";
+        if(showVertices){
+            text += "u\tvar_i\tvar\tlow\thigh\n";
+            for(Vertex v : vertices){
+                String variable = Boolean.toString(v.value());
+                if(v.variable > -1)
+                    variable = VARIABLES.get(v.variable);
+                text += v.index+"\t"+v.variable+"\t"+variable+"\t"+v.low()+"\t"+v.high()+"\n";
+            }
         }
         return text;
     }
@@ -990,11 +866,15 @@ public class BDD {
             String num_vertices_s = line.split("\\s+")[1].trim();
             int num_vertices = Integer.parseInt(num_vertices_s);
             
+            // Root vertex
+            line = br.readLine().split(":")[1].trim();
+            Vertex root = BDD.T.get(Integer.parseInt(line));
+            
             // Header of the list of vertices
             line = br.readLine();
             
+            /*
             // Each vertex
-            TableT T = new TableT();
             int i=0;
             while (line != null && i<num_vertices) {
                 line = br.readLine();
@@ -1014,10 +894,9 @@ public class BDD {
                     }
                 }
                 i++;
-            }
+            }*/
             
-        BDD bdd = new BDD(T, function, present_variable_indices);
-        bdd.assignRoot();
+        BDD bdd = new BDD(function, root, present_variable_indices);
         br.close();
         return bdd;
         }catch(Exception e){

@@ -23,26 +23,14 @@ public class BDDApply {
     /** Resulting bdd */
     BDD bdd;
     
-    /** Leaf vertex with True value */
-    private final Vertex True;
-    
-    /** Leaf vertex with False value */
-    private final Vertex False;
-    
     /** Operation index */
     private final int operation;
     
     /** Cache table **/
     HashMap<String,Vertex> G;
     
-    /** Unique vertex table **/
-    HashMap<String,Vertex> U;
-    
     /** Used vertices table **/
     //HashMap<Integer,Vertex> used_vertices;
-    
-    /** Resulting hash table containing the relations between vertices */
-    TableT T;
     
     /** AND logic operation key */
     public final static int OP_AND = 1;
@@ -128,11 +116,7 @@ public class BDDApply {
     public BDDApply(String operation, BDD bdd1, BDD bdd2)throws Exception{
         this.bdd1 = bdd1;
         this.bdd2 = bdd2;
-        
         this.operation = BDDApply.getOperation(operation);
-        
-        this.True = new Vertex(true);
-        this.False = new Vertex(false);
     }
     
     
@@ -166,18 +150,6 @@ public class BDDApply {
 
     
     /**
-     * Overload to simplify our existence.
-     * Avoid calling the T table each time for bdd1 and bdd2.
-     * @param v1 Index of the node in BDD1.
-     * @param v2 Index of the node in BDD2.
-     * @return Vertex Result of doing a recursive call to app.
-     */
-    private Vertex app(int v1, int v2){
-        return this.app(this.bdd1.T.get(v1), this.bdd2.T.get(v2));
-    }
-
-    
-    /**
      * Core of the apply algorithm.
      * Computes recursively a operation between two BDDs.
      * @param v1 Vertex of BDD1.
@@ -185,7 +157,8 @@ public class BDDApply {
      * @return Vertex Result of doing a recursive call to app.
      */
     private Vertex app(Vertex v1, Vertex v2){
-       
+        //System.out.println(v1);
+        //System.out.println(v2);
         // Hash key of the computation of the subtree of these two vertices
         String key = "1-"+v1.index+"+2-"+v2.index;
         
@@ -197,12 +170,12 @@ public class BDDApply {
         {
             if(this.op(v1,v2)){
                 //used_vertices.put(1, this.True);
-                this.T.put(1, this.True);
-                return this.True;
+                //BDD.T.put(1, BDD.True);
+                return BDD.T.True;
             }
-            this.T.put(0, this.False);
+            //BDD.T.put(0, BDD.False);
             //used_vertices.put(0, this.False);
-            return this.False;
+            return BDD.T.False;
         }
         
         int var = -1;
@@ -211,12 +184,12 @@ public class BDDApply {
         // v1.index < v2.index
         if (!v1.isLeaf() && (v2.isLeaf() || v1.variable < v2.variable)) {
             var = v1.variable;
-            low = this.app(v1.low(), v2.index);
-            high = this.app(v1.high(), v2.index);
+            low = this.app(v1.low(), v2);
+            high = this.app(v1.high(), v2);
         } else if (v1.isLeaf() || v1.variable > v2.variable) {
             var = v2.variable;
-            low = this.app(v1.index, v2.low());
-            high = this.app(v1.index, v2.high());
+            low = this.app(v1, v2.low());
+            high = this.app(v1, v2.high());
         } else {
             var = v1.variable;
             low = this.app(v1.low(), v2.low());
@@ -232,6 +205,10 @@ public class BDDApply {
         
         // Respect the uniqueness propierty:
         // "No vertex shall be one that contains same variable, low, high indices as other."
+        Vertex u = BDD.T.add(var, low, high);
+        this.G.put(key, u);
+        return u;
+        /*
         String uniqueVertexKey = Vertex.computeUniqueKey(var,low.index,high.index);
         if(U.containsKey(uniqueVertexKey)){
             Vertex u = U.get(uniqueVertexKey);
@@ -246,7 +223,7 @@ public class BDDApply {
         this.T.put(index, u);
         this.G.put(key, u);
         this.U.put(uniqueVertexKey, u);
-        return u;
+        return u;*/
     }
     
     /*
@@ -278,36 +255,19 @@ public class BDDApply {
         // Cache to avoid repeated computations
         this.G = new HashMap<String,Vertex>();
         
-        // Cache to avoid repeating vertices
-        this.U = new HashMap<String,Vertex>();
-        //this.U = bdd1.U; // (old non-efficient process)
-        
-        // Table that contains the structure of or new BDD
-        this.T = new TableT();
-        //T = bdd1.T; // (old non-efficient process)
-
-        // HashMap that contains the keys of the vertex used
-        // the idea was using bdd1.T as T and deleting non-used vertices
-        // (old non-efficient process)
-        //used_vertices = new HashMap<Integer,Vertex>();
-        
-        // Leaf vertices
-        // We don't put true and false vertices because we can have a
-        // tautology or contradiction as resultant BDD
-        //this.T.put(0, this.False);
-        //this.T.put(1, this.True);
         String function = this.getFunction();
         
         // Fill this.T with vertices of bdd1 and bdd2
-        Vertex root = this.app(bdd1.root, bdd2.root);
+        Vertex root = this.app(bdd1.root(), bdd2.root());
         
-        // Delete all vertices non-used in this process
-        // Collect the gabarge (old non-efficient process)
-        //this.cleanGarbage();
+        // We get the variable indices present in both BDDs as fast as we can
+        HashSet<Integer> presentIndicesSet = new HashSet<Integer>(bdd1.variable_ordering.size()+bdd2.variable_ordering.size());
+        presentIndicesSet.addAll(bdd1.variable_ordering);
+        presentIndicesSet.addAll(bdd2.variable_ordering);
+        ArrayList<Integer> presentVariableIndices = new ArrayList<Integer>(presentIndicesSet);
         
         // Construction of new BDD
-        this.bdd = new BDD(this.T, function, bdd1.variable_ordering);
-        this.bdd.root = root;
+        this.bdd = new BDD(function, root, presentVariableIndices);
         t.end().show();
         
         // Return the new BDD computed

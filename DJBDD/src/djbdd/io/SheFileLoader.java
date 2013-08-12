@@ -181,7 +181,7 @@ public class SheFileLoader {
              e.printStackTrace();
         }
         
-        BDD.initVariables(variables);
+        BDD.init(variables);
         // Now we are going to create the bdd one clausule at a time
         bdd_formulas = new ArrayList<String>( formulas.size()/config.numberOfCNFByBDD );
         String formulaBDDI = "";
@@ -245,7 +245,7 @@ public class SheFileLoader {
         // When we are ready, 
         for(int i=0; i<workers.size(); i++){
             BDD bddI = workers.get(i).getBDD();
-            bddI.reduce();
+            //bddI.reduce();
             if(config.verbose){
                 System.out.println("BDD "+i+": "+bddI.function);
                 bddI.toFile("thread_bdds/bdd_"+i+".txt");

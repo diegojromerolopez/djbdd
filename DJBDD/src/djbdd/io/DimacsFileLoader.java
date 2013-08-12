@@ -89,7 +89,7 @@ public class DimacsFileLoader {
         for(int i=1; i<=numVariables; i++)
             variables.add("x"+i+"_");
         
-        BDD.initVariables(variables);
+        BDD.init(variables);
         
         BDD bdd = new BDD(formula, false);
         return bdd;
@@ -196,7 +196,7 @@ public class DimacsFileLoader {
             }
         }
         
-        BDD.initVariables(variables);
+        BDD.init(variables);
         
         BDD bdd = new BDD(bdd_formula.get(0), config.useApplyInCreation);
         for(int i=1; i<bdd_formula.size(); i++){
@@ -228,7 +228,7 @@ public class DimacsFileLoader {
             bdd = bddRes;
         }
         if(config.verbose){
-            System.out.println("BDD constructed: "+bdd.T.getVertices().size()+" vertices and "+bdd.getVariables().size()+" variables");
+            System.out.println("BDD constructed: "+bdd.T.getVertices().size()+" vertices and "+bdd.variables().size()+" variables");
         }
         return bdd;    
     }

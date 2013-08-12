@@ -66,7 +66,7 @@ class SheFileLoaderThread implements Runnable {
             TimeMeasurer t3 = new TimeMeasurer("\n[Thread "+this.index+"] BDD APPLY "+(i+1)+"/"+formulas.size());
             BDD bddRes = bdd.apply("and",bddI);
             bdd = bddRes;
-            bdd.reduce();
+            //bdd.reduce();
             //bdd.print();
             t3.end().show();
             t.end().show();

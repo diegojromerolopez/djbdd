@@ -36,7 +36,7 @@ public class FileOptimizerThread implements Runnable {
     
     // Constants
     
-    private static final int ITERATIONS = 50;
+    private static final int ITERATIONS = 1;
     private static final int MAX_VARIABLES_TO_MAKE_ITERATIONS = 200;
     private static int BDD_I = 1;
     private static int RANDOM_SEED = 1;
@@ -108,7 +108,7 @@ public class FileOptimizerThread implements Runnable {
                     LOOPS = 1;
                 
                 // BDD base
-                TimeMeasurer t_loops = new TimeMeasurer(">>>>>>>>>>>> runned of "+_variable_order.length+" variables <<<<<<<<<<", true);
+                TimeMeasurer t_loops = new TimeMeasurer(">>>>>>>>>>>> runned of "+_variable_order.length+" variables & "+BDD.T.size()+" <<<<<<<<<<", true);
                 BDD bdd = new BDD(formulaI, _variable_order, useApplyInCreation);
                 // Iterations to get a smaller BDD
                 int j = 0;
@@ -123,6 +123,7 @@ public class FileOptimizerThread implements Runnable {
                 t_loops.end().show();
                 bdds.add(bdd);
                 t.end().show();
+                //BDD.T.gc();
             }
             
             ArrayList<BDD> nonTrivialBDDs = new ArrayList<BDD>(bdds.size());
@@ -140,6 +141,7 @@ public class FileOptimizerThread implements Runnable {
                 System.out.println("TRIVIAL");
                 bdds.set(0,bdds.get(0).apply(this.operation, trivialBdd));
             }
+            
             /*
             if(this.joinBDDs){
                 firstBDD = true;

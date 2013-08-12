@@ -17,9 +17,33 @@ import org.mvel2.MVEL;
  */
 public class Tester {
     
+    static String memoryWasted;
+    
+    private static void wasteMemory(int kbs){
+        memoryWasted = "xxx";
+        for(int i=0; i<kbs; i++){
+            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+        }
+    }
+    
+    private static BDD makeBDD(String function, ArrayList<Integer> variable_ordering){
+        boolean useApplyInCreation = true;
+        // Construction of the BDD1
+        BDD bdd = new BDD(function, variable_ordering, useApplyInCreation);
+        bdd.print();
+        Printer.printBDD(bdd, "makeBDD_"+function+"_"+bdd.variable_ordering.toString());
+        return bdd;
+    }
+    
     public static void test0(){
-        // Function
-        String function = "(a || b) && c && d";
         // Variables of the function (some of them not present)
         ArrayList<String> variables = new ArrayList<String>();
         variables.add("a");
@@ -28,6 +52,8 @@ public class Tester {
         variables.add("d");
         variables.add("e");
         variables.add("f");
+        variables.add("g");
+        variables.add("h");
         // Variable ordering (pray that's right)
         ArrayList<Integer> variable_ordering = new ArrayList<Integer>();
         variable_ordering.add(2);// c
@@ -36,12 +62,29 @@ public class Tester {
         variable_ordering.add(1);// b
         variable_ordering.add(4);// e
         variable_ordering.add(5);// f
-        boolean useApplyInCreation = true;
-        // Construction of the BDD
-        BDD.initVariables(variables);
-        BDD bdd = new BDD(function, variable_ordering, useApplyInCreation);
-        bdd.print();
-        Printer.printBDD(bdd, "test0_"+bdd.variable_ordering.toString());
+        variable_ordering.add(6);// g
+        variable_ordering.add(7);// h
+        
+        // Initializing
+        BDD.init(variables);
+        
+        // Construction of the BDD1
+        String function1 = "(a || b)";
+        BDD bdd1 = makeBDD(function1, variable_ordering);
+        //bdd1 = null;
+        BDD.T.gc();
+        try{
+            Thread.sleep(2000);
+        }catch(Exception e){
+        
+        }
+        BDD.T.gc();
+        
+        // Construction of other BDD2
+        String function2 = "(f || g) && a && b";
+        BDD bdd2 = makeBDD(function2, variable_ordering);
+        BDD.T.gc();
+        BDD.T.print();//*/
     }
     
     public static void test1(){
@@ -49,7 +92,7 @@ public class Tester {
         // Un test para estudiar el orden de las variables
         String function = "(a_ && b_) || (c_ && d_) || (e_ && f_)";
         final String[] variables={"a_", "b_", "c_", "d_", "e_", "f_"};
-        BDD.initVariables(variables);
+        BDD.init(variables);
         // Small BDD
         final String[] variable_ordering1={"a_", "b_", "c_", "d_", "e_", "f_"};
         BDD bdd1 = new BDD(function, variable_ordering1, useApplyInCreation);
@@ -85,7 +128,7 @@ public class Tester {
         final String[] variables={"PPC?", "MAC?", "ADB?", "ADB_IOP?"};
         // Small BDD
         final String[] variable_ordering1={"PPC?", "MAC?", "ADB?", "ADB_IOP?"};
-        BDD.initVariables(variables);
+        BDD.init(variables);
         BDD bdd1 = new BDD(function, variable_ordering1, useApplyInCreation);
         bdd1.print();
         Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_"+bdd1.variable_ordering.toString());      
@@ -98,7 +141,7 @@ public class Tester {
         variables.add("x2");
         variables.add("x3");
         variables.add("x4");
-        BDD.initVariables(variables);
+        BDD.init(variables);
         boolean useApplyInCreation = false;
         BDD bdd = new BDD(function, useApplyInCreation);
         bdd.print();
@@ -131,7 +174,7 @@ public class Tester {
         }
         
         // Initialize the variables
-        BDD.initVariables(variables);
+        BDD.init(variables);
         
         // First operand
         function1 = "("+function1+")";
@@ -217,7 +260,7 @@ public class Tester {
         
         // First operand
         function1 = "("+function1+")";
-        BDD.initVariables(variables);
+        BDD.init(variables);
         BDD bdd1 = new BDD(function1, useApplyInCreation);
         bdd1.print();//*/
      }

@@ -59,8 +59,8 @@ public class Printer {
 
     protected void createTree(GraphViz graph, Vertex v, String pathName) {
         if (v.index > 1) {
-            Vertex low = bdd.T.get(v.low());
-            Vertex high = bdd.T.get(v.high());
+            Vertex low = v.low();
+            Vertex high = v.high();
             this.createTree(graph, low, pathName + "L");
             this.createTree(graph, high, pathName + "H");
             String lowEdgeKey = v.index + "-" + v.low();

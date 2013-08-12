@@ -68,7 +68,7 @@ public class Main {
     variables.add("x3");
     variables.add("x4");
     variables.add("x5"); 
-    BDD.initVariables(variables);
+    BDD.init(variables);
     BDD bdd = createBDD(tree);
     System.out.println(bdd.function);
     Printer.printBDD(bdd, "src.png");

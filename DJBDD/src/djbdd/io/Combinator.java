@@ -59,7 +59,7 @@ public class Combinator {
             }
             
             // Initialize the BDD variables
-            BDD.initVariables(variables);
+            BDD.init(variables);
             
             // We get the first line
             // of the BDDS enumeration
