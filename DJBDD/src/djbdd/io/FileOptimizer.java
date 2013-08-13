@@ -171,9 +171,6 @@ public class FileOptimizer {
                     System.out.println("========================");
                     System.out.println(t.toString() + ": " + groups.get(t).size());
                     sum += groups.get(t).size();
-                    /*for (BDD bdd : groups.get(t)) {
-                        bdd.print();
-                    }*/
                 }
                 System.out.println("---------------------------------------------");
                 System.out.println("There are a total of "+sum);
@@ -185,12 +182,8 @@ public class FileOptimizer {
             for(int i=0; i<bddGroups.size(); i++){
                 ArrayList<BDD> bddGroup = bddGroups.get(i);
                 if(bddGroup.size() < MAX_GROUP_SIZE_TO_APPLY_REDUCE){
-                    System.out.println("Group "+i+"/"+bddGroups.size());
-                    BDD bdd = bddGroup.get(0);
-                    for(int j=1; j<bddGroup.size(); j++){
-                        bdd = bdd.apply("and", bddGroup.get(j));
-                        System.out.println("Group "+i+"/"+bddGroups.size()+": "+(j+1)+"/"+bddGroup.size());
-                    }
+                    System.out.println("Group "+(i+1)+"/"+bddGroups.size());
+                    BDD bdd = BDD.applyToAll("and", bddGroup);
                     ArrayList<BDD> newBddGroup = new ArrayList<BDD>(1);
                     newBddGroup.add(bdd);
                     resultantBDDGroups.add(newBddGroup);

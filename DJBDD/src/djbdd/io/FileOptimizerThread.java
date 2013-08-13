@@ -36,7 +36,7 @@ public class FileOptimizerThread implements Runnable {
     
     // Constants
     
-    private static final int ITERATIONS = 1;
+    private static final int ITERATIONS = 10;
     private static final int MAX_VARIABLES_TO_MAKE_ITERATIONS = 200;
     private static int BDD_I = 1;
     private static int RANDOM_SEED = 1;
@@ -123,7 +123,6 @@ public class FileOptimizerThread implements Runnable {
                 t_loops.end().show();
                 bdds.add(bdd);
                 t.end().show();
-                //BDD.T.gc();
             }
             
             ArrayList<BDD> nonTrivialBDDs = new ArrayList<BDD>(bdds.size());

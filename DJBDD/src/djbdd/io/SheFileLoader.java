@@ -7,12 +7,31 @@ package djbdd.io;
 import djbdd.BDD;
 import djbdd.timemeasurer.TimeMeasurer;
 import java.util.*;
+import java.util.Comparator;
 import java.io.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.*;
 import djbdd.parallel.*;
 
+
+class ReverseValueComparator<T1,T2 extends Comparable<T2>> implements Comparator<T1> {
+    Map<T1,T2> base;
+    
+    public ReverseValueComparator(Map<T1,T2> base) {
+        this.base = base;
+    }
+
+    @Override
+    public int compare(T1 k1, T1 k2) {
+        T2 val1 = base.get(k1);
+        T2 val2 = base.get(k2);
+        if(val1.equals(val2)){
+            return -1;
+        }
+        return val1.compareTo(val2);
+    }
+}
 
 /**
  * Loads a BDD from a Steven She boolean format file extracted from the kconfig.
@@ -25,6 +44,12 @@ public class SheFileLoader {
     /** Path of the DIMACS file */
     String filename;
     
+    public static final int NO_REORDERING = -1;
+    public static final int REORDER_BY_OCURRENCE = 1;
+    
+    /** Should we apply some static reordering to the variables? */
+    public int reordering = NO_REORDERING;//SheFileLoader.REORDER_BY_OCURRENCE;
+            
     /** Number of variables of the BDDs */
     public int numVariables;
     
@@ -77,6 +102,71 @@ public class SheFileLoader {
                 variable_order.add(var);
         }
         return variable_order.toArray(new String[variable_order.size()]);
+    }
+    
+    private ArrayList<String> getOrderedVariablesByOcurrence(){
+        ////////////////////////////////////////////////////////////////////////
+        // Count variables
+        HashMap<Integer,Integer> count = new HashMap<Integer,Integer>();
+        for(int i=0; i<formulas.size(); i++){
+            String formulaI = formulas.get(i);
+            for(int v=0; v<variables.size(); v++){
+                if(formulaI.contains(variables.get(v))){
+                    if(!count.containsKey(v))
+                        count.put(v, 0);
+                    count.put(v, count.get(v)+1);
+                }
+            }
+        }
+        
+        ReverseValueComparator<Integer,Integer> reverseComparator = new ReverseValueComparator<Integer,Integer>(count);
+        TreeMap<Integer,Integer> sortedMap = new TreeMap<Integer,Integer>(reverseComparator);
+        int m = 1;
+        for(Integer k : count.keySet()){
+            sortedMap.put(k,count.get(k));
+            m++;
+        }
+        System.out.println("----"+m+"----");
+
+        System.out.println(sortedMap);
+        
+        System.out.println("Occurences");
+        System.out.println(count.size());
+        System.out.println(count);
+        
+        System.out.println("SortedMap");
+        System.out.println(sortedMap.keySet().size());
+        System.out.println(sortedMap);        
+        
+        ArrayList<Integer> variableOrder = new ArrayList<Integer>();
+        
+        for(Integer i : sortedMap.descendingKeySet()) {
+            System.out.println(i);
+            variableOrder.add( i );
+        }
+        
+        System.out.println("VariableOrder");
+        System.out.println(variableOrder.size());
+        System.out.println(variableOrder);
+       
+        ArrayList<String> orderedVariables = new ArrayList<String>(variables.size());
+        for(int i=0; i<variableOrder.size(); i++){
+            int varIndex = variableOrder.get(i);
+            System.out.println(variables.get(varIndex)+" occurs "+count.get(varIndex));
+            orderedVariables.add(variables.get(varIndex));
+        }
+
+        System.out.println("orderedVariables");
+        System.out.println(orderedVariables.size());
+        System.out.println(orderedVariables);
+        
+        System.out.println("Variables");
+        System.out.println(variables.size());
+        System.out.println(variables);
+        
+        //System.exit(-1);
+
+        return orderedVariables;
     }
     
     /**
@@ -181,7 +271,13 @@ public class SheFileLoader {
              e.printStackTrace();
         }
         
+        if(this.reordering == SheFileLoader.REORDER_BY_OCURRENCE){
+            variables = this.getOrderedVariablesByOcurrence();
+        }
+        
+        // Initialize variables with a given order
         BDD.init(variables);
+        
         // Now we are going to create the bdd one clausule at a time
         bdd_formulas = new ArrayList<String>( formulas.size()/config.numberOfCNFByBDD );
         String formulaBDDI = "";

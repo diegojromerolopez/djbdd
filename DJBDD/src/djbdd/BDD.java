@@ -67,9 +67,6 @@ public class BDD {
     /** Informs if this BDD is a contradiction (always false) */
     boolean isContradiction = false;
 
-    /** Is the BDD dereferenciated? That is, is waiting to be garbage collected? */
-    boolean dereferenciated = false;
-    
     /************************* INIT BDD SYSTEM ********************************/
     
     /**
@@ -114,6 +111,14 @@ public class BDD {
         BDD.initVariables(variables);
     }
     
+    /**
+     * Get the variables defined for all BDDs.
+     * @return List of variables defined in this enviroment.
+     */
+    public static ArrayList<String> variables(){
+        return VARIABLES;
+    }
+    
     /************************* END INIT BDD SYSTEM ****************************/
     
     /**************************************************************************/
@@ -146,7 +151,6 @@ public class BDD {
         this.name = bdd.name;
         this.function = bdd.function;
         this.size = bdd.size;
-        this.dereferenciated = bdd.dereferenciated;
         // The reference count is updated in bdd
         // we have no loger to re-update it
         this.root = bdd.root;
@@ -361,7 +365,7 @@ public class BDD {
             BDD bddI = bdds.get(i);
             BDD bddRes = null;//BDD.optimizeTreeGenerationFromAST(op, bdd, bddI);
             if (bddRes == null) {
-                bddRes = bdd._apply(op, bddI);
+                bddRes = bdd.apply(op, bddI);
                 bdd = null;
                 bddI = null;
             }
@@ -596,13 +600,18 @@ public class BDD {
   
     /**************************************************************************/
     /**************************************************************************/
-    /* Apply algorithm */
     
-    private BDD _apply(String op, BDD bdd2){
+    /*
+     * Apply algorithm
+     * @param op Logical operation to be computed between this and bdd.
+     * @param bdd BDD to operate with current BDD.
+     * @return Resulting BDD to operate the current BDD and bdd.
+     */
+    public BDD apply(String op, BDD bdd){
         try
         {
             TimeMeasurer t = new TimeMeasurer(" AAAAAAAAAAAAAAAAAAAAAAAA apply AAAAAAAAAAAAA");
-            BDDApply applicator = new BDDApply(op, this, bdd2);     
+            BDDApply applicator = new BDDApply(op, this, bdd);
             BDD bddRes = applicator.run();
             t.end().show();
             return bddRes;
@@ -616,22 +625,27 @@ public class BDD {
         return null;
     }
     
-    public BDD apply(String op, BDD bdd2){
-        try
-        {
-            TimeMeasurer t = new TimeMeasurer(" AAAAAAAAAAAAAAAAAAAAAAAA apply AAAAAAAAAAAAA");
-            BDDApply applicator = new BDDApply(op, this, bdd2);     
-            BDD bddRes = applicator.run();
-            t.end().show();
-            return bddRes;
+    /**
+     * Apply one operation to a list of BDDs.
+     * @param op Logical Operation to apply among BDDs.
+     * @param bdds List of BDDs to reduce to only one using the logical operation.
+     * @return BDD that results of operate the BDDs using the operation.
+     */
+    public static BDD applyToAll(String op, ArrayList<BDD> bdds){
+        if(bdds.isEmpty()){
+            System.err.println("This bdd was empty");
+            return null;
         }
-        catch(Exception e)
-        {
-            System.err.println(e);
-            e.printStackTrace();
+        if(bdds.size()==1){
+            return bdds.get(0);
         }
-        // This code is not executed:
-        return null;
+        // We get the first BDD to operate the rest with it
+        BDD bdd = bdds.get(0);
+        for(int i=1; i<bdds.size(); i++){
+            bdd = bdd.apply(op, bdds.get(i));
+        }
+        // Resultant BDD
+        return bdd;
     }
 
     
@@ -691,21 +705,28 @@ public class BDD {
         return BDD.T.getVertices().size();
     }
     
-    private int size(Vertex v){
+    /**
+     * Gets the size of the BDD taking a vertex as root.
+     * @param v Vertex that will be taken as root.
+     * @return int Size of the tree with v as root.
+     */
+    private int sizeFromVertex(Vertex v){
         if(v.isLeaf())
             return 1;
-        return ( this.size(v.lowVertex()) + this.size(v.highVertex()) );
+        return ( this.sizeFromVertex(v.lowVertex()) + this.sizeFromVertex(v.highVertex()) );
     }
-    
+
+    /**
+     * Gets the size of the BDD.
+     * @return int Number of vertices of the BDD.
+     */
     public int size(){
+        // If we have not computed the size
         if(this.size == -1){
-            this.size = this.size(this.root);
+            this.size = this.sizeFromVertex(this.root);
         }
+        // Size is already computed
         return this.size;
-    }
-    
-    public static ArrayList<String> variables(){
-        return VARIABLES;
     }
     
     public boolean isContradiction(){ return this.isContradiction; }
