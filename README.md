@@ -92,4 +92,4 @@ This code is GPL3 with classpath linking exception. That's the same license than
 Of course I will answer questions, suggestions and comments about this library.
 
 ### Who are you? ###
-I'm Diego J., my email is diegojromerolopez AT g-m-a-i-l.com. I'm from Spain and this is part of my master's final thesis.
+I'm Diego J., my email is die_gojr_om-erol-op_ez AT g-m-a-i-l.com (erase - and _ and replace AT with @). I'm from Spain and this is part of my master's final thesis.
