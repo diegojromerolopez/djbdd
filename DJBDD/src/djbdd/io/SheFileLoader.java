@@ -12,7 +12,6 @@ import java.io.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.*;
-import djbdd.parallel.*;
 
 
 class ReverseValueComparator<T1,T2 extends Comparable<T2>> implements Comparator<T1> {
@@ -302,7 +301,6 @@ public class SheFileLoader {
     /**
      * Reads a S. She file an builds a BDD containing the CNF.
      * This method creates a BDD at once, it DOES use the operator apply of the BDD.
-     * See http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html for a dimacs format description.
      * @see BDD
      * @param config Name of the file containing the CNF in dimacs format.
      * @return BDD BDD tree with the formula contained in the filename.

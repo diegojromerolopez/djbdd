@@ -11,7 +11,6 @@ import java.io.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.*;
-import djbdd.parallel.*;
 
 /**
  *
@@ -43,7 +42,6 @@ class SheFileLoaderThread implements Runnable {
     
     @Override
     public void run() {
-        String[] _variables = BDD.variables().toArray(new String[BDD.variables().size()]);
         String[] _variable_order = getVariableOrder(formulas.get(0));
         bdd = new BDD(formulas.get(0), _variable_order, this.useApplyInCreation);
         if(verbose){

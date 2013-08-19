@@ -71,38 +71,44 @@ public class Tester {
         // Construction of the BDD1
         String function1 = "(a || b)";
         BDD bdd1 = makeBDD(function1, variable_ordering);
-        //bdd1 = null;
-        BDD.T.gc();
-        try{
-            Thread.sleep(2000);
-        }catch(Exception e){
-        
-        }
-        BDD.T.gc();
         
         // Construction of other BDD2
-        String function2 = "(f || g) && a && b";
+        String function2 = "(f || g)";
         BDD bdd2 = makeBDD(function2, variable_ordering);
+        
+        BDD bdd3 = bdd1.apply("and", bdd2);
+        bdd3.print();
+        Printer.printBDD(bdd3, "test0_bdd3_"+bdd3.size()+"_"+bdd3.variable_ordering.toString());      
+        
+        BDD bdd4 = makeBDD(bdd3.function, variable_ordering);
+        bdd4.print();
+        Printer.printBDD(bdd4, "test0_bdd4_"+bdd4.size()+"_"+bdd4.variable_ordering.toString());      
+        
         BDD.T.gc();
         BDD.T.print();//*/
     }
     
     public static void test1(){
         boolean useApplyInCreation = false;
-        // Un test para estudiar el orden de las variables
-        String function = "(a_ && b_) || (c_ && d_) || (e_ && f_)";
-        final String[] variables={"a_", "b_", "c_", "d_", "e_", "f_"};
+        
+        // A test to study variable order
+        String function = "(a_ && b_) || (c_ && d_)";
+        final String[] variables={"a_", "b_", "c_", "d_"};
         BDD.init(variables);
+        
         // Small BDD
-        final String[] variable_ordering1={"a_", "b_", "c_", "d_", "e_", "f_"};
+        final String[] variable_ordering1={"a_", "b_", "c_", "d_"};
         BDD bdd1 = new BDD(function, variable_ordering1, useApplyInCreation);
         bdd1.print();
         Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_"+bdd1.variable_ordering.toString());
+        
         // Big an inefficient BDD
-        final String[] variable_ordering2={"c_", "a_", "e_", "b_", "f_", "d_"};
+        final String[] variable_ordering2={"c_", "a_", "d_", "b_"};
         BDD bdd2 = new BDD(function, variable_ordering2, useApplyInCreation);
         bdd2.print();
         Printer.printBDD(bdd2, "test1_bdd2_"+bdd2.size()+"_"+bdd2.variable_ordering.toString());
+        
+        /*
         // Heuristic BDD
         String[] variable_orderingH={"c_", "a_", "e_", "b_", "f_", "d_"};
         BDD bddMin = null;
@@ -118,9 +124,38 @@ public class Tester {
         }
         bddMin.print();
         Printer.printBDD(bddMin, "test1_bddMin_"+bddMin.size()+"_"+bddMin.variable_ordering.toString());
+         * 
+         */
     }
     
-   public static void test2(){
+    public static void test2(){
+        boolean useApplyInCreation = false;
+        
+        // A test to study variable order
+        String function = "(a_ && b_) || (c_ && d_)";
+        //final String[] variables={"a_", "c_", "b_", "d_"};
+        final String[] variables={"a_", "c_", "b_", "d_"};
+        BDD.init(variables);
+        
+        // Big an inefficient BDD
+        BDD bdd = new BDD(function, useApplyInCreation);
+        bdd.print();
+        Printer.printBDD(bdd, "test2_bdd_"+bdd.size());
+        
+        // Swapping
+        BDDSiftingReduce.siftOrder(bdd);
+        //Printer.printBDD(bdd, "test2_bddswapped_"+bdd.size());
+        
+        /*if(false){
+            int var_i = 1;//c
+            BDD.T.swap(var_i);
+            Printer.printBDD(bdd, "test2_xbdd1_"+bdd.size());
+            BDD.T.swap(var_i);
+            Printer.printBDD(bdd, "test2_xbdd2_"+bdd.size());
+        }*/
+    }
+    
+   public static void test3(){
        boolean useApplyInCreation = false;
         // Un test para estudiar el orden de las variables (queremos hacer una heurística)
         String function = "(((PPC?  || MAC?) && (ADB? && MAC?)) || ((false -> ADB_IOP?) && (ADB_IOP? -> false)))";
@@ -134,7 +169,7 @@ public class Tester {
         Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_"+bdd1.variable_ordering.toString());      
    }
     
-    public static void test3(){
+    public static void test4(){
         String function = "( (!x1 || x2) && (x1 || !x2) ) && ( (!x3 || x4) && (x3 || !x4) )";
         ArrayList<String> variables = new ArrayList<String>();
         variables.add("x1");
@@ -159,7 +194,7 @@ public class Tester {
         );
     }
     
-    public static void test4(){
+    public static void test5(){
         TimeMeasurer t = new TimeMeasurer("test4", true);
         boolean useApplyInCreation = true;
         int num_variables = 1000;
@@ -219,7 +254,7 @@ public class Tester {
         return res1==res2;
     }
     
-    public static void test5(){
+    public static void test6(){
         System.out.println("--- AND ---");
         for(int i=0; i<=1; i++){
             for(int j=0; j<=1; j++){
@@ -240,7 +275,7 @@ public class Tester {
         }
     }
     
-    public static void test6(){
+    public static void test7(){
         String function = "(false <-> false)";
         boolean res1 = BooleanEvaluator.run(function);
         //boolean res2 = (Boolean)MVEL.eval(function);
@@ -248,11 +283,12 @@ public class Tester {
         //System.out.println("MVEL\t\t"+function+" = "+res2);
     }
     
-      public static void test7(){
-        boolean useApplyInCreation = true;
-        int num_variables = 5;
+    public static void test8(){
+        boolean useApplyInCreation = false;
+        int num_variables = 3;
         ArrayList<String> variables = new ArrayList<String>();
-        String function1 = "true";
+        String function1 = "x0";
+        variables.add("x0");
         for(int i=1; i<num_variables; i++){
             variables.add("x"+i);
             function1 += " || x"+i;
@@ -263,25 +299,77 @@ public class Tester {
         BDD.init(variables);
         BDD bdd1 = new BDD(function1, useApplyInCreation);
         bdd1.print();//*/
+        BDD.T.print();
+        BDD.T.gc();
+        Printer.printBDD(bdd1, "test8_bdd1_"+bdd1.size());
      }
+    
+    public static void test9(){
+        boolean useApplyInCreation = true;
+        int num_variables = 5;
+        ArrayList<String> variables = new ArrayList<String>();
+        String function1 = "x0";
+        variables.add("x0");
+        for(int i=1; i<num_variables; i++){
+            variables.add("x"+i);
+            function1 += " || x"+i;
+        }
+        
+        // First operand
+        function1 = "("+function1+")";
+        BDD.init(variables);
+        BDD bdd1 = new BDD(function1, useApplyInCreation);
+        bdd1.print();//*/
+        BDD.T.print();
+        Printer.printBDD(bdd1, "test9_bdd1_"+bdd1.size());
+        
+        HashMap<Integer,Boolean> assignement = new HashMap<Integer,Boolean>();
+        assignement.put(2, true);
+        assignement.put(3, true);
+        BDD bdd2 = bdd1.restrict(assignement);
+        Printer.printBDD(bdd2, "test9_bdd2_"+bdd2.size()+" "+assignement.toString()+"");
+        bdd2.print(true);
+    }
     
     public static void run(int testIndex){
         if(testIndex == 0)
             test0();
-        if(testIndex == 1)
+        else if(testIndex == 1)
             test1();
-        if(testIndex == 2)
+        else if(testIndex == 2)
             test2();
-        if(testIndex == 3)
+        else if(testIndex == 3)
             test3();
-        if(testIndex == 4)
+        else if(testIndex == 4)
             test4();
-        if(testIndex == 5)
+        else if(testIndex == 5)
             test5();
-        if(testIndex == 6)
+        else if(testIndex == 6)
             test6();
-        if(testIndex == 7)
+        else if(testIndex == 7)
             test7();
+        else if(testIndex == 8)
+            test8();
+        else if(testIndex == 9)
+            test9();
+        else {
+            System.err.println("This test does NOT exists");
+            System.exit(-1);
+        }
+    }
+    
+    /**
+     * Main class.
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        if(args.length<1){
+            System.err.println("Use java -jar DJBDD.jar Tester <ID TEST>");
+            System.exit(-1);
+        }
+        // Run the test 
+        Tester.run(Integer.parseInt(args[0]));
+    
     }
     
 }

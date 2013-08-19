@@ -18,9 +18,17 @@ public class Printer {
 
     /* Output file type */
     static String FILE_TYPE = "png";
+    
+    /** Should the graph show the vertex paths? */
     final boolean SHOW_NODE_PATHS = false;
+    
     /** BDD tree to print */
     BDD bdd = null;
+    
+    /** Should we print debug messages? */
+    static final boolean VERBOSE = false;
+    
+    /** Caché of edges of the graph */
     HashMap<String, Boolean> edgeCache = null;
 
     protected String getVertexName(Vertex v, String pathName){
@@ -33,8 +41,8 @@ public class Printer {
             return name;
         }
 
-        if (v.variable > -1) {
-            name = bdd.variables().get(v.variable);
+        if (v.variable() > -1) {
+            name = bdd.variables().get(v.variable());
             if(name.endsWith("_")){
                 name = name.substring(0, name.length()-1);
             }
@@ -47,7 +55,7 @@ public class Printer {
         }
 
         if (v.index != -1) {
-            name = "" + v.variable;
+            name = "" + v.variable();
             return name;
         }
         return name;
@@ -90,14 +98,19 @@ public class Printer {
         createTree(gv, bdd.root(), pathName);
 
         gv.addln(gv.end_graph());
-        System.out.println(gv.getDotSource());
+        if(VERBOSE){
+            System.out.println("Dot graph:");
+            System.out.println(gv.getDotSource());
+        }
 
         String type = FILE_TYPE;
         if (!path.contains("\\" + FILE_TYPE)) {
             path += "." + FILE_TYPE;
         }
         File out = new File(path);   // Linux
-        System.out.println("Saving in "+out.getAbsolutePath());
+        if(VERBOSE){
+            System.out.println("Saving in "+out.getAbsolutePath());
+        }
         gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type), out);
     }
     

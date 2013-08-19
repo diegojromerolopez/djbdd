@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package djbdd;
 
 import net.astesana.javaluator.*;
@@ -9,25 +5,37 @@ import net.astesana.javaluator.*;
 import java.util.*;
 
  
-/** An example of how to implement an evaluator from scratch.
+/**
+ * Evaluates a boolean expression.
+ * Used in {@link BDD#evaluatePath }.
+ * This code uses the Javaluator library: http://javaluator.sourceforge.net/en/home/
+ * This code is inspired by the javaluator example: http://javaluator.sourceforge.net/en/doc/tutorial.php?chapter=creatingSimple
+ * @author diegoj
  */
 public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
-  /** The negate unary operator.*/
+  
+    /** The negate unary operator.*/
   public final static Operator NOT = new Operator("!", 1, Operator.Associativity.RIGHT, 5);
+  
   /** The logical AND operator.*/
   private static final Operator AND = new Operator("&&", 2, Operator.Associativity.LEFT, 4);
+  
   /** The logical OR operator.*/
   public final static Operator OR = new Operator("||", 2, Operator.Associativity.LEFT, 3);
+  
   /** The logical Implication operator.*/
   public final static Operator IMP = new Operator("->", 2, Operator.Associativity.LEFT, 2);
+  
   /** The logical Implication operator (version2).*/
   public final static Operator IMP2 = new Operator("=>", 2, Operator.Associativity.LEFT, 2);
+  
   /** The logical double implication operator.*/
   public final static Operator DOUBLE_IMP = new Operator("<->", 2, Operator.Associativity.LEFT, 1);
+
   /** The logical double implication operator (version2).*/
   public final static Operator DOUBLE_IMP2 = new Operator("<=>", 2, Operator.Associativity.LEFT, 1);
   
-  
+  /** Evaluator parameters */
   private static final Parameters PARAMETERS;
  
   static {
@@ -45,16 +53,32 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     PARAMETERS.addExpressionBracket(BracketPair.PARENTHESES);
   }
  
+  /**
+   * Construct a boolean evaluator.
+   */
   public BooleanEvaluator() {
     super(PARAMETERS);
   }
- 
+
+  /**
+   * Gives the boolean value of a literal.
+   * @param literal Litera of the string.
+   * @param evaluationContext Context.
+   * @return boolean evaluation of the literal.
+   */
   @Override
   protected Boolean toValue(String literal, Object evaluationContext) {
     //System.out.println("'"+literal+"'");
     return Boolean.valueOf(literal);
   }
  
+  /**
+   * Evaluates one operand with one operand.
+   * @param operator Current operator.
+   * @param operands Operands of the operator.
+   * @param evaluationContext Context.
+   * @return boolean evaluation of the operator.
+   */
   @Override
   protected Boolean evaluate(Operator operator, Iterator<Boolean> operands, Object evaluationContext) {
     
@@ -71,9 +95,6 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     if (operator == AND) {
       Boolean o1 = operands.next();
       Boolean o2 = operands.next();
-      //System.out.println("'"+o1.toString()+"'");
-      //System.out.println("'"+o2.toString()+"'");
-      //System.out.println(o1 && o2);
       return o1 && o2;
     }
     
@@ -92,22 +113,22 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     return super.evaluate(operator, operands, evaluationContext);
   }
   
+  /**
+   * Run this process of evaluation for one expression.
+   * @param expression Boolean expression to be evaluated.
+   * @return boolean value for the expression.
+   */
   public static boolean run(String expression){
-     // try{
         BooleanEvaluator evaluator = new BooleanEvaluator();
         boolean result = evaluator.evaluate(expression);
         return result;
-        /*
-      }catch(Exception e){
-          System.err.println("'"+expression+"' can't be evaluated "+e.toString());
-          e.printStackTrace();
-          System.exit(-1);
-      }
-      return false;*/
   }
   
   /**
    * Evaluate a given boolean logic function.
+   * @param function Boolean function to be evaluated.
+   * @param variables present in the boolean function.
+   * @param assignement Truth assignement for each variable. assignement[i]=B iff ith's variable boolean value is B (B in {true,false}).
    */
   public static boolean evaluateFunction(String function, ArrayList<String> variables, ArrayList<Boolean> assignement){
       String _function = function;
@@ -119,15 +140,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
       return BooleanEvaluator.run(_function);
   }
   
-  /**
-   * Evaluate a given boolean logic function.
-   */
-  public static boolean evaluateFunction(String function, String[] variables, Boolean[] assignement){
-      ArrayList<String> variablesList = new ArrayList<String>(Arrays.asList(variables));
-      ArrayList<Boolean> assignementList = new ArrayList<Boolean>(Arrays.asList(assignement));
-      return BooleanEvaluator.evaluateFunction(function, variablesList, assignementList);
-  }
-  
+ 
   
 }
  

@@ -4,6 +4,7 @@
  */
 package djbdd.main;
 
+import djbdd.optimizer.FileOptimizer;
 import djbdd.BDD;
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.io.*;
@@ -196,27 +197,6 @@ public class Main {
     }
     
     /**
-     * Convert a she file in an optimized file.
-     * @param filename Name of the she file that will be converted.
-     * @param config Configuration used in the she file loading.
-     */
-    protected static void convertSheFile(String filename, FileLoaderConfiguration config){
-        TimeMeasurer t = new TimeMeasurer("She conversion");
-        
-        config.numberOfCNFByBDD = 1;
-        config.useApplyInCreation = true;
-        SheFileLoader loader = new SheFileLoader(filename);
-        loader.init(config);
-        System.out.println(config.text);
-        
-        BDD.init(loader.variables);
-        FileOptimizer extractor = new FileOptimizer(loader.bdd_formulas, filename+".bdd.txt");
-        extractor.run();
-        t.end();
-        t.show();
-    }
-    
-    /**
      * Generate the probabilities and shows them to user.
      */
     protected static void runFormula(String formula, ArrayList<String> variables){
@@ -238,6 +218,7 @@ public class Main {
     }
     
     /**
+     * Main class.
      * @param args the command line arguments
      */
     public static void main(String[] args) {
@@ -279,25 +260,6 @@ public class Main {
                 else if(args[1].equalsIgnoreCase("she")){
                     FileLoaderConfiguration config = loadSheConfig(args);
                     Main.printSheFile(args[2], config);
-                }
-                else{
-                    System.out.println("You are not using this software correctly");
-                }
-        // Convert formulas to bdd file
-        }else if(option.equals("--djbdd-file-conversion") || option.equals("--convert")){
-            text = "Converts a formula";
-                if(args[1].equalsIgnoreCase("fmla")){
-                    text += " get from commandline";
-                    System.out.println("TODO");
-                }
-                else if(args[1].equalsIgnoreCase("dimacs")){
-                    FileLoaderConfiguration config = loadDimacsConfig(args);
-                     System.out.println("TODO");
-                    //Main.extractDimacsFile(args[2], config);
-                }
-                else if(args[1].equalsIgnoreCase("she")){
-                    FileLoaderConfiguration config = loadSheConfig(args);
-                    Main.convertSheFile(args[2], config);
                 }
                 else{
                     System.out.println("You are not using this software correctly");

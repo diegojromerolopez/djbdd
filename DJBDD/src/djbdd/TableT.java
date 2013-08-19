@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package djbdd;
 
 import java.util.*;
@@ -15,26 +11,50 @@ import djbdd.timemeasurer.TimeMeasurer;
  */
 public class TableT {
     
+    /** Default initial capacity of the hash tables */
     public static int INITIAL_CAPACITY = 1000;
+    
+    /** Default load factor of the hash tables */
     public static final float LOAD_FACTOR = 0.75f;
     
-    /** Wrapped vertex hashmap */
+    /**
+     * Vertex hashmap.
+     * Contains every vertex of the graph given its index.
+     * Note the use of weakreferences, because when a Vertex has no parents, must be erased by the garbage collector.
+     */
     private HashMap<Integer,WeakReference<Vertex>> T;
     
-    /** Uniqueness hashmap: keys are the string "var_i+-+low_i+-+high_i" */
+    /**
+     * Uniqueness hashmap: keys are the string "var_i+-+low_i+-+high_i"
+     * Note the use of weakreferences, because when a Vertex has no parents, must be erased by the garbage collector.
+     */
     private HashMap<String,WeakReference<Vertex>> U;
+    
+    /**
+     * Variable vertices hash.
+     * This hash contains the vertices of the graph grouped by its variables.
+     */
+    public HashMap<Integer,WeakHashMap<Vertex,Boolean>> V;
     
     /** Used to increase key creation performance */
     private int lastKey = 0;
     
-    public static TableT VERTEX_TABLE = null;
-    
+    /** Vertex that represents the false value */
     public final Vertex False;
+    
+    /** Vertex that represents the true value */
     public final Vertex True;
     
-    protected final void initHashes(int initialCapacity, float loadFactor){
+    /**
+     * Init the hashes wit initial capacity and load factor.
+     * @param initialCapacity Initial capacity of the hash tables.
+     * @param loadFactor Load factor of the hash tables.
+     */
+    private void initHashes(int initialCapacity, float loadFactor){
         this.T = new HashMap<Integer,WeakReference<Vertex>>(initialCapacity, loadFactor);
         this.U = new HashMap<String,WeakReference<Vertex>>(initialCapacity, loadFactor);
+        int vInitialCapacity = initialCapacity;
+        this.V = new HashMap<Integer,WeakHashMap<Vertex,Boolean>>(vInitialCapacity, loadFactor);
     }
     
     /**
@@ -49,6 +69,10 @@ public class TableT {
         this.addNew(this.True);
     }
     
+    /**
+     * Constructor: build the hash with an initial capacity.
+     * @param initialCapacity Number of space elements that will be allocated in memory.
+     */
     public TableT(int initialCapacity){
         this.initHashes(initialCapacity, LOAD_FACTOR);
         // Initialize the leaf vertices
@@ -58,15 +82,31 @@ public class TableT {
         this.addNew(this.True);
     }
     
+    /**
+     * Informs if an index exists in the hash.
+     * @param key Index that will be tested for existence in the hash.
+     * @return true if exists vertex whose index is key, false otherwise.
+     */
     public synchronized boolean containsKey(Integer key){
         return this.T.containsKey(key);
     }
-    
+
+    /**
+     * Informs if a vertex exists in the hash.
+     * @param v Vertex that will be tested for existence in the hash.
+     * @return true if exists this vertex (or some duplicate of it [{@link djbdd.Vertex#isDuplicate}]), false otherwise.
+     */
     public synchronized boolean containsVertex(Vertex v){
         String uniqueKey = v.uniqueKey();
         return this.U.containsKey(uniqueKey) && this.U.get(uniqueKey).get()!=null;
     }
-    
+
+    /**
+     * Informs if a vertex unique key exists in the hash.
+     * See {@link djbdd.Vertex#uniqueKey}.
+     * @param vKey Vertex key that will be tested for existence in the hash.
+     * @return true if exists vertex whose unique key is vKey, false otherwise.
+     */
     public synchronized boolean containsVertex(String vKey){
         return this.U.containsKey(vKey) && this.U.get(vKey).get()!=null;
     }
@@ -75,12 +115,36 @@ public class TableT {
     /**************************************************************************/
     /* Addings */
     
+    /**
+     * Put a vertex in the table U.
+     * @param v Vertex that will be added to U.
+     * @see TableT#U
+     */
     private synchronized void putInU(Vertex v){
         this.U.put(v.uniqueKey(), new WeakReference(v));
     }
-    
+
+    /**
+     * Put a vertex in the table T.
+     * @param v Vertex that will be added to T.
+     * @see TableT#T
+     */
     private synchronized void putInT(Vertex v){
         this.T.put(v.index, new WeakReference(v));
+    }
+
+    /**
+     * Put a vertex in the table V.
+     * @param v Vertex that will be added to V.
+     * @see TableT#V
+     */
+    private synchronized void putInV(Vertex v){
+        int variable = v.variable;
+        if(!this.V.containsKey(variable))
+        {
+            this.V.put(variable, new WeakHashMap<Vertex,Boolean>());
+        }
+        this.V.get(variable).put(v,true);
     }
     
     /**
@@ -89,12 +153,16 @@ public class TableT {
      * @param low Low index of the new vertex.
      * @param high High index of the new vertex.
      * @return Vertex New vertex inserted.
+     * @see Vertex#variable
+     * @see Vertex#low
+     * @see Vertex#high 
      */
-    public synchronized Vertex addNew(int var_index, Vertex low, Vertex high){
+    private synchronized Vertex addNew(int var_index, Vertex low, Vertex high){
         int index = this.getNextKey();
         Vertex v = new Vertex(index, var_index, low, high);
         this.putInT(v);
         this.putInU(v);
+        this.putInV(v);
         return v;
     }
     
@@ -103,10 +171,12 @@ public class TableT {
      * @param index Index of the vertex that will have the vertex in the table T.
      * @param v New vertex.
      * @return Vertex New vertex inserted.
+     * @see Vertex
      */    
     private synchronized Vertex addNew(Vertex v){
         this.putInT(v);
         this.putInU(v);
+        this.putInV(v);
         return v;
     }
 
@@ -138,6 +208,23 @@ public class TableT {
         return this.addNew(v);
     }
     
+    /**
+     * Sets a vertex with a variable, low and high.
+     * Used in BDDSiftingReduce. It should not be used in other methods.
+     * @param v Vertex that will be modified.
+     * @param variable New variable for v.
+     * @param low New low descendant for v. 
+     * @param high New high descendant for v.
+     */
+    void setVertex(Vertex v, int variable, Vertex low, Vertex high) {
+        this.V.get(v.variable).remove(v);
+        v.setVariable(variable);
+        v.setLow(low);
+        v.setHigh(high);
+        this.putInU(v);
+        this.V.get(v.variable).put(v, true);
+    }
+    
     /**************************************************************************/
     /**************************************************************************/
     /* Deletions */
@@ -150,8 +237,10 @@ public class TableT {
         WeakReference<Vertex> rRemoved = T.get(index);
         Vertex removed = rRemoved.get();
         T.remove(index);
-        if(removed != null)
+        if(removed != null){
             U.remove(removed.uniqueKey());
+            V.get(removed.variable).remove(removed);
+        }
         if(removed == null)
             return false;
         return true;
@@ -159,12 +248,23 @@ public class TableT {
     
     /**
      * Removes the vertex with a particular index.
-     * @param vertex Vertex to delete.
+     * @param oldVertex Vertex to delete.
      */
     public synchronized void remove(Vertex oldVertex){
         int index = oldVertex.index;
         this.remove(index);
     }
+    
+    /**
+     * Clears completely the hash tables.
+     * Erases all elements of the hash tables.
+     */
+    public synchronized void clear(){
+        this.T.clear();
+        this.U.clear();
+        this.V.clear();
+    }
+
 
     /**************************************************************************/
     /**************************************************************************/
@@ -175,6 +275,7 @@ public class TableT {
      * Updates the references of the vertices of the BDD accordingly our deletion.
      * Modifies the hash T
      * @param deletedVertex Vertex to be deleted.
+     * @deprecated Only called by deleteRedundantVertices.
      */
     private void deleteRedundantVertex(Vertex deletedVertex){
         Vertex low = deletedVertex.low();
@@ -198,6 +299,7 @@ public class TableT {
      * That is, all vertex with the same low and high values.
      * Of course modifies the T table.
      * @return boolean True if there has been a deletion of a redundant vertex. False otherwise.
+     * @deprecated Only called by reduce.
      */
     private boolean deleteRedundantVertices(){
         TimeMeasurer t = new TimeMeasurer("---- deleteRedundantVertices ----");
@@ -214,7 +316,11 @@ public class TableT {
         return deleted;
     }
     
-    
+ 
+    /**
+     * Gets all duplicate vertex indices.
+     * @deprecated Only called by reduce.
+     */
     private ArrayList<Integer> getDuplicateVertexIndices(Vertex v){
         
         ArrayList<Integer> vertixKeys = new ArrayList<Integer>(this.T.keySet());
@@ -234,6 +340,7 @@ public class TableT {
     
     /**
      * Delete all duplicate vertices.
+     * @deprecated Only called by reduce.
      */
     private boolean deleteDuplicateVertices(){
         TimeMeasurer t = new TimeMeasurer("++++++ deleteDuplicateVertices ++++++");
@@ -279,6 +386,7 @@ public class TableT {
     
     /**
      * Reduces the BDD deleting redundant and duplicate vertices.
+     * @deprecated There are no need to call this method.
      */
     public synchronized void reduce(){
         TimeMeasurer t = new TimeMeasurer("********* REDUCE *********");
@@ -325,6 +433,9 @@ public class TableT {
             System.out.println("<<<<<<<<<<<<<< END GC >>>>>>>>>>>>>>");
     }
     
+    /**
+     * Calls the garbage collector that deletes the references to dead objects.
+     */    
     public synchronized void gc(){
         this.gc(true);
     }
@@ -334,8 +445,10 @@ public class TableT {
     /**************************************************************************/
     
     /* Getters */
+    
     /**
      * Gets a vertex with a index.
+     * See {@link djbdd.TableT#getNextKey} and {@link djbdd.Vertex#index}.
      * @param index Index of the vertex in the table T.
      * @return Vertex whose index is index.
      */    
@@ -346,6 +459,7 @@ public class TableT {
     
     /**
      * Gets a vertex with the key given by vKey.
+     * See {@link djbdd.Vertex#uniqueKey}. 
      * @param vKey Unique key of the vertex.
      * @return Vertex with uniqueness key vKey.
      */
@@ -361,7 +475,7 @@ public class TableT {
     
     /**
      * Gets the keyset of table T.
-     * @return set with the indices of the T table.
+     * @return Set with the indices of the T table.
      */
     public Set<Integer> getKeySet(){
         return this.T.keySet();
@@ -369,12 +483,16 @@ public class TableT {
 
     /**
      * Gets the keyset of table T.
-     * @return set with the indices of the T table.
+     * @return Set with the indices of the T table.
      */
     public Set<Integer> keySet(){
         return this.T.keySet();
     }
-    
+
+    /**
+     * Gets the next key for a vertex in this table.
+     * @return Next key for a vertex in this table.
+     */        
     public synchronized Integer getNextKey(){
         int index = lastKey;
         while(this.T.containsKey(index)){ index++; }
@@ -382,10 +500,18 @@ public class TableT {
         return index;
     }
     
+    /**
+     * Gets the indices of the vertices in the table.
+     * @return List of indices of the vertices.
+     */    
     public ArrayList<Integer> getIndices(){
         return new ArrayList<Integer>(this.T.keySet());
     }
-    
+
+    /**
+     * Gets the vertices of the table.
+     * @return List of vertices in the table.
+     */
     public ArrayList<Vertex> getVertices(){
         ArrayList<Vertex> vertices = new ArrayList<Vertex>(this.T.size());
         for(WeakReference<Vertex> w : this.T.values()){
@@ -396,9 +522,27 @@ public class TableT {
         return vertices;
     }
     
+    /**
+     * Gets the vertices of the table.
+     * @return List of vertices in the table.
+     */
     public ArrayList<Vertex> values(){
         return this.getVertices();
     }
+    
+    /**
+     * Gets vertices whose variable is a particular one.
+     * @param variable Variable index whose vertices will be returned.
+     * @return List of vertices with the variable identified by the variable index pass as parameter.
+     */
+    public Set<Vertex> getVerticesWhoseVariableIs(int variable){
+        WeakHashMap<Vertex, Boolean> verticesWithThatVariable = V.get(variable);
+        return verticesWithThatVariable.keySet();
+    }
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    /* Get other information */
     
     /**
      * Number of vertices.
@@ -422,11 +566,11 @@ public class TableT {
         StringBuilder s = new StringBuilder("u\tvar_i\tvar\tlow\thigh\n");
         for (Vertex v : this.values()) {
             String variable;
-            if (v.variable == Vertex.TRUE_VARIABLE || v.variable == Vertex.FALSE_VARIABLE) {
+            if (v.variable() == Vertex.TRUE_VARIABLE || v.variable() == Vertex.FALSE_VARIABLE) {
                 variable = Boolean.toString(v.value());
             }
             else{
-                variable = variables.get(v.variable);
+                variable = variables.get(v.variable());
             }
             s.append(v.index);
             s.append("\t");
@@ -444,6 +588,9 @@ public class TableT {
         return s.toString();
     }
     
+    /**
+     * Prints the table hash to the terminal.
+     */
     public void print(){
         System.out.println(this.toString());
     }
@@ -454,9 +601,10 @@ public class TableT {
      */
     public void write(PrintWriter writer){
         ArrayList<String> variables = BDD.variables();
-        StringBuilder s = new StringBuilder("u\tvar_i\tvar\tlow\thigh\n");
+        writer.println("u\tvar_i\tvar\tlow\thigh");
         for (Vertex v : this.values())
         {
+            StringBuilder s = new StringBuilder("");
             String variable;
             if (v.variable == Vertex.TRUE_VARIABLE || v.variable == Vertex.FALSE_VARIABLE) {
                 variable = Boolean.toString(v.value());
@@ -475,9 +623,8 @@ public class TableT {
             s.append(v.highIndex());
             //s.append("\t");
             //s.append(v.parents());
-            s.append("\n");
+            writer.println(s.toString());
         }
-        writer.println(s.toString());
         writer.flush();
     }
     
