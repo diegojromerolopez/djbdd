@@ -15,7 +15,7 @@ Features
 This package uses the WeakReference class introduced in Java 7. This way
 I didn't have to implement a special garbage collector but use the Hotspot one.
 
-You can earse the weak references using the method of TableT gc. There is a way to use
+You can erase the weak references using the method of TableT gc. There is a way to use
 parallel garbage collection calling 
 
 ```java
@@ -69,6 +69,9 @@ No. I don't use them. I understand they can reduce the size of the graph, but I 
 
 ### How can I import this project to my IDE? ###
 I've used Netbeans (yeah, I know it is ancient but works for me). You should be able to open with whatever IDE you use.
+
+### Can I use this library in Java5 or Java6? ###
+No. I'm afraid weak references were included in Java7 so, I'm sorry but no, you can't.
 
 ### Are there some code examples? ###
 I'm working on that. Give some time.
