@@ -300,7 +300,7 @@ public class BDD {
      * @param variables List with the variables of the tree.
      * @return BDD Binary Decision Tree for the formula described in the AST tree.
      */
-    private static BDD generateTreeFromAST(CommonTree tree) {
+    private static BDD generateTreeFromAST(Tree tree) {
         // Get the number of children of the tree
         int childCount = tree.getChildCount();
         
@@ -316,12 +316,21 @@ public class BDD {
         
         // For each children, we recursively call generateTreeFromAST
         // And assign current node as parent of the subtree generated
+        /*
         List<CommonTree> children = (List<CommonTree>) tree.getChildren();
         ArrayList<BDD> bdds = new ArrayList<BDD>(childCount);
         for (CommonTree child : children) {
             BDD bddI = BDD.generateTreeFromAST(child);
             bdds.add(bddI);
         }
+        */
+        ArrayList<BDD> bdds = new ArrayList<BDD>(childCount);
+        for(int childI=0; childI<childCount; childI++)
+        {
+            Tree child = tree.getChild(childI);
+            BDD bddI = BDD.generateTreeFromAST(child);
+            bdds.add(bddI);
+        }        
         
         // For ech children, we apply the operation given in their parent node
         // and construct a new BDD for the parention node
@@ -351,9 +360,9 @@ public class BDD {
         LogicParser parser = new LogicParser(new CommonTokenStream(lexer));
         
         // Invoke the entry point of the parser (the parse() method) and get the AST
-        CommonTree tree = null;
+        Tree tree = null;
         try{
-            tree = (CommonTree)parser.parse().getTree();
+            tree = (Tree)parser.parse().getTree();
         }catch(Exception e){
             System.err.println("ERROR. Parsing of the expression "+this.function+" has failed. Detailed report:");
             e.printStackTrace();

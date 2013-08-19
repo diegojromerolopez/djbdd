@@ -121,7 +121,7 @@ public class TableT {
      * @see TableT#U
      */
     private synchronized void putInU(Vertex v){
-        this.U.put(v.uniqueKey(), new WeakReference(v));
+        this.U.put(v.uniqueKey(), new WeakReference<Vertex>(v));
     }
 
     /**
@@ -130,7 +130,7 @@ public class TableT {
      * @see TableT#T
      */
     private synchronized void putInT(Vertex v){
-        this.T.put(v.index, new WeakReference(v));
+        this.T.put(v.index, new WeakReference<Vertex>(v));
     }
 
     /**

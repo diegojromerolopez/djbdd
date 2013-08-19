@@ -11,18 +11,7 @@ import java.util.*;
 
 public class Main {
     
-    private static void trasverse(CommonTree tree) {
-        List<CommonTree> children = (List<CommonTree>) tree.getChildren();
-        for (CommonTree child : children) {
-            if (child.getChildCount() == 0) {
-                System.out.println("Leaf " + child.getText());
-            } else {
-                trasverse(child);
-            }
-        }
-    }
-    
-  private static BDD createBDD(CommonTree tree) {
+  private static BDD createBDD(Tree tree) {
       int childCount = tree.getChildCount();
       if (childCount == 0) {
           System.out.println("Leaf " + tree.getText());
@@ -31,9 +20,9 @@ public class Main {
       
       String op = tree.getText();
       System.out.println("OP es "+op);
-      List<CommonTree> children = (List<CommonTree>) tree.getChildren();
       ArrayList<BDD> bdds = new ArrayList<BDD>(childCount);
-      for (CommonTree child : children) {
+      for (int i=0; i<childCount; i++) {
+          Tree child = tree.getChild(i);
           BDD bddI = createBDD(child);
           System.out.println("Función "+bddI.function);
           bdds.add(bddI);
@@ -60,7 +49,7 @@ public class Main {
     LogicParser parser = new LogicParser(new CommonTokenStream(lexer));
 
     // invoke the entry point of the parser (the parse() method) and get the AST
-    CommonTree tree = (CommonTree)parser.parse().getTree();
+    Tree tree = (Tree)parser.parse().getTree();
 
     ArrayList<String> variables = new ArrayList<String>();
     variables.add("x1");
