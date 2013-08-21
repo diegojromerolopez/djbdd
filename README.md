@@ -69,7 +69,7 @@ BDD.gc();
 ### Complete tests ###
 The main program of this library is full of examples:
 
-#### BDD printing #### 
+#### BDD printing
 
 ```bash
 java -jar BDD.jar --print --<format> <file>
@@ -83,6 +83,9 @@ Formats allowed:
 - **djbdd**: DJBDD file. Don't see anything because there are no documentation yet.
 Directory data has some examples of each format (look the extension).
 
+#### BDD probability computation
+
+TODO
 
 Features
 -------------
@@ -153,6 +156,11 @@ No. I'm afraid weak references were included in Java7 so, I'm sorry but no, you 
 
 ### Are there some code examples? ###
 I'm working on that. Give some time.
+
+### I'm running the examples (or my custom code) and throws a exception ###
+It depends on the exception type, but my money is on a memory-related exception.
+This library is memory greedy, use BDD.gc or the threaded garbage collector or help me
+to implement some reduction method on the vertex table :)
 
 ### Why don't you use dynamic variable ordering? ###
 I'm implementing that, but I'm finding some problems that are slowing me down.
