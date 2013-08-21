@@ -68,7 +68,11 @@ BDD.gc();
 
 ### Complete tests ###
 The main program of this library is full of examples:
-BDD printing: **java -jar BDD.jar --print --<format> <file>**
+BDD printing:
+
+```bash
+java -jar BDD.jar --print --<format> <file>
+```
 
 Formats allowed: 
 
