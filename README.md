@@ -68,13 +68,14 @@ BDD.gc();
 
 ### Complete tests ###
 The main program of this library is full of examples:
-BDD printing:
-java -jar BDD.jar --print --<format> <file>
+BDD printing: **java -jar BDD.jar --print --<format> <file>**
+
 Formats allowed: 
-- *dimacs*: Dimacs CNF format. See http://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps or http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html.
-- *she*: Steven She file. See https://code.google.com/p/linux-variability-analysis-tools/
-- *c-style*: C-style boolean expression preceded by a line with all variables separated by commas
-- *djbdd*: DJBDD file. Don't see anything because there are no documentation yet.
+
+- **dimacs**: Dimacs CNF format. See http://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps or http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html.
+- **she**: Steven She file. See https://code.google.com/p/linux-variability-analysis-tools/
+- **cstyle**: C-style boolean expression preceded by a line with all variables separated by commas
+- **djbdd**: DJBDD file. Don't see anything because there are no documentation yet.
 Directory data has some examples of each format (look the extension).
 
 
