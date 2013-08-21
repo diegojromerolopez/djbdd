@@ -23,7 +23,7 @@ public class Separator extends FileOptimizer{
         formulaGroups = new HashMap<TreeSet<Integer>, ArrayList<String>>();
         for(int i=0; i<formulas.size(); i++){
             String formulaI = formulas.get(i);
-            BDD bdd = new BDD(formulaI, useApply);
+            BDD bdd = new BDD(formulaI);
             TreeSet<Integer> vars = new TreeSet<Integer>(bdd.present_variable_indices);
             if (firstFormula) {
                 ArrayList<String> newformulaGroup = new ArrayList<String>(1);

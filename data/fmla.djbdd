@@ -1,0 +1,18 @@
+BDD tree for a || b && c && d || e || (!(f) || (g)) && (h || !(i)) && (!(h) || i)
+Variables: 13. 
+Variable ordering: 0, 1, 2, 3, 4, 5, 6, 7, 8
+Vertices: 12
+Root vertex: 28
+u	var_i	var	low	high
+0	-2	false	-1	-1
+1	-1	true	-1	-1
+21	7	h	20	19
+28	0	a	27	26
+24	4	e	23	1
+22	6	g	0	21
+20	8	i	1	0
+23	5	f	21	22
+19	8	i	0	1
+26	2	c	24	25
+27	1	b	24	26
+25	3	d	24	1

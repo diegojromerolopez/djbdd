@@ -5,33 +5,21 @@ package djbdd;
  * Use:
  * {@code
  *       GCThread gcCollector = new GCThread();
- *       Thread gcThread = new Thread(gcCollector);
- *       gcThread.start();
+ *       gcCollector.start();
  * }
  * 
  * @author diegoj
  */
-public class GCThread implements Runnable {
+public class GCThread extends Thread {
     
     /** Frequency of garbage collection execution */
     private int frequency = 1000;
-    
-    /** Should this garbage collection process stop? */
-    private boolean stop = false;
     
     /**
      * Constructor of the garbage collection thread.
      */
     public GCThread(){
         this.frequency = 1000;
-        this.stop = false;
-    }
-    
-    /**
-     * Stops the process.
-     */
-    public void stop(){
-        this.stop = true;
     }
     
     /**
@@ -40,12 +28,20 @@ public class GCThread implements Runnable {
     @Override
     public void run(){
         try{
-            while(!this.stop){
+            while(!Thread.currentThread().isInterrupted()){
                 Thread.sleep(this.frequency);
                 BDD.T.gc();
             }
         }catch(Exception e){
             e.printStackTrace();
+            this.interrupt();
         }
+    }
+    
+    /**
+     * Ends the garbage collection.
+     */
+    public void end(){
+        this.interrupt();
     }
 }

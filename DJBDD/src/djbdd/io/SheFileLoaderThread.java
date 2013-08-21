@@ -43,7 +43,7 @@ class SheFileLoaderThread implements Runnable {
     @Override
     public void run() {
         String[] _variable_order = getVariableOrder(formulas.get(0));
-        bdd = new BDD(formulas.get(0), _variable_order, this.useApplyInCreation);
+        bdd = new BDD(formulas.get(0), _variable_order);
         if(verbose){
             System.out.println("\n[Thread "+this.index+"] Formula "+(1)+"/"+formulas.size()+": "+formulas.get(0));
             bdd.print();
@@ -59,7 +59,7 @@ class SheFileLoaderThread implements Runnable {
             //_variable_order = getVariableOrder(formulaI);
             //BDD bddI = new BDD(formulaI, _variables, _variable_order);
             TimeMeasurer t2 = new TimeMeasurer("\n[Thread "+this.index+"] BDD Creation "+(i+1)+"/"+formulas.size());
-            BDD bddI = new BDD(formulaI, this.useApplyInCreation);
+            BDD bddI = new BDD(formulaI);
             t2.end().show();
             TimeMeasurer t3 = new TimeMeasurer("\n[Thread "+this.index+"] BDD APPLY "+(i+1)+"/"+formulas.size());
             BDD bddRes = bdd.apply("and",bddI);

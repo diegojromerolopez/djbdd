@@ -8,6 +8,75 @@ A Java 7 BDD package with the GPL 3 (with classpath linking  exception) license.
 This package provides a Binary Decision Diagram library you can use to
 make operations with boolean logical formulas and study its propierties.
 
+Introduction
+-------------
+A Binary Decision Diagram is a complete truth table of a boolean expression
+in a reduced graph form. See http://en.wikipedia.org/wiki/Binary_decision_diagram.
+
+This library provides all the operations you need to work with them.
+
+Examples
+-------------
+### Code examples ###
+Nowadays there is no too much example code (I plan to update the library in the future).
+Look the class Tester class in package djbdd.test, its full of examples.
+
+```java
+// These are the boolean variables
+String[] variables={"a", "b", "c", "d", "e", "f"};
+
+// You always have to initialize the BDD system before you create any
+// BDD object. Be careful with that.
+BDD.init(variables);
+
+// The functions are specified as boolean expressions with Java syntax
+// adding the operators -> (implication) and <-> (double implication)
+String function = "(a && b) || (c && d)";
+
+// You can specify one variable ordering
+String[] variable_ordering = {"a", "b", "c", "d", "e", "f"};
+
+// Construction of a new BDD
+BDD bdd = new BDD(function, variable_ordering);
+
+// Printing the BDD in the standard output
+bdd.print();
+
+// You can print it as a image PNG using a dot library
+Printer.printBDD(bdd1, "bdd_"+bdd1.size()+"_"+bdd.variable_ordering.toString());
+
+// Other BDD
+String function2 = "(a && e) || f"
+BDD bdd2 = new BDD(function2);
+bdd2.print();
+
+// Operations with BDDs
+
+// This BDD is the logical AND between bdd and bdd2
+BDD bdd3 = bdd.apply("and", bdd2);
+
+// This BDD is the logical OR between bdd and bdd2
+BDD bdd4 = bdd.apply("or", bdd2);
+
+// If you think you can have few free memory, you would have to free it
+// calling to
+BDD.gc();
+
+// Or, you can call the garbage collector thread (explained later)
+
+```
+
+### Complete tests ###
+The main program of this library is full of examples:
+BDD printing:
+java -jar BDD.jar --print --<format> <file>
+Formats allowed: 
+- dimacsDimacs CNF format. See http://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps or http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html.
+- sheSteven she file. See https://code.google.com/p/linux-variability-analysis-tools/
+- c-styleC-style boolean expression preceded by a line with all variables separated by commas
+- djbddDJBDD file. Don't see anything because there are no documentation yet.
+Directory data has some examples of each format (look the extension).
+
 
 Features
 -------------
@@ -21,8 +90,11 @@ parallel garbage collection calling
 ```java
 // Maybe in the future we'll change that to something easier.
 GCThread gcCollector = new GCThread();
-Thread gcThread = new Thread(gcCollector);
-gcThread.start();
+gcCollector.start();
+/*
+	Your BDD code
+*/
+gcCollector.end();
 ```
 
 ### Shared hash table ###

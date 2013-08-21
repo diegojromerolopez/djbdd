@@ -15,7 +15,7 @@ public class Main {
       int childCount = tree.getChildCount();
       if (childCount == 0) {
           System.out.println("Leaf " + tree.getText());
-          return new BDD(tree.getText(), false);
+          return new BDD(tree.getText());
       }
       
       String op = tree.getText();

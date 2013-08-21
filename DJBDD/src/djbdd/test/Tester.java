@@ -35,9 +35,8 @@ public class Tester {
     }
     
     private static BDD makeBDD(String function, ArrayList<Integer> variable_ordering){
-        boolean useApplyInCreation = true;
         // Construction of the BDD1
-        BDD bdd = new BDD(function, variable_ordering, useApplyInCreation);
+        BDD bdd = new BDD(function, variable_ordering);
         bdd.print();
         Printer.printBDD(bdd, "makeBDD_"+function+"_"+bdd.variable_ordering.toString());
         return bdd;
@@ -98,13 +97,13 @@ public class Tester {
         
         // Small BDD
         final String[] variable_ordering1={"a_", "b_", "c_", "d_"};
-        BDD bdd1 = new BDD(function, variable_ordering1, useApplyInCreation);
+        BDD bdd1 = new BDD(function, variable_ordering1);
         bdd1.print();
         Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_"+bdd1.variable_ordering.toString());
         
         // Big an inefficient BDD
         final String[] variable_ordering2={"c_", "a_", "d_", "b_"};
-        BDD bdd2 = new BDD(function, variable_ordering2, useApplyInCreation);
+        BDD bdd2 = new BDD(function, variable_ordering2);
         bdd2.print();
         Printer.printBDD(bdd2, "test1_bdd2_"+bdd2.size()+"_"+bdd2.variable_ordering.toString());
         
@@ -138,7 +137,7 @@ public class Tester {
         BDD.init(variables);
         
         // Big an inefficient BDD
-        BDD bdd = new BDD(function, useApplyInCreation);
+        BDD bdd = new BDD(function);
         bdd.print();
         Printer.printBDD(bdd, "test2_bdd_"+bdd.size());
         
@@ -164,7 +163,7 @@ public class Tester {
         // Small BDD
         final String[] variable_ordering1={"PPC?", "MAC?", "ADB?", "ADB_IOP?"};
         BDD.init(variables);
-        BDD bdd1 = new BDD(function, variable_ordering1, useApplyInCreation);
+        BDD bdd1 = new BDD(function, variable_ordering1);
         bdd1.print();
         Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_"+bdd1.variable_ordering.toString());      
    }
@@ -178,7 +177,7 @@ public class Tester {
         variables.add("x4");
         BDD.init(variables);
         boolean useApplyInCreation = false;
-        BDD bdd = new BDD(function, useApplyInCreation);
+        BDD bdd = new BDD(function);
         bdd.print();
         System.out.println(
         "Tree for "+function+"\n"+
@@ -213,12 +212,12 @@ public class Tester {
         
         // First operand
         function1 = "("+function1+")";
-        BDD bdd1 = new BDD(function1, useApplyInCreation);
+        BDD bdd1 = new BDD(function1);
         bdd1.print();//*/
         
         // Second operand
         String function2 = "(x3 && x4)";
-        BDD bdd2 = new BDD(function2, useApplyInCreation);
+        BDD bdd2 = new BDD(function2);
         bdd2.print();
         
         // Result     
@@ -227,7 +226,7 @@ public class Tester {
         
         
         String function = "("+function1+" && "+function2+")";
-        BDD bdd = new BDD(function, useApplyInCreation);
+        BDD bdd = new BDD(function);
         bdd.print();//*/
         
         String file = "test4.bdd.txt";
@@ -297,7 +296,7 @@ public class Tester {
         // First operand
         function1 = "("+function1+")";
         BDD.init(variables);
-        BDD bdd1 = new BDD(function1, useApplyInCreation);
+        BDD bdd1 = new BDD(function1);
         bdd1.print();//*/
         BDD.T.print();
         BDD.T.gc();
@@ -318,7 +317,7 @@ public class Tester {
         // First operand
         function1 = "("+function1+")";
         BDD.init(variables);
-        BDD bdd1 = new BDD(function1, useApplyInCreation);
+        BDD bdd1 = new BDD(function1);
         bdd1.print();//*/
         BDD.T.print();
         Printer.printBDD(bdd1, "test9_bdd1_"+bdd1.size());

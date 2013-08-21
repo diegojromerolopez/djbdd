@@ -79,6 +79,9 @@ public class SheFileLoader {
     /** Character of ending variable in a formula */
     final static String END_VAR = "}";
     
+    /** Informs if the loading must be verbose and show extra information or not */
+    public static final boolean VERBOSE = true;
+    
     /**
      * Constructor: builds a BDDDimacsLoader from the DIMACS file path.
      * @param String filename Path of the dimacs file.
@@ -125,28 +128,32 @@ public class SheFileLoader {
             sortedMap.put(k,count.get(k));
             m++;
         }
-        System.out.println("----"+m+"----");
+        
+        if(VERBOSE){
+            System.out.println("----"+m+"----");
+            System.out.println(sortedMap);
+            System.out.println("Occurences");
+            System.out.println(count.size());
+            System.out.println(count);
 
-        System.out.println(sortedMap);
-        
-        System.out.println("Occurences");
-        System.out.println(count.size());
-        System.out.println(count);
-        
-        System.out.println("SortedMap");
-        System.out.println(sortedMap.keySet().size());
-        System.out.println(sortedMap);        
+            System.out.println("SortedMap");
+            System.out.println(sortedMap.keySet().size());
+            System.out.println(sortedMap);        
+        }
         
         ArrayList<Integer> variableOrder = new ArrayList<Integer>();
         
         for(Integer i : sortedMap.descendingKeySet()) {
-            System.out.println(i);
+            if(VERBOSE)
+                System.out.println(i);
             variableOrder.add( i );
         }
         
-        System.out.println("VariableOrder");
-        System.out.println(variableOrder.size());
-        System.out.println(variableOrder);
+        if(VERBOSE){
+            System.out.println("VariableOrder");
+            System.out.println(variableOrder.size());
+            System.out.println(variableOrder);
+        }
        
         ArrayList<String> orderedVariables = new ArrayList<String>(variables.size());
         for(int i=0; i<variableOrder.size(); i++){
@@ -155,26 +162,28 @@ public class SheFileLoader {
             orderedVariables.add(variables.get(varIndex));
         }
 
-        System.out.println("orderedVariables");
-        System.out.println(orderedVariables.size());
-        System.out.println(orderedVariables);
+        if(VERBOSE){
+            System.out.println("orderedVariables");
+            System.out.println(orderedVariables.size());
+            System.out.println(orderedVariables);
         
-        System.out.println("Variables");
-        System.out.println(variables.size());
-        System.out.println(variables);
+            System.out.println("Variables");
+            System.out.println(variables.size());
+            System.out.println(variables);
+        }
         
-        //System.exit(-1);
-
         return orderedVariables;
     }
     
     /**
      * Initalize the loader with a configuration.
-     * @param config Configuration of the parameteres of loading the she file.
+     * @param numberOfFormulasByBDD Number of formulas that will be used in each BDD.
+     * @param numberOfFormulas Number of formulas that will be loaded.
+     * @return List of formulas for each BDD.
      */
-    public void init(FileLoaderConfiguration config){
+    public ArrayList<String> getFormulas(int numberOfFormulasByBDD, int numberOfFormulas){
         numVariables = -1;
-        numClausules = config.numberOfClausules;
+        numClausules = numberOfFormulas;
         this.variables = new ArrayList<String>();
         this.named_variables = new ArrayList<String>();
         this.integer_variables = new ArrayList<String>();
@@ -190,7 +199,7 @@ public class SheFileLoader {
           String line;
 
           int formulaIndex = 1;
-          if(config.verbose)
+          if(VERBOSE)
               System.out.println("Extracting clausules");
           //Read File Line By Line
           while ((line = br.readLine()) != null && line.length()>0)
@@ -248,7 +257,7 @@ public class SheFileLoader {
                     formulas.add(formulaI);
                     
                     // Warn the user everything runs smoothly
-                    if(config.verbose){
+                    if(VERBOSE){
                         System.out.println("Extracting clausule: "+(formulaIndex)+" / "+numClausules+": "+formulaI);
                     }
                     
@@ -256,7 +265,7 @@ public class SheFileLoader {
                     
                     // Stop condition, yeah there are other ways to do this
                     // but I prefer this one
-                    if(formulaIndex > numClausules && numClausules!=-1)
+                    if(formulaIndex > numClausules && numClausules!=-1 && numClausules!=FileLoaderConfiguration.ALL_CLAUSULES)
                         break;
                   }
               }
@@ -278,7 +287,7 @@ public class SheFileLoader {
         BDD.init(variables);
         
         // Now we are going to create the bdd one clausule at a time
-        bdd_formulas = new ArrayList<String>( formulas.size()/config.numberOfCNFByBDD );
+        bdd_formulas = new ArrayList<String>( formulas.size()/numberOfFormulasByBDD );
         String formulaBDDI = "";
         boolean firstIteration = true;
         for(int i=0; i<formulas.size(); i++)
@@ -289,31 +298,36 @@ public class SheFileLoader {
                 formulaBDDI += "(" + formulas.get(i)+") ";
                 firstIteration = false;
             }
-            if((i+1) % config.numberOfCNFByBDD == 0){
+            if((i+1) % numberOfFormulasByBDD == 0){
                 bdd_formulas.add(formulaBDDI);
                 formulaBDDI = "";
                 firstIteration = true;
             }
         }
+        return bdd_formulas;
+    }
     
+    public ArrayList<String> getFormulas(FileLoaderConfiguration config){
+        return this.getFormulas(config.numberOfClausules, config.numberOfCNFByBDD);
     }
     
     /**
      * Reads a S. She file an builds a BDD containing the CNF.
      * This method creates a BDD at once, it DOES use the operator apply of the BDD.
      * @see BDD
-     * @param config Name of the file containing the CNF in dimacs format.
+     * @param numberOfFormulas Number of formulas that will be loaded.
+     * @param numberOfFormulasByBDD Number of formulas that will be used in each BDD.
      * @return BDD BDD tree with the formula contained in the filename.
      */
-    public BDD loadFile(FileLoaderConfiguration config){
-        this.init(config);
+    public BDD run(int numberOfFormulasByBDD, int numberOfClausules){
+        this.getFormulas(numberOfFormulasByBDD, numberOfClausules);
 
         // Threaded loading
-        int numThreads = Math.min(numClausules, NUM_THREADS);
+        int numThreads = Math.min(bdd_formulas.size(), NUM_THREADS);
         int numFormulasByThread = bdd_formulas.size()/numThreads;
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         ArrayList<SheFileLoaderThread> workers = new ArrayList<SheFileLoaderThread>();
-        if(config.verbose){
+        if(VERBOSE){
             System.out.println( "There are "+bdd_formulas.size()+" formulas" );
         }
         // For each thread, we assign it some BDDs to make apply AND
@@ -322,11 +336,11 @@ public class SheFileLoader {
             int endFormulaIndex = startFormulaIndex + numFormulasByThread;
             if(i==numThreads-1)
                 endFormulaIndex = bdd_formulas.size();
-            if(config.verbose){
+            if(VERBOSE){
                 System.out.println("Thread "+i+" has clausules ["+startFormulaIndex+", "+endFormulaIndex+"]");
             }
             ArrayList<String> threadFormulas = new ArrayList<String>(bdd_formulas.subList(startFormulaIndex, endFormulaIndex));
-            Runnable worker = new SheFileLoaderThread(i, threadFormulas, config.useApplyInCreation);
+            Runnable worker = new SheFileLoaderThread(i, threadFormulas, true);
             executor.execute(worker);
             workers.add((SheFileLoaderThread)worker);
         }
@@ -340,37 +354,60 @@ public class SheFileLoader {
         for(int i=0; i<workers.size(); i++){
             BDD bddI = workers.get(i).getBDD();
             //bddI.reduce();
-            if(config.verbose){
+            if(VERBOSE){
                 System.out.println("BDD "+i+": "+bddI.function);
                 bddI.toFile("thread_bdds/bdd_"+i+".txt");
             }
         }
-        if(config.verbose){
+        if(VERBOSE){
             System.out.println("Finished all threads");
         }
         
         BDD bdd = workers.get(0).getBDD();
         
         for(int i=1; i<workers.size(); i++){
-            if(config.verbose)
+            if(VERBOSE)
                 System.out.println(i+"th Apply");
             
             // Get the ith BDD, computed as a conjuntion of several BDDs by the ith thread
             BDD bddI = workers.get(i).getBDD();
             
-            if(config.verbose)
+            if(VERBOSE)
                 System.out.println(bdd.size() +" AND "+bddI.size());
             
             // Apply AND with each one of the BDDs computed by each thread
             BDD bddRes = bdd.apply("and",bddI);
             bdd = bddRes;
             
-            if(config.verbose)
+            if(VERBOSE)
                 System.out.println(i + "th Apply END: "+bdd.size());
         }
         
         // At last we get the complete BDD
         return bdd;
+    }
+    
+    /**
+     * Reads a S. She file an builds a BDD containing the CNF.
+     * This method creates a BDD at once, it DOES use the operator apply of the BDD.
+     * @see BDD
+     * @param config Name of the file containing the CNF in dimacs format.
+     * @return BDD BDD tree with the formula contained in the filename.
+     */
+    public BDD run(FileLoaderConfiguration config){
+        return this.run(config);
+    }
+    
+    /**
+     * Reads a S. She file an builds a BDD containing the CNF.
+     * This method creates a BDD at once, it DOES use the operator apply of the BDD.
+     * @see BDD
+     * @param config Name of the file containing the CNF in dimacs format.
+     * @return BDD BDD tree with the formula contained in the filename.
+     */
+    public BDD run(){
+        int numberOfFormulasByBDD = 1;
+        return this.run(numberOfFormulasByBDD, FileLoaderConfiguration.ALL_CLAUSULES);
     }
     
 }

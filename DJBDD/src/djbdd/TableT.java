@@ -17,6 +17,9 @@ public class TableT {
     /** Default load factor of the hash tables */
     public static final float LOAD_FACTOR = 0.75f;
     
+    /** Should operations be verbose? */
+    private static final boolean VERBOSE = false;
+    
     /**
      * Vertex hashmap.
      * Contains every vertex of the graph given its index.
@@ -203,8 +206,9 @@ public class TableT {
      * @return Added vertex to the table.
      */
     public synchronized Vertex add(Vertex v){
-        if(this.containsVertex(v))
+        if(this.containsVertex(v)){
             return v;
+        }
         return this.addNew(v);
     }
     
@@ -406,40 +410,22 @@ public class TableT {
     /**
      * Calls the garbage collector that deletes the references to dead objects.
      */
-    public synchronized void gc(boolean suggestSystemGC){
-        if(suggestSystemGC){
-            System.gc();
-        }
-        
-        boolean verbose = false;
-        if(verbose)
+    public synchronized void gc(){
+        if(VERBOSE)
             System.out.println("<<<<<<<<<<<<<<< GC >>>>>>>>>>>>>>>>>");
         
-        // Compact the T and U hashMaps
+        // Compact the hash maps
         ArrayList<Integer> keys = new ArrayList<Integer>(this.T.keySet());
         for(Integer key : keys){
-            if(verbose){
-                if(this.T.containsKey(key))
-                    System.out.println("Key "+key+" exists");
-                if(this.T.get(key).get()==null)
-                    System.out.println("Key "+key+" MUST DIE");
-            }
-            
+            // For each Vertex that was erased there is an entry in
+            // hash table T that weak-references to that and must be erased
             if(this.T.containsKey(key) && this.T.get(key).get()==null){
                 this.remove(key);
             }
         }
-        if(verbose)
+        if(VERBOSE)
             System.out.println("<<<<<<<<<<<<<< END GC >>>>>>>>>>>>>>");
     }
-    
-    /**
-     * Calls the garbage collector that deletes the references to dead objects.
-     */    
-    public synchronized void gc(){
-        this.gc(true);
-    }
-    
    
     /**************************************************************************/
     /**************************************************************************/
@@ -626,6 +612,74 @@ public class TableT {
             writer.println(s.toString());
         }
         writer.flush();
+    }
+    
+    /**
+     * Reads from a bufferedreader a table with vertices.
+     * @param br BufferedReader.
+     */
+    void fromBufferedReader(BufferedReader br){
+        TreeMap<Integer,Vertex> tempT = new TreeMap<Integer,Vertex>();
+        HashMap<Integer,Integer> lows = new HashMap<Integer,Integer>();
+        HashMap<Integer,Integer> highs = new HashMap<Integer,Integer>();
+        // Lets read the vertices
+        String line = "";
+        try{
+            while ((line = br.readLine()) != null) {
+
+                if (line.length() == 0) {
+                    break;
+                }
+
+                // First loop, we init the vertices
+                while ((line = br.readLine()) != null) {
+                    if (line.length() == 0) {
+                        break;
+                    }
+                    
+                    String[] attributes = line.split("\\s+");
+                    int index = Integer.parseInt(attributes[0]);
+                    int varIndex = Integer.parseInt(attributes[1]);
+                    Vertex v = null;
+                    if(index == Vertex.FALSE_INDEX){
+                        v = new Vertex(false);
+                    }
+                    else if(index == Vertex.TRUE_INDEX){
+                        v = new Vertex(true);
+                    }
+                    else
+                    {
+                        v = new Vertex(index, varIndex, null, null);
+                        int low = Integer.parseInt(attributes[3]);
+                        lows.put(index, low);
+                        int high = Integer.parseInt(attributes[4]);
+                        highs.put(index, high);
+                    }
+                    
+                    tempT.put(index, v);
+                }
+                
+          
+                // Second loop, we set low and high descendants
+                for(Integer key : tempT.keySet()){
+                    Vertex v = tempT.get(key);
+                    if(!v.isLeaf()){
+                        Vertex low = tempT.get(lows.get(v.index));
+                        Vertex high = tempT.get(highs.get(v.index));
+                        v.setHigh(low);
+                        v.setLow(high);
+                    }
+                }
+               
+                for(Integer key : tempT.keySet()){
+                    this.add(tempT.get(key));
+                }
+            }
+        }
+        catch(Exception e){
+            System.err.println("Error in TableT.fromBufferedReader");
+            e.printStackTrace();
+        }
     }
     
 }

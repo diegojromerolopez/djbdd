@@ -27,11 +27,10 @@ public class Main {
         config.numberOfCNFByBDD = 1;
         config.useApplyInCreation = true;
         SheFileLoader loader = new SheFileLoader(filename);
-        loader.init(config);
-        
-        BDD.init(loader.variables);
+        ArrayList<String> bddFormulas = loader.getFormulas(config);
+
         //FileOptimizer extractor = new FileOptimizer(loader.bdd_formulas, filename+".bdd.txt");
-        Separator extractor = new Separator(loader.bdd_formulas, filename+".bdd.txt");
+        Separator extractor = new Separator(bddFormulas, filename+".bdd.txt");
         extractor.run();
         t.end();
         t.show();
