@@ -346,7 +346,6 @@ public class Main {
     }
     
     public static void main(String[] args) {
-        
         // Si no hay 1 argumento, mostramos 
         if(args.length<1)
         {
@@ -355,6 +354,8 @@ public class Main {
             System.out.println("\tjava -jar DJBDD.jar --prob --<format> <file>");
             System.out.println("2. BDD printing:");
             System.out.println("\tjava -jar BDD.jar --print --<format> <file>");
+            System.out.println("3. BDD PNG image generation:");
+            System.out.println("\tjava -jar BDD.jar --image --<format> <file>");
             System.out.println("Formats allowed: ");
             System.out.println("\tdimacs\tDimacs CNF format. See http://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps or http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html.");
             System.out.println("\tshe\tSteven she file. See https://code.google.com/p/linux-variability-analysis-tools/");
@@ -362,10 +363,12 @@ public class Main {
             System.out.println("\tdjbdd\tDJBDD file. Don't see anything because there are no documentation yet.");
             return;
         }
-        String text = "";
+        
+        // Main option selected for the user 
         String option = args[0];
         TimeMeasurer t = new TimeMeasurer(option);
         
+        // Option switch
         if(option.equals("--runtests")){
                 int testIndex = 0;
                 if (args.length == 2)
@@ -385,6 +388,13 @@ public class Main {
             BDD bdd = Main.loadBDDFromFile(args[1], args[2]);
             boolean printBooleanVertices = true;
             bdd.print(printBooleanVertices);
+            return;
+        }
+        
+        // Reads a BDD file, and prints it as an image
+        if(option.equals("--image")){
+            BDD bdd = Main.loadBDDFromFile(args[1], args[2]);
+            Printer.printBDD(bdd, args[2]+".png");
             return;
         }
         

@@ -31,12 +31,18 @@ public class Printer {
     /** Caché of edges of the graph */
     HashMap<String, Boolean> edgeCache = null;
 
+    /**
+     * Obtains the name of the vertex.
+     * @param v Vertex that contain the name.
+     * @param pathName Complete path from the root ot the tree.
+     * @return The complete name of the vertex v.
+     */
     protected String getVertexName(Vertex v, String pathName){
         String name = "";
         if (v.isLeaf()) {
             name = Boolean.toString(v.value());
             if (SHOW_NODE_PATHS) {
-                //name += " (" + pathName + ")";
+                name += " (" + pathName + ")";
             }
             return name;
         }
@@ -61,10 +67,20 @@ public class Printer {
         return name;
     }
 
+    /**
+     * Constructor.
+     * @param bdd BDD that will be used in the image generation.
+     */
     public Printer(BDD bdd) {
         this.bdd = bdd;
     }
 
+    /**
+     * Creates the tree in the GraphViz graph.
+     * @param graph Graph that will contain the BDD.
+     * @param v Root vertex of the subtree.
+     * @param pathName Complete tree path.
+     */
     protected void createTree(GraphViz graph, Vertex v, String pathName) {
         if (v.index > 1) {
             Vertex low = v.low();
@@ -87,7 +103,11 @@ public class Printer {
         }
 
     }
-
+    
+    /**
+     * Prints the BDD as an image in a path.
+     * @param path Path that will be the image of the BDD.
+     */
     public void print(String path) {
 
         GraphViz gv = new GraphViz();
@@ -113,7 +133,12 @@ public class Printer {
         }
         gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type), out);
     }
-    
+
+    /**
+     * Prints a BDD as an image in a path.
+     * @param bdd BDD that will be printed as image.
+     * @param path Path that will be the image of the BDD.
+     */
     public static void printBDD(BDD bdd, String path){
         Printer printer = new Printer(bdd);
         printer.print(path);
