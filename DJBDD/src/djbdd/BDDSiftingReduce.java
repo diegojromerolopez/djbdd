@@ -87,14 +87,14 @@ public class BDDSiftingReduce {
 
     public static void swap(int varI, int varJ) {
         //System.out.println("SWAPPING OF VERTICES WHOSE VAR IS "+varI+" ("+BDD.variables().get(varI)+") BY "+varJ+"("+BDD.variables().get(varJ)+")");
-        //int varJ = varI+1;
+        /*
         ArrayList<Vertex> vertices = new ArrayList<Vertex>(BDD.T.getVerticesWhoseVariableIs(varI));
         for (int i = 0; i < vertices.size(); i++) {
             Vertex v = vertices.get(i);
             //System.out.println("Let's swap "+v);
             boolean swapWasMade = swapVertex(v, varJ);
             //System.out.println("Swap mas made? "+swapWasMade);
-        }
+        }*/
     }
 
     private static String printOrder(ArrayList<Integer> order) {

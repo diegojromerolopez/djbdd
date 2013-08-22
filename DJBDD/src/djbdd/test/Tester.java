@@ -330,6 +330,17 @@ public class Tester {
         bdd2.print(true);
     }
     
+    public static void test10(){
+        int num_variables = 6;
+        ArrayList<String> variables = new ArrayList<String>();
+        for(int i=1; i<=num_variables; i++){
+            variables.add("x"+i);
+        }        
+        BDD.init(variables);
+        BDD bdd = new BDD("(x1 && x2) || (x3 && x4) || (x5 && x6)");
+        bdd.print(true);
+    }
+    
     public static void run(int testIndex){
         if(testIndex == 0)
             test0();
@@ -351,6 +362,8 @@ public class Tester {
             test8();
         else if(testIndex == 9)
             test9();
+        else if(testIndex == 10)
+            test10();
         else {
             System.err.println("This test does NOT exists");
             System.exit(-1);

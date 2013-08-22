@@ -27,7 +27,7 @@ public class BDD {
     public static final int MAX_NUMBER_OF_VARIABLES_TO_LAUNCH_RECURSIVE_CREATION = 100;
     
     /** Use apply operation in constructor */
-    public static final boolean USE_APPLY_IN_CREATION = true;
+    public static final boolean USE_APPLY_IN_CREATION = false;
     
     /** Name of this BDD */
     String name = "";
@@ -738,7 +738,7 @@ public class BDD {
     /**
      * Call the garbage collector to erase weak references.
      */
-    void gc(){
+    public static void gc(){
         BDD.T.gc();
     }
     

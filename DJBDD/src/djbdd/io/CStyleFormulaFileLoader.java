@@ -75,6 +75,12 @@ public class CStyleFormulaFileLoader {
           String[] variables = line.split(",\\s*");
           BDD.init(variables);
           
+          if(VERBOSE){
+              System.out.println("Variables:");
+              for(String var : variables)
+                  System.out.println("\t"+var);
+          }
+          
           // Gets the formulas
           StringBuilder s = new StringBuilder("");
           int i=1;
@@ -87,9 +93,12 @@ public class CStyleFormulaFileLoader {
               i++;
           }
           // Build the BDD
+          System.out.println(s);
           BDD bdd = new BDD(s.toString());
+
           if(VERBOSE){
               System.out.println("BDD loaded\n");
+              bdd.print(true);
           }          
           return bdd;
         }
