@@ -15,11 +15,19 @@ expression
   ;
 
 dimplication
-  :  implication ('<->'^ implication)*    // make `<->` the root
+  :  isdifferent ('<->'^ isdifferent)*    // make `<->` the root
+  ;
+
+isdifferent
+  :  implication ('!='^ implication)*    // make `!=` the root
   ;
 
 implication
-  :  or ('->'^ or)*    // make `->` the root
+  :  notimplication ('->'^ notimplication)*    // make `->` the root
+  ;
+  
+notimplication
+  :  or ('!->'^ or)*    // make `!->` the root
   ;
 
 or

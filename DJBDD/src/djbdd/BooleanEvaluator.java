@@ -29,11 +29,20 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   /** The logical Implication operator (version2).*/
   public final static Operator IMP2 = new Operator("=>", 2, Operator.Associativity.LEFT, 2);
   
+  /** The logical not-implication operator.*/
+  public final static Operator NOT_IMP = new Operator("!->", 2, Operator.Associativity.LEFT, 2);
+  
+  /** The logical not-implication operator (version2).*/
+  public final static Operator NOT_IMP2 = new Operator("!=>", 2, Operator.Associativity.LEFT, 2);  
+  
   /** The logical double implication operator.*/
   public final static Operator DOUBLE_IMP = new Operator("<->", 2, Operator.Associativity.LEFT, 1);
 
   /** The logical double implication operator (version2).*/
   public final static Operator DOUBLE_IMP2 = new Operator("<=>", 2, Operator.Associativity.LEFT, 1);
+  
+  /** The is different operator .*/
+  public final static Operator IS_DIFFERENT = new Operator("!=", 2, Operator.Associativity.LEFT, 1);
   
   /** Evaluator parameters */
   private static final Parameters PARAMETERS;
@@ -140,7 +149,21 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
       return BooleanEvaluator.run(_function);
   }
   
- 
+  public static String neg(String op){
+      if(op.equals("and"))
+          return "or";
+      if(op.equals("or"))
+          return "and";
+      if(op.equals("<->"))
+        return "!=";
+      if(op.equals("!="))
+        return "<->";
+      if(op.equals("->"))
+        return "!->";
+      if(op.equals("!->"))
+        return "->";
+      return null;
+  }
   
 }
  

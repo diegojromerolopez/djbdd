@@ -1,5 +1,5 @@
 package djbdd.logic;
-// $ANTLR !Unknown version! Logic.g 2013-07-28 01:46:40
+// $ANTLR !Unknown version! Logic.g 2013-08-23 17:42:51
 
 import org.antlr.runtime.*;
 import java.util.Stack;
@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class LogicLexer extends Lexer {
+    public static final int T__16=16;
+    public static final int T__15=15;
     public static final int T__12=12;
     public static final int T__11=11;
     public static final int T__14=14;
@@ -59,10 +61,10 @@ public class LogicLexer extends Lexer {
         try {
             int _type = T__9;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Logic.g:4:6: ( '->' )
-            // Logic.g:4:8: '->'
+            // Logic.g:4:6: ( '!=' )
+            // Logic.g:4:8: '!='
             {
-            match("->"); 
+            match("!="); 
 
 
             }
@@ -80,10 +82,10 @@ public class LogicLexer extends Lexer {
         try {
             int _type = T__10;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Logic.g:5:7: ( '||' )
-            // Logic.g:5:9: '||'
+            // Logic.g:5:7: ( '->' )
+            // Logic.g:5:9: '->'
             {
-            match("||"); 
+            match("->"); 
 
 
             }
@@ -101,10 +103,10 @@ public class LogicLexer extends Lexer {
         try {
             int _type = T__11;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Logic.g:6:7: ( '&&' )
-            // Logic.g:6:9: '&&'
+            // Logic.g:6:7: ( '!->' )
+            // Logic.g:6:9: '!->'
             {
-            match("&&"); 
+            match("!->"); 
 
 
             }
@@ -122,10 +124,11 @@ public class LogicLexer extends Lexer {
         try {
             int _type = T__12;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Logic.g:7:7: ( '!' )
-            // Logic.g:7:9: '!'
+            // Logic.g:7:7: ( '||' )
+            // Logic.g:7:9: '||'
             {
-            match('!'); 
+            match("||"); 
+
 
             }
 
@@ -142,10 +145,11 @@ public class LogicLexer extends Lexer {
         try {
             int _type = T__13;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Logic.g:8:7: ( '(' )
-            // Logic.g:8:9: '('
+            // Logic.g:8:7: ( '&&' )
+            // Logic.g:8:9: '&&'
             {
-            match('('); 
+            match("&&"); 
+
 
             }
 
@@ -162,10 +166,10 @@ public class LogicLexer extends Lexer {
         try {
             int _type = T__14;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Logic.g:9:7: ( ')' )
-            // Logic.g:9:9: ')'
+            // Logic.g:9:7: ( '!' )
+            // Logic.g:9:9: '!'
             {
-            match(')'); 
+            match('!'); 
 
             }
 
@@ -177,13 +181,53 @@ public class LogicLexer extends Lexer {
     }
     // $ANTLR end "T__14"
 
+    // $ANTLR start "T__15"
+    public final void mT__15() throws RecognitionException {
+        try {
+            int _type = T__15;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // Logic.g:10:7: ( '(' )
+            // Logic.g:10:9: '('
+            {
+            match('('); 
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        }
+    }
+    // $ANTLR end "T__15"
+
+    // $ANTLR start "T__16"
+    public final void mT__16() throws RecognitionException {
+        try {
+            int _type = T__16;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // Logic.g:11:7: ( ')' )
+            // Logic.g:11:9: ')'
+            {
+            match(')'); 
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        }
+    }
+    // $ANTLR end "T__16"
+
     // $ANTLR start "TRUE"
     public final void mTRUE() throws RecognitionException {
         try {
             int _type = TRUE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Logic.g:46:7: ( 'true' )
-            // Logic.g:46:9: 'true'
+            // Logic.g:54:7: ( 'true' )
+            // Logic.g:54:9: 'true'
             {
             match("true"); 
 
@@ -203,8 +247,8 @@ public class LogicLexer extends Lexer {
         try {
             int _type = FALSE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Logic.g:47:8: ( 'false' )
-            // Logic.g:47:10: 'false'
+            // Logic.g:55:8: ( 'false' )
+            // Logic.g:55:10: 'false'
             {
             match("false"); 
 
@@ -224,10 +268,10 @@ public class LogicLexer extends Lexer {
         try {
             int _type = ID;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Logic.g:48:7: ( ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '{' | '}' )+ )
-            // Logic.g:48:9: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '{' | '}' )+
+            // Logic.g:56:7: ( ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '{' | '}' )+ )
+            // Logic.g:56:9: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '{' | '}' )+
             {
-            // Logic.g:48:9: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '{' | '}' )+
+            // Logic.g:56:9: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | '{' | '}' )+
             int cnt1=0;
             loop1:
             do {
@@ -281,10 +325,10 @@ public class LogicLexer extends Lexer {
         try {
             int _type = Space;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Logic.g:49:7: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
-            // Logic.g:49:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+            // Logic.g:57:7: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
+            // Logic.g:57:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
             {
-            // Logic.g:49:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+            // Logic.g:57:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
             int cnt2=0;
             loop2:
             do {
@@ -335,8 +379,8 @@ public class LogicLexer extends Lexer {
     // $ANTLR end "Space"
 
     public void mTokens() throws RecognitionException {
-        // Logic.g:1:8: ( T__8 | T__9 | T__10 | T__11 | T__12 | T__13 | T__14 | TRUE | FALSE | ID | Space )
-        int alt3=11;
+        // Logic.g:1:8: ( T__8 | T__9 | T__10 | T__11 | T__12 | T__13 | T__14 | T__15 | T__16 | TRUE | FALSE | ID | Space )
+        int alt3=13;
         alt3 = dfa3.predict(input);
         switch (alt3) {
             case 1 :
@@ -389,28 +433,42 @@ public class LogicLexer extends Lexer {
                 }
                 break;
             case 8 :
-                // Logic.g:1:50: TRUE
+                // Logic.g:1:50: T__15
+                {
+                mT__15(); 
+
+                }
+                break;
+            case 9 :
+                // Logic.g:1:56: T__16
+                {
+                mT__16(); 
+
+                }
+                break;
+            case 10 :
+                // Logic.g:1:62: TRUE
                 {
                 mTRUE(); 
 
                 }
                 break;
-            case 9 :
-                // Logic.g:1:55: FALSE
+            case 11 :
+                // Logic.g:1:67: FALSE
                 {
                 mFALSE(); 
 
                 }
                 break;
-            case 10 :
-                // Logic.g:1:61: ID
+            case 12 :
+                // Logic.g:1:73: ID
                 {
                 mID(); 
 
                 }
                 break;
-            case 11 :
-                // Logic.g:1:64: Space
+            case 13 :
+                // Logic.g:1:76: Space
                 {
                 mSpace(); 
 
@@ -424,41 +482,45 @@ public class LogicLexer extends Lexer {
 
     protected DFA3 dfa3 = new DFA3(this);
     static final String DFA3_eotS =
-        "\10\uffff\2\12\2\uffff\4\12\1\22\1\12\1\uffff\1\24\1\uffff";
+        "\2\uffff\1\16\5\uffff\2\12\5\uffff\4\12\1\25\1\12\1\uffff\1\27\1"+
+        "\uffff";
     static final String DFA3_eofS =
-        "\25\uffff";
+        "\30\uffff";
     static final String DFA3_minS =
-        "\1\11\7\uffff\1\162\1\141\2\uffff\1\165\1\154\1\145\1\163\1\60\1"+
-        "\145\1\uffff\1\60\1\uffff";
+        "\1\11\1\uffff\1\55\5\uffff\1\162\1\141\5\uffff\1\165\1\154\1\145"+
+        "\1\163\1\60\1\145\1\uffff\1\60\1\uffff";
     static final String DFA3_maxS =
-        "\1\175\7\uffff\1\162\1\141\2\uffff\1\165\1\154\1\145\1\163\1\175"+
-        "\1\145\1\uffff\1\175\1\uffff";
+        "\1\175\1\uffff\1\75\5\uffff\1\162\1\141\5\uffff\1\165\1\154\1\145"+
+        "\1\163\1\175\1\145\1\uffff\1\175\1\uffff";
     static final String DFA3_acceptS =
-        "\1\uffff\1\1\1\2\1\3\1\4\1\5\1\6\1\7\2\uffff\1\12\1\13\6\uffff\1"+
-        "\10\1\uffff\1\11";
+        "\1\uffff\1\1\1\uffff\1\3\1\5\1\6\1\10\1\11\2\uffff\1\14\1\15\1\2"+
+        "\1\4\1\7\6\uffff\1\12\1\uffff\1\13";
     static final String DFA3_specialS =
-        "\25\uffff}>";
+        "\30\uffff}>";
     static final String[] DFA3_transitionS = {
-            "\2\13\2\uffff\1\13\22\uffff\1\13\1\5\4\uffff\1\4\1\uffff\1\6"+
-            "\1\7\3\uffff\1\2\2\uffff\12\12\2\uffff\1\1\4\uffff\32\12\4\uffff"+
-            "\1\12\1\uffff\5\12\1\11\15\12\1\10\7\12\1\3\1\12",
+            "\2\13\2\uffff\1\13\22\uffff\1\13\1\2\4\uffff\1\5\1\uffff\1\6"+
+            "\1\7\3\uffff\1\3\2\uffff\12\12\2\uffff\1\1\4\uffff\32\12\4\uffff"+
+            "\1\12\1\uffff\5\12\1\11\15\12\1\10\7\12\1\4\1\12",
+            "",
+            "\1\15\17\uffff\1\14",
             "",
             "",
             "",
             "",
             "",
-            "",
-            "",
-            "\1\14",
-            "\1\15",
-            "",
-            "",
-            "\1\16",
             "\1\17",
             "\1\20",
+            "",
+            "",
+            "",
+            "",
+            "",
             "\1\21",
-            "\12\12\7\uffff\32\12\4\uffff\1\12\1\uffff\33\12\1\uffff\1\12",
+            "\1\22",
             "\1\23",
+            "\1\24",
+            "\12\12\7\uffff\32\12\4\uffff\1\12\1\uffff\33\12\1\uffff\1\12",
+            "\1\26",
             "",
             "\12\12\7\uffff\32\12\4\uffff\1\12\1\uffff\33\12\1\uffff\1\12",
             ""
@@ -494,7 +556,7 @@ public class LogicLexer extends Lexer {
             this.transition = DFA3_transition;
         }
         public String getDescription() {
-            return "1:1: Tokens : ( T__8 | T__9 | T__10 | T__11 | T__12 | T__13 | T__14 | TRUE | FALSE | ID | Space );";
+            return "1:1: Tokens : ( T__8 | T__9 | T__10 | T__11 | T__12 | T__13 | T__14 | T__15 | T__16 | TRUE | FALSE | ID | Space );";
         }
     }
  

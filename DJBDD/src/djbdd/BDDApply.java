@@ -45,10 +45,16 @@ public class BDDApply {
     public final static int OP_IFF = 4;
     
     /** NAND logic operation key */
-    public final static int OP_NAND=5;
+    public final static int OP_NAND = 5;
     
     /** NOR logic operation key */
-    public final static int OP_NOR=6;
+    public final static int OP_NOR = 6;
+    
+    /** Not implication operation key */
+    public final static int OP_NOTIF = 7;
+    
+    /** Is different operation key */
+    public final static int OP_ISDIFFERENT = 8;
     
     
     /**
@@ -67,8 +73,12 @@ public class BDDApply {
              return OP_NAND;
          if(operation.equalsIgnoreCase("<=>") || operation.equalsIgnoreCase("iff") || operation.equalsIgnoreCase("<->"))
              return OP_IFF;
-          if(operation.equalsIgnoreCase("=>") || operation.equalsIgnoreCase("if") || operation.equalsIgnoreCase("->"))
+         if(operation.equalsIgnoreCase("!="))
+             return OP_ISDIFFERENT;
+         if(operation.equalsIgnoreCase("=>") || operation.equalsIgnoreCase("if") || operation.equalsIgnoreCase("->"))
              return OP_IF;
+         if(operation.equalsIgnoreCase("!=>") || operation.equalsIgnoreCase("notif") || operation.equalsIgnoreCase("!->"))
+             return OP_NOTIF;
          throw new Exception("Operator "+operation+" undefined");
     }
     
@@ -79,6 +89,7 @@ public class BDDApply {
     private String getFunction(){
         String function1 = bdd1.function.trim();
         String function2 = bdd2.function.trim();
+        System.out.println(operation+" == "+OP_NOTIF);
         // Get the function based on the operation
         if (operation == OP_AND) {
             return function1 + " && " + function2;
@@ -98,8 +109,14 @@ public class BDDApply {
         if (operation == OP_NAND) {
             return "!(" + function1 + " &&" + function2 + ")";
         }
+        if (operation == OP_NOTIF) {
+            return "(("+function1+ ") && !("+function2+"))";
+        }
+        if (operation == OP_ISDIFFERENT) {
+            return "((" + function1 + ") && !(" + function2 + ")) || (!(" + function1 + ") && (" + function2 + "))";
+        }
         // I don't want exceptions, only FATAL ERRORS
-        System.err.println("Operation '" + this.operation + "' not recognized");
+        System.err.println("BDDApply.getOperation: Operation '" + this.operation + "' not recognized");
         System.err.flush();
         System.exit(-1);
         return "Operator '" + operation + "' undefined in BDDApply.getFunction";
@@ -129,20 +146,33 @@ public class BDDApply {
     private boolean op(Vertex v1, Vertex v2){
         boolean v1Value = v1.value();
         boolean v2Value = v2.value();
-        if(this.operation == OP_AND)
+        if (this.operation == OP_AND) {
             return v1Value && v2Value;
-        if(this.operation == OP_OR)
+        }
+        if (this.operation == OP_OR) {
             return v1Value || v2Value;
-        if(this.operation == OP_IF)
+        }
+        if (this.operation == OP_IF) {
             return (!v1Value || v2Value);
-        if(this.operation == OP_IFF)
-            return (v1Value || !v2Value) && (!v1Value || v2Value);
-        if(this.operation == OP_NOR)
+        }
+        if (this.operation == OP_IFF) {
+            //return (v1Value || !v2Value) && (!v1Value || v2Value);
+            return v1Value == v2Value;
+        }
+        if (this.operation == OP_NOR) {
             return !(v1Value || v2Value);
-        if(this.operation == OP_NAND)
+        }
+        if (this.operation == OP_NAND) {
             return !(v1Value && v2Value);
+        }
+        if (this.operation == OP_NOTIF) {
+            return (v1Value && !v2Value);
+        }
+        if (this.operation == OP_ISDIFFERENT) {
+            return (v1Value != v2Value);
+        }
         // I don't want exceptions, only FATAL ERRORS
-        System.err.println("Operation '"+this.operation+"' not recognized");
+        System.err.println("BDDApply.op: Operation '"+this.operation+"' not recognized");
         System.err.flush();
         System.exit(-1);
         return false;

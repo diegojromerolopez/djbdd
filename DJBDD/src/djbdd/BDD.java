@@ -27,7 +27,7 @@ public class BDD {
     public static final int MAX_NUMBER_OF_VARIABLES_TO_LAUNCH_RECURSIVE_CREATION = 100;
     
     /** Use apply operation in constructor */
-    public static final boolean USE_APPLY_IN_CREATION = false;
+    public static final boolean USE_APPLY_IN_CREATION = true;
     
     /** Name of this BDD */
     String name = "";
@@ -300,19 +300,20 @@ public class BDD {
      * @param variables List with the variables of the tree.
      * @return BDD Binary Decision Tree for the formula described in the AST tree.
      */
-    private static BDD generateTreeFromAST(Tree tree) {
+    private static BDD generateTreeFromAST(Tree tree, boolean positiveTree) {
         // Get the number of children of the tree
         int childCount = tree.getChildCount();
         
         // If we have a leaf, the node has a variable not an operation
         // we create the BDD using recursion (it's only one step deep)
         if (childCount == 0) {
-            BDD bdd = BDD.factoryFromVarible(tree.getText());
+            BDD bdd = BDD.factoryFromVarible(tree.getText(), positiveTree);
             return bdd;
         }
         
         // Otherwise, we get an operation node
         String op = tree.getText();
+        boolean positiveChild = !op.equals("!");
         
         // For each children, we recursively call generateTreeFromAST
         // And assign current node as parent of the subtree generated
@@ -328,18 +329,22 @@ public class BDD {
         for(int childI=0; childI<childCount; childI++)
         {
             Tree child = tree.getChild(childI);
-            BDD bddI = BDD.generateTreeFromAST(child);
+            BDD bddI = BDD.generateTreeFromAST(child, positiveChild);
             bdds.add(bddI);
         }        
         
         // For ech children, we apply the operation given in their parent node
         // and construct a new BDD for the parention node
+        String applyOp = op;
+        if(!op.equals("!") && !positiveTree){
+            applyOp = BooleanEvaluator.neg(op);
+        }
         BDD bdd = bdds.get(0);
         for (int i = 1; i < bdds.size(); i++) {
             BDD bddI = bdds.get(i);
             BDD bddRes = null;//BDD.optimizeTreeGenerationFromAST(op, bdd, bddI);
             if (bddRes == null) {
-                bddRes = bdd.apply(op, bddI);
+                bddRes = bdd.apply(applyOp, bddI);
                 bdd = null;
                 bddI = null;
             }
@@ -369,7 +374,7 @@ public class BDD {
         }
         
         // Call to create the BDD from an AST
-        BDD bdd = BDD.generateTreeFromAST(tree);
+        BDD bdd = BDD.generateTreeFromAST(tree, true);
         this.assignInTreeGeneration(bdd);
         return this.root;
     }
@@ -435,9 +440,12 @@ public class BDD {
      * Constructs a BDD for a single variable. Optimized to use in the creation of other BDDs.
      * @param variable Variable to build its simple BDD.
      */
-    private static BDD factoryFromVarible(String variable){
+    private static BDD factoryFromVarible(String variable, boolean positiveVariable){
         BDD bdd = new BDD();
-        bdd.function = variable;
+        if(positiveVariable)
+            bdd.function = variable;
+        else
+            bdd.function = "!"+variable;
         int var_index = -1;
         ArrayList<Integer> trivial_variable_ordering = new ArrayList<Integer>(VARIABLES.size());
         for (int i = 0; i < VARIABLES.size(); i++) {
@@ -459,11 +467,23 @@ public class BDD {
         }
         // 3.- Lone variable
         else{
-            bdd.assignRoot( BDD.T.add(var_index, BDD.T.False, BDD.T.True) );
+            Vertex low = null;
+            Vertex high = null;
+            if(positiveVariable){
+                low = BDD.T.False;
+                high = BDD.T.True;
+            }
+            else{
+                low = BDD.T.True;
+                high = BDD.T.False;
+            }
+            
+            bdd.assignRoot( BDD.T.add(var_index, low, high) );
         }
         bdd.initVariableOrder(trivial_variable_ordering);
         return bdd;
     }
+
     
     /**
      * Constructor for use in this class
