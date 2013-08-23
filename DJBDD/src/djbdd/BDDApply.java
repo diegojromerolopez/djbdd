@@ -29,9 +29,6 @@ public class BDDApply {
     /** Cache table **/
     HashMap<String,Vertex> G;
     
-    /** Used vertices table **/
-    //HashMap<Integer,Vertex> used_vertices;
-    
     /** AND logic operation key */
     public final static int OP_AND = 1;
     
@@ -120,7 +117,6 @@ public class BDDApply {
         System.err.flush();
         System.exit(-1);
         return "Operator '" + operation + "' undefined in BDDApply.getFunction";
-        //throw new Exception("Operator "+operation+" undefined");
     }
     
     
@@ -156,8 +152,7 @@ public class BDDApply {
             return (!v1Value || v2Value);
         }
         if (this.operation == OP_IFF) {
-            //return (v1Value || !v2Value) && (!v1Value || v2Value);
-            return v1Value == v2Value;
+            return (v1Value == v2Value);
         }
         if (this.operation == OP_NOR) {
             return !(v1Value || v2Value);
@@ -187,8 +182,6 @@ public class BDDApply {
      * @return Vertex Result of doing a recursive call to app.
      */
     private Vertex app(Vertex v1, Vertex v2){
-        //System.out.println(v1);
-        //System.out.println(v2);
         // Hash key of the computation of the subtree of these two vertices
         String key = "1-"+v1.index+"+2-"+v2.index;
         
@@ -199,12 +192,8 @@ public class BDDApply {
         if(v1.isLeaf() && v2.isLeaf())
         {
             if(this.op(v1,v2)){
-                //used_vertices.put(1, this.True);
-                //BDD.T.put(1, BDD.True);
                 return BDD.T.True;
             }
-            //BDD.T.put(0, BDD.False);
-            //used_vertices.put(0, this.False);
             return BDD.T.False;
         }
         
@@ -229,7 +218,6 @@ public class BDDApply {
         // Respect the non-redundant propierty:
         // "No vertex shall be one whose low and high indices are the same."
         if(low.index == high.index){
-            //used_vertices.put(low.index,low);
             return low;
         }
         
@@ -238,38 +226,7 @@ public class BDDApply {
         Vertex u = BDD.T.add(var, low, high);
         this.G.put(key, u);
         return u;
-        /*
-        String uniqueVertexKey = Vertex.computeUniqueKey(var,low.index,high.index);
-        if(U.containsKey(uniqueVertexKey)){
-            Vertex u = U.get(uniqueVertexKey);
-            //this.used_vertices.put(u.index,u);
-            return u;
-        }
-        
-        // Create the resulting vertex
-        int index = this.T.getNextKey();
-        Vertex u = new Vertex(index, var, low.index, high.index);
-        //this.used_vertices.put(index,u);
-        this.T.put(index, u);
-        this.G.put(key, u);
-        this.U.put(uniqueVertexKey, u);
-        return u;*/
     }
-    
-    /*
-    private void cleanGarbage(){
-        TimeMeasurer t = new TimeMeasurer("========= cleanGarbage =========", true);
-        Set<Integer> keys = this.T.keySet();
-        ArrayList<Integer> garbageKeys = new ArrayList<Integer>(keys.size());
-        
-        for(Integer k : keys)
-            if(!used_vertices.containsKey(k))
-                garbageKeys.add(k);
-        
-        for(Integer k : garbageKeys)
-            this.T.remove(k);
-        t.end().show();
-    }*/
     
     /**
      * Public call to execute the apply algorithm.
@@ -279,8 +236,6 @@ public class BDDApply {
      */
     public BDD run(){
         TimeMeasurer t = new TimeMeasurer("========= apply =========");
-        
-        //this.used_vertices = new HashMap<String,Vertex>();
         
         // Cache to avoid repeated computations
         this.G = new HashMap<String,Vertex>();

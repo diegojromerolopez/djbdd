@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package djbdd;
 
 import java.util.*;
@@ -9,6 +5,7 @@ import java.util.*;
 /**
  * Reduction method by Sifting Algorithm ()
  * TODO: finish this method.
+ * DO NOT USE, IT DOES NOT WORK!!!
  * @author diegoj
  */
 public class BDDSiftingReduce {

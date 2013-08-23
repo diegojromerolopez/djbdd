@@ -56,8 +56,11 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     PARAMETERS.add(NOT);
     PARAMETERS.add(IMP);
     PARAMETERS.add(IMP2);
+    PARAMETERS.add(NOT_IMP);
+    PARAMETERS.add(NOT_IMP2);    
     PARAMETERS.add(DOUBLE_IMP);
     PARAMETERS.add(DOUBLE_IMP2);
+    PARAMETERS.add(IS_DIFFERENT);
     // Add the parentheses
     PARAMETERS.addExpressionBracket(BracketPair.PARENTHESES);
   }
@@ -116,8 +119,21 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     if (operator == DOUBLE_IMP || operator == DOUBLE_IMP2) {
       Boolean o1 = operands.next();
       Boolean o2 = operands.next();
-      return (!o1 || o2) && (o1 || !o2);
+      //return (!o1 || o2) && (o1 || !o2);
+      return (o1 == o2);
     }
+    
+    if (operator == NOT_IMP || operator == NOT_IMP2) {
+      Boolean o1 = operands.next();
+      Boolean o2 = operands.next();
+      return (o1 && !o2);
+    }    
+    
+    if (operator == IS_DIFFERENT) {
+      Boolean o1 = operands.next();
+      Boolean o2 = operands.next();
+      return (o1 != o2);
+    }        
     
     return super.evaluate(operator, operands, evaluationContext);
   }
@@ -149,6 +165,13 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
       return BooleanEvaluator.run(_function);
   }
   
+  /**
+   * Negate a boolean logic operation.
+   * Used to apply the De Morgan Laws.
+   * @param op Operation to complement.
+   * @return Complemented operation of op.
+   * 
+   */
   public static String neg(String op){
       if(op.equals("and"))
           return "or";
