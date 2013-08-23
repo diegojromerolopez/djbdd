@@ -79,8 +79,13 @@ Formats allowed:
 
 - **dimacs**: Dimacs CNF format. See http://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps or http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html.
 - **she**: Steven She file. See https://code.google.com/p/linux-variability-analysis-tools/
-- **cstyle**: C-style boolean expression preceded by a line with all variables separated by commas
-- **djbdd**: DJBDD file. Don't see anything because there are no documentation yet.
+- **cstyle**: C-style boolean expression preceded by a line with all variables separated by commas. For example:
+  - a && !b
+  - a -> (!b && (c || d))
+  - a <-> (b && !c)
+  - a != (b && !c)
+- **djbdd**: DJBDD file. Is a textual file format that contains the vertices of the BDD as a list. So, the loading time is smaller than other methods.
+
 Directory data has some examples of each format (look the extension).
 
 #### BDD probability computation
