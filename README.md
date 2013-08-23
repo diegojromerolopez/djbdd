@@ -86,6 +86,13 @@ Formats allowed:
   - a != (b && !c)
 - **djbdd**: DJBDD file. Is a textual file format that contains the vertices of the BDD as a list. So, the loading time is smaller than other methods.
 
+IMPORTANT: for each variable there can no be any other that contains it as substring from the left.
+That is, if we have a variable with the name 'x1' we cannot use other variable with the name 'x11'.
+It's not in my future plans to change that, so name your variables with names like:
+- {x1}
+- {x11}
+- {x12}
+
 Directory data has some examples of each format (look the extension).
 
 #### BDD probability computation
