@@ -80,7 +80,6 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    */
   @Override
   protected Boolean toValue(String literal, Object evaluationContext) {
-    //System.out.println("'"+literal+"'");
     return Boolean.valueOf(literal);
   }
  

@@ -128,8 +128,6 @@ public class Tester {
     }
     
     public static void test2(){
-        boolean useApplyInCreation = false;
-        
         // A test to study variable order
         String function = "(a_ && b_) || (c_ && d_)";
         //final String[] variables={"a_", "c_", "b_", "d_"};
@@ -341,6 +339,15 @@ public class Tester {
         bdd.print(true);
     }
     
+    public static void test11(){
+        String[] variables = {"a", "b", "c", "d", "e"};
+        BDD.init(variables);
+        String function = "(a && b) || (a && d) && (e || b)";
+        String[] variable_order = {"a", "b", "d", "e", "c"};
+        BDD bdd = new BDD(function, variable_order);
+        Printer.printBDD(bdd, "test11_bdd_"+bdd.size()+" "+variable_order.toString()+"");
+    }
+    
     public static void run(int testIndex){
         if(testIndex == 0)
             test0();
@@ -364,6 +371,8 @@ public class Tester {
             test9();
         else if(testIndex == 10)
             test10();
+        else if(testIndex == 11)
+            test11();
         else {
             System.err.println("This test does NOT exists");
             System.exit(-1);

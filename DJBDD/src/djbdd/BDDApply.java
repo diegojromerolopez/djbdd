@@ -86,7 +86,6 @@ public class BDDApply {
     private String getFunction(){
         String function1 = bdd1.function.trim();
         String function2 = bdd2.function.trim();
-        System.out.println(operation+" == "+OP_NOTIF);
         // Get the function based on the operation
         if (operation == OP_AND) {
             return function1 + " && " + function2;
