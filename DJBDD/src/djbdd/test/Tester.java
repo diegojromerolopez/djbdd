@@ -340,12 +340,34 @@ public class Tester {
     }
     
     public static void test11(){
-        String[] variables = {"a", "b", "c", "d", "e"};
+        String[] variables = {"f", "g", "a", "b", "c", "d", "e"};
         BDD.init(variables);
-        String function = "(a && b) || (a && d) && (e || b)";
-        String[] variable_order = {"a", "b", "d", "e", "c"};
-        BDD bdd = new BDD(function, variable_order);
-        Printer.printBDD(bdd, "test11_bdd_"+bdd.size()+" "+variable_order.toString()+"");
+
+        String[] variableOrdering = {"a","c", "f", "g", "d", "e", "b"};
+        //BDD.initVariableOrdering(variableOrdering);
+        
+        // BDD1
+        String function1 = "(a && c) || (a && d) && (e || c)";
+        String[] variable_order1 = {"a", "c", "d", "e", "b", "f", "g"};
+        ArrayList<String> variable_order_list1 = new ArrayList<String>(Arrays.asList(variable_order1));
+        BDD bdd1 = new BDD(function1, variable_order1);
+        Printer.printBDD(bdd1, "test11_bdd1_"+bdd1.size()+" "+variable_order_list1.toString()+"");
+        
+        // BDD2
+        String function2 = "(a && f && g)";
+        String[] variable_order2 = {"f", "g", "a", "b", "c", "d", "f"};
+        ArrayList<String> variable_order_list2 = new ArrayList<String>(Arrays.asList(variable_order2));
+        BDD bdd2 = new BDD(function2, variable_order2);
+        Printer.printBDD(bdd2, "test11_bdd2_"+bdd2.size()+" "+variable_order_list2.toString()+"");
+        
+        /// BDDRes
+
+        BDD bdd3 = bdd1.apply("and", bdd2);
+        Printer.printBDD(bdd3, "test11_bdd3_"+bdd3.size());
+        
+        // Multitree
+        BDD.T.print();
+        Printer.printTableT("test11_allbdds_"+BDD.T.size());
     }
     
     public static void run(int testIndex){

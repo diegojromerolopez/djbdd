@@ -74,6 +74,10 @@ public class Printer {
     public Printer(BDD bdd) {
         this.bdd = bdd;
     }
+    
+    public Printer() {
+        this.bdd = null;
+    }    
 
     /**
      * Creates the tree in the GraphViz graph.
@@ -101,7 +105,32 @@ public class Printer {
                 graph.addln("\"" + vName + "\" -> \"" + highName + "\" [dir=\"forward\" arrowtype=\"normal\" style=\"normal\"];");
             }
         }
+    }
 
+    /**
+     * Creates the global tree in the GraphViz graph.
+     * That is, the tree that contains all the BDDs.
+     * @param graph Graph that will contain the BDD.
+     * @param pathName Complete tree path.
+     */
+    protected void createMultiTree(GraphViz graph, String pathName){
+        ArrayList<Vertex> roots = new ArrayList<Vertex>();
+        for(Vertex v : BDD.T.getVertices()){
+            boolean isRoot = true;
+            for(Vertex w : BDD.T.getVertices()){
+                if(v.index != w.index && v.isChildOf(w)){
+                    isRoot = false;
+                    break;
+                }
+            }
+            if(isRoot)
+                roots.add(v);
+        }
+        
+        for(Vertex r : roots){
+            pathName = "";
+            this.createTree(graph, r, pathName);
+        }
     }
     
     /**
@@ -109,13 +138,17 @@ public class Printer {
      * @param path Path that will be the image of the BDD.
      */
     public void print(String path) {
-
         GraphViz gv = new GraphViz();
         gv.addln(gv.start_graph());
 
         String pathName = "R";
         this.edgeCache = new HashMap<String, Boolean>();
-        createTree(gv, bdd.root(), pathName);
+                    
+            
+        if(this.bdd!=null)
+           createTree(gv, bdd.root(), pathName);
+        else
+            createMultiTree(gv, pathName);
 
         gv.addln(gv.end_graph());
         if(VERBOSE){
@@ -143,4 +176,15 @@ public class Printer {
         Printer printer = new Printer(bdd);
         printer.print(path);
     }
+    
+    /**
+     * Prints a TableT as an image in a path.
+     * @param bdd BDD that will be printed as image.
+     * @param path Path that will be the image of the BDD.
+     */
+    public static void printTableT(String path){
+        BDD.gc();
+        Printer printer = new Printer();
+        printer.print(path);
+    }    
 }

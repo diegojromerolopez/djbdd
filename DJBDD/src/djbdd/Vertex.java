@@ -191,6 +191,27 @@ public class Vertex {
         // Return the null index
         return Vertex.NULL_INDEX;
     }
+
+    /**
+     * Informs if the current vertex is child of the parameter.
+     * @param v Vertex we want to test if is parent of current one.
+     * @return true if current vertex is child of v, false otherwise.
+     */
+    public boolean isChildOf(Vertex v){
+        return v.isParentOf(this);
+    }
+    
+    /**
+     * Informs if the current vertex is parent of the parameter.
+     * @param v Vertex we want to test if is child of current one.
+     * @return true if v is child of current vertex, false otherwise.
+     */
+    public boolean isParentOf(Vertex v){
+        if(this.isLeaf()){
+            return false;
+        }
+        return (this.low==v || this.high==v);
+    }
     
     /**
      * Gets the variable of the vertex. See {@link djbdd.Vertex#variable} and {@link djbdd.BDD#VARIABLES}

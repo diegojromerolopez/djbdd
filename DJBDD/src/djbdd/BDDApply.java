@@ -171,7 +171,6 @@ public class BDDApply {
         System.exit(-1);
         return false;
     }
-
     
     /**
      * Core of the apply algorithm.
