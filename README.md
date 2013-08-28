@@ -33,17 +33,18 @@ BDD.init(variables);
 // adding the operators -> (implication) and <-> (double implication)
 String function = "(a && b) || (c && d)";
 
-// You can specify one variable ordering
-String[] variable_ordering = {"a", "b", "c", "d", "e", "f"};
+// With the current implementation, you can only specify
+// a static variable ordering, that is, in our example
+// the variable ordering of array of strings 'variables'.
 
 // Construction of a new BDD
-BDD bdd = new BDD(function, variable_ordering);
+BDD bdd = new BDD(function);
 
 // Printing the BDD in the standard output
 bdd.print();
 
 // You can print it as a image PNG using a dot library
-Printer.printBDD(bdd1, "bdd_"+bdd1.size()+"_"+bdd.variable_ordering.toString());
+Printer.printBDD(bdd1, "bdd_"+bdd1.size());
 
 // Other BDD
 String function2 = "(a && e) || f"

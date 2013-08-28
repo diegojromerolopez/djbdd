@@ -42,8 +42,8 @@ class SheFileLoaderThread implements Runnable {
     
     @Override
     public void run() {
-        String[] _variable_order = getVariableOrder(formulas.get(0));
-        bdd = new BDD(formulas.get(0), _variable_order);
+        //String[] _variable_order = getVariableOrder(formulas.get(0));
+        bdd = new BDD(formulas.get(0));
         if(verbose){
             System.out.println("\n[Thread "+this.index+"] Formula "+(1)+"/"+formulas.size()+": "+formulas.get(0));
             bdd.print();

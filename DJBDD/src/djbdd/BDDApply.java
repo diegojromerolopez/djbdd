@@ -244,13 +244,15 @@ public class BDDApply {
         Vertex root = this.app(bdd1.root(), bdd2.root());
         
         // We get the variable indices present in both BDDs as fast as we can
+        /*
         HashSet<Integer> presentIndicesSet = new HashSet<Integer>(bdd1.variable_ordering.size()+bdd2.variable_ordering.size());
         presentIndicesSet.addAll(bdd1.variable_ordering);
         presentIndicesSet.addAll(bdd2.variable_ordering);
         ArrayList<Integer> presentVariableIndices = new ArrayList<Integer>(presentIndicesSet);
+        */
         
         // Construction of new BDD
-        this.bdd = new BDD(function, root, presentVariableIndices);
+        this.bdd = new BDD(function, root);
         t.end().show();
         
         // Return the new BDD computed

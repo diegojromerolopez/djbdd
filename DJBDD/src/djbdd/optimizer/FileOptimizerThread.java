@@ -107,8 +107,9 @@ public class FileOptimizerThread implements Runnable {
                     LOOPS = 1;
                 
                 // BDD base
-                TimeMeasurer t_loops = new TimeMeasurer(">>>>>>>>>>>> runned of "+_variable_order.length+" variables & "+BDD.T.size()+" <<<<<<<<<<", true);
-                BDD bdd = new BDD(formulaI, _variable_order);
+                //TimeMeasurer t_loops = new TimeMeasurer(">>>>>>>>>>>> runned of "+_variable_order.length+" variables & "+BDD.T.size()+" <<<<<<<<<<", true);
+                BDD bdd = new BDD(formulaI);
+                /*
                 // Iterations to get a smaller BDD
                 int j = 0;
                 while (j < LOOPS) {
@@ -120,7 +121,9 @@ public class FileOptimizerThread implements Runnable {
                         System.out.println(j+" is better");
                     }
                 }
-                t_loops.end().show();
+                 * 
+                 */
+                //t_loops.end().show();
                 bdds.add(bdd);
                 t.end().show();
             }

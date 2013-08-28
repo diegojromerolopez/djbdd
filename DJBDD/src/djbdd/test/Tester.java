@@ -8,7 +8,6 @@ import djbdd.io.Printer;
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.*;
 import java.util.*;
-import java.io.*;
 import org.mvel2.MVEL;
 
 /**
@@ -34,11 +33,11 @@ public class Tester {
         }
     }
     
-    private static BDD makeBDD(String function, ArrayList<Integer> variable_ordering){
+    private static BDD makeBDD(String function){
         // Construction of the BDD1
-        BDD bdd = new BDD(function, variable_ordering);
+        BDD bdd = new BDD(function);//, variable_ordering);
         bdd.print();
-        Printer.printBDD(bdd, "makeBDD_"+function+"_"+bdd.variable_ordering.toString());
+        Printer.printBDD(bdd, "makeBDD_"+function+"_");
         return bdd;
     }
     
@@ -69,27 +68,25 @@ public class Tester {
         
         // Construction of the BDD1
         String function1 = "(a || b)";
-        BDD bdd1 = makeBDD(function1, variable_ordering);
+        BDD bdd1 = makeBDD(function1);
         
         // Construction of other BDD2
         String function2 = "(f || g)";
-        BDD bdd2 = makeBDD(function2, variable_ordering);
+        BDD bdd2 = makeBDD(function2);
         
         BDD bdd3 = bdd1.apply("and", bdd2);
         bdd3.print();
-        Printer.printBDD(bdd3, "test0_bdd3_"+bdd3.size()+"_"+bdd3.variable_ordering.toString());      
+        Printer.printBDD(bdd3, "test0_bdd3_"+bdd3.size()+"_");
         
-        BDD bdd4 = makeBDD(bdd3.function, variable_ordering);
+        BDD bdd4 = makeBDD(bdd3.function);
         bdd4.print();
-        Printer.printBDD(bdd4, "test0_bdd4_"+bdd4.size()+"_"+bdd4.variable_ordering.toString());      
+        Printer.printBDD(bdd4, "test0_bdd4_"+bdd4.size()+"_");
         
         BDD.T.gc();
         BDD.T.print();//*/
     }
     
     public static void test1(){
-        boolean useApplyInCreation = false;
-        
         // A test to study variable order
         String function = "(a_ && b_) || (c_ && d_)";
         final String[] variables={"a_", "b_", "c_", "d_"};
@@ -97,15 +94,15 @@ public class Tester {
         
         // Small BDD
         final String[] variable_ordering1={"a_", "b_", "c_", "d_"};
-        BDD bdd1 = new BDD(function, variable_ordering1);
+        BDD bdd1 = new BDD(function);
         bdd1.print();
-        Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_"+bdd1.variable_ordering.toString());
+        Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_");
         
         // Big an inefficient BDD
         final String[] variable_ordering2={"c_", "a_", "d_", "b_"};
-        BDD bdd2 = new BDD(function, variable_ordering2);
+        BDD bdd2 = new BDD(function);
         bdd2.print();
-        Printer.printBDD(bdd2, "test1_bdd2_"+bdd2.size()+"_"+bdd2.variable_ordering.toString());
+        Printer.printBDD(bdd2, "test1_bdd2_"+bdd2.size()+"_");
         
         /*
         // Heuristic BDD
@@ -153,17 +150,14 @@ public class Tester {
     }
     
    public static void test3(){
-       boolean useApplyInCreation = false;
         // Un test para estudiar el orden de las variables (queremos hacer una heurística)
         String function = "(((PPC?  || MAC?) && (ADB? && MAC?)) || ((false -> ADB_IOP?) && (ADB_IOP? -> false)))";
         //String function = "(( (PPC?  || MAC?) ))";
         final String[] variables={"PPC?", "MAC?", "ADB?", "ADB_IOP?"};
-        // Small BDD
-        final String[] variable_ordering1={"PPC?", "MAC?", "ADB?", "ADB_IOP?"};
         BDD.init(variables);
-        BDD bdd1 = new BDD(function, variable_ordering1);
+        BDD bdd1 = new BDD(function);
         bdd1.print();
-        Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_"+bdd1.variable_ordering.toString());      
+        Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_");      
    }
     
     public static void test4(){
@@ -174,7 +168,7 @@ public class Tester {
         variables.add("x3");
         variables.add("x4");
         BDD.init(variables);
-        boolean useApplyInCreation = false;
+
         BDD bdd = new BDD(function);
         bdd.print();
         System.out.println(
@@ -193,7 +187,7 @@ public class Tester {
     
     public static void test5(){
         TimeMeasurer t = new TimeMeasurer("test4", true);
-        boolean useApplyInCreation = true;
+
         int num_variables = 1000;
         ArrayList<String> variables = new ArrayList<String>();
         String function1 = "x1";
@@ -281,7 +275,7 @@ public class Tester {
     }
     
     public static void test8(){
-        boolean useApplyInCreation = false;
+
         int num_variables = 3;
         ArrayList<String> variables = new ArrayList<String>();
         String function1 = "x0";
@@ -302,7 +296,7 @@ public class Tester {
      }
     
     public static void test9(){
-        boolean useApplyInCreation = true;
+
         int num_variables = 5;
         ArrayList<String> variables = new ArrayList<String>();
         String function1 = "x0";
@@ -343,22 +337,18 @@ public class Tester {
         String[] variables = {"f", "g", "a", "b", "c", "d", "e"};
         BDD.init(variables);
 
-        String[] variableOrdering = {"a","c", "f", "g", "d", "e", "b"};
+        //String[] variableOrdering = {"a","c", "f", "g", "d", "e", "b"};
         //BDD.initVariableOrdering(variableOrdering);
         
         // BDD1
-        String function1 = "(a && c) || (a && d) && (e || c)";
-        String[] variable_order1 = {"a", "c", "d", "e", "b", "f", "g"};
-        ArrayList<String> variable_order_list1 = new ArrayList<String>(Arrays.asList(variable_order1));
-        BDD bdd1 = new BDD(function1, variable_order1);
-        Printer.printBDD(bdd1, "test11_bdd1_"+bdd1.size()+" "+variable_order_list1.toString()+"");
+        String function1 = "(a && c) || (a && d) && (f || g)";
+        BDD bdd1 = new BDD(function1);
+        Printer.printBDD(bdd1, "test11_bdd1_"+bdd1.size());
         
         // BDD2
         String function2 = "(a && f && g)";
-        String[] variable_order2 = {"f", "g", "a", "b", "c", "d", "f"};
-        ArrayList<String> variable_order_list2 = new ArrayList<String>(Arrays.asList(variable_order2));
-        BDD bdd2 = new BDD(function2, variable_order2);
-        Printer.printBDD(bdd2, "test11_bdd2_"+bdd2.size()+" "+variable_order_list2.toString()+"");
+        BDD bdd2 = new BDD(function2);
+        Printer.printBDD(bdd2, "test11_bdd2_"+bdd2.size());
         
         /// BDDRes
 
