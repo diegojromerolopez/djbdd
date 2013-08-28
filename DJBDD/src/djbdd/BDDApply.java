@@ -213,13 +213,13 @@ public class BDDApply {
             high = this.app(v1.high(), v2.high());
         }
 
-        // Respect the non-redundant propierty:
+        // Respect the non-redundant property:
         // "No vertex shall be one whose low and high indices are the same."
         if(low.index == high.index){
             return low;
         }
         
-        // Respect the uniqueness propierty:
+        // Respect the uniqueness property:
         // "No vertex shall be one that contains same variable, low, high indices as other."
         Vertex u = BDD.T.add(var, low, high);
         this.G.put(key, u);
