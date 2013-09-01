@@ -163,6 +163,11 @@ You can access the vertices that has each variable in an efficient way. This wil
 - Review this README.
 
 
+Documentation
+-------------
+There is a pdf file called manual.pdf with some remarks about the implementation and how to use this library.
+Currently it is a work in progress, but you can read the tests, the code or ask me any question.
+
 Bibliography
 -------------
 [1] Symbolic Boolean Manipulation with Ordered Binary Decision Diagrams, Randal E. Bryant. Carnegie Mellon University.
