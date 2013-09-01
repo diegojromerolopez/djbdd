@@ -165,7 +165,7 @@ You can access the vertices that has each variable in an efficient way. This wil
 
 Documentation
 -------------
-There is a pdf file called [https://github.com/diegojromerolopez/djbdd/blob/master/doc/manual.pdf](manual.pdf) with some remarks about the implementation and how to use this library.
+There is a pdf file called [manual.pdf](https://github.com/diegojromerolopez/djbdd/blob/master/doc/manual.pdf) with some remarks about the implementation and how to use this library.
 Currently it is a work in progress, but you can read the tests, the code or ask me any question.
 
 Bibliography
