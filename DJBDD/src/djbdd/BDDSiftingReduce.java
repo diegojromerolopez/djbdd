@@ -9,7 +9,7 @@ import java.util.*;
  * @author diegoj
  */
 public class BDDSiftingReduce {
-    
+    /*
     private static Vertex addWithoutRedundant(int var, Vertex low, Vertex high) {
         if (low.index == high.index) {
             return low;
@@ -84,14 +84,13 @@ public class BDDSiftingReduce {
 
     public static void swap(int varI, int varJ) {
         //System.out.println("SWAPPING OF VERTICES WHOSE VAR IS "+varI+" ("+BDD.variables().get(varI)+") BY "+varJ+"("+BDD.variables().get(varJ)+")");
-        /*
         ArrayList<Vertex> vertices = new ArrayList<Vertex>(BDD.T.getVerticesWhoseVariableIs(varI));
         for (int i = 0; i < vertices.size(); i++) {
             Vertex v = vertices.get(i);
             //System.out.println("Let's swap "+v);
             boolean swapWasMade = swapVertex(v, varJ);
             //System.out.println("Swap mas made? "+swapWasMade);
-        }*/
+        }//
     }
 
     private static String printOrder(ArrayList<Integer> order) {
@@ -103,11 +102,12 @@ public class BDDSiftingReduce {
         System.out.println(s);
         return s;
     }
-
+    */
     public static void siftOrder(BDD bdd) {
+        /*
         int minSize = BDD.T.size();
         System.out.println("SIZE " + minSize);
-        ArrayList<String> variables = BDD.variables();
+        ArrayList<String> variables = BDD.variables().list();
         ArrayList<Integer> bestVariableOrder = new ArrayList<Integer>(variables.size());
         for (int i = 0; i < variables.size(); i++) {
             bestVariableOrder.add(i);
@@ -118,7 +118,7 @@ public class BDDSiftingReduce {
             currentVariableOrder.add(i);
         }
 
-        printOrder(currentVariableOrder);
+        //printOrder(currentVariableOrder);
         int loopGlobalIndex = 0;
         // Finding the best reordering
         System.out.println("TO BOTTOM");
@@ -178,7 +178,7 @@ public class BDDSiftingReduce {
             loopGlobalIndex++;
             }
             //*/
-        }
+        //}*/
     }
     
     

@@ -21,10 +21,7 @@ public class BDD {
     public static TableT T = null;
     
     /** All the variables that will be know by all BDDs in no particular order */
-    private static ArrayList<String> VARIABLES = null;
-    
-    /** Global variable ordering */
-    //private static ArrayList<Integer> VARIABLE_ORDERING = null;
+    private static VariableList VARIABLES = null;
     
     /** Maximum number of variables accepted in recursive creation */
     public static final int MAX_NUMBER_OF_VARIABLES_TO_LAUNCH_RECURSIVE_CREATION = 100;
@@ -43,7 +40,7 @@ public class BDD {
     
     /** List of indices of the present variables sorted by the variable_ordering list  */
     // NOTE: it is important to note that this indices has the ordering given by
-    // variable ordering, don't forget that
+    // VARIABLES
     public ArrayList<Integer> present_variable_indices;
    
     /** Root of the BDD tree */
@@ -69,36 +66,11 @@ public class BDD {
     }
     
     /**
-     * Init a trivial ordering of variables where variable i is in ith position.
-     
-    private static void initTrivialVariableOrdering(){
-        BDD.VARIABLE_ORDERING = new ArrayList<Integer>(BDD.VARIABLES.size());
-        for(int i=0; i<BDD.VARIABLES.size(); i++)
-            BDD.VARIABLE_ORDERING.add(i);
-    }
-    
-   public static void initVariableOrdering(ArrayList<Integer> variableOrdering){
-        BDD.VARIABLE_ORDERING = variableOrdering;
-   }
-    
-   public static void initVariableOrdering(String[] variableOrdering){
-        BDD.VARIABLE_ORDERING = new ArrayList<Integer>(BDD.VARIABLES.size());
-        for(int i=0; i<BDD.VARIABLES.size(); i++){
-            BDD.VARIABLE_ORDERING.add(i);
-        }
-        for(int i=0; i<variableOrdering.length; i++){
-            String var = variableOrdering[i];
-            BDD.VARIABLE_ORDERING.set(i, BDD.VARIABLES.indexOf(var));
-        }
-    }
-    */
-    /**
      * Initialize variables
      * @param variables List of variables existing in the system.
      */
     private static void initVariables(ArrayList<String> variables){
-        BDD.VARIABLES = variables;
-        //BDD.initTrivialVariableOrdering();
+        BDD.VARIABLES = new VariableList(variables);
     }
     
     /**
@@ -106,14 +78,17 @@ public class BDD {
      * @param variables List of variables existing in the system.
      */
     private static void initVariables(ArrayList<String> variables, ArrayList<Integer> variableOrdering){
-        BDD.VARIABLES = variables;
-        //BDD.initVariableOrdering(variableOrdering);
-    }    
-    
-    private static void initVariables(ArrayList<String> variables, String[] variableOrdering){
-        BDD.VARIABLES = variables;
-        //BDD.initVariableOrdering(variableOrdering);
+        BDD.VARIABLES = new VariableList(variables, variableOrdering);
     }
+    
+    /**
+     * Initialize variables and its order
+     * @param variables List of variables existing in the system.
+     */
+    /*private static void initVariables(String[] variables, String[] orderedVariables){
+        BDD.VARIABLES = new VariableList(variables, orderedVariables);
+    }*/ 
+
     
     /**
      * Initialize BDD system.
@@ -148,18 +123,16 @@ public class BDD {
      * Initialize BDD system.
      * @param variables Array of variables existing in the system.
      */
-    public static void init(String[] variables, String[] ordering){
+    /*public static void init(String[] variables, String[] ordering){
         BDD.initT();
-        // Convert the array of strings to an ArrayList<String>
-        ArrayList<String> variableList = new ArrayList<String>(Arrays.asList(variables));
-        BDD.initVariables(variableList, ordering);
-    }    
+        BDD.initVariables(variables, ordering);
+    }*/    
     
     /**
      * Get the variables defined for all BDDs.
      * @return List of variables defined in this enviroment.
      */
-    public static ArrayList<String> variables(){
+    public static VariableList variables(){
         return VARIABLES;
     }
     /*
@@ -717,7 +690,7 @@ public class BDD {
     public BDD restrict(HashMap<Integer,Boolean> assignement){
         Vertex restrictedBDDRoot = this.restrict(this.root,assignement);
         String rfunction = this.function;
-        ArrayList<String> variables = BDD.variables();
+        ArrayList<String> variables = BDD.VARIABLES.list();
         for(Map.Entry<Integer,Boolean> pair : assignement.entrySet()){
             String var = variables.get(pair.getKey());
             String value = pair.getValue().toString();
@@ -969,12 +942,13 @@ public class BDD {
             line = line.substring("Variables:".length());
             String[] varLine = line.split("\\.");
             int num_variables = Integer.parseInt(varLine[0].replace("\\s+", "").trim());
-            if (BDD.VARIABLES == null) {
-                BDD.VARIABLES = new ArrayList<String>(num_variables);
+            if (BDD.VARIABLES == null)
+            {
+                ArrayList<String> variables = new ArrayList<String>(num_variables);
                 for (int i = 0; i < num_variables; i++) {
-                    BDD.VARIABLES.add("var_" + (i + 1) + "");
+                    variables.add("{var_" + (i + 1) + "}");
                 }
-                BDD.init(VARIABLES);
+                BDD.init(variables);
             }
 
             // Variable ordering

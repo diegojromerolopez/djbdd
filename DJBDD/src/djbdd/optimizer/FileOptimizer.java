@@ -81,7 +81,7 @@ public class FileOptimizer {
         
         // Number of variables
         writer.println("# Variables: "+BDD.variables().size());
-        for(String variable : BDD.variables()){
+        for(String variable : BDD.variables().list()){
             writer.println(variable);
         }
         writer.println("");

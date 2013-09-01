@@ -360,6 +360,29 @@ public class Tester {
         Printer.printTableT("test11_allbdds_"+BDD.T.size());
     }
     
+    private static void test12(){
+        String[] variables = {"d", "c", "b", "a"};
+        BDD.init(variables);
+
+        // BDD1
+        String function1 = "(a && c) || (b && d)";
+        BDD bdd1 = new BDD(function1);
+        Printer.printBDD(bdd1, "test12_bdd1_BEFORE_"+bdd1.size());
+        Printer.printTableT("before");
+        
+        System.out.println(BDD.T.V);
+        
+        // Reordering
+        System.out.println(function1);
+        BDD.gc();
+        BDD.T.swap(2);
+        Printer.printBDD(bdd1, "test12_bdd1_AFTER_"+bdd1.size());
+        Printer.printTableT("after");
+        
+        // Show the variable hash
+        System.out.println(BDD.T.V);
+    }
+    
     public static void run(int testIndex){
         if(testIndex == 0)
             test0();
@@ -385,6 +408,8 @@ public class Tester {
             test10();
         else if(testIndex == 11)
             test11();
+        else if(testIndex == 12)
+            test12();
         else {
             System.err.println("This test does NOT exists");
             System.exit(-1);

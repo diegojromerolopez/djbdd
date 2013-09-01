@@ -153,11 +153,12 @@ This library uses Java references between vertices and some tables of medium siz
 You can access the vertices that has each variable in an efficient way. This will be used for BDD-reducing algorithms.
 
 ### Operations implemented ###
-- Apply
-- Restrict
+- Apply [6] [3].
+- Restrict. [2].
+- Swapping of two variables. [5].
 
 ### TODOs ###
-- Include dynamic variable ordering.
+- Include dynamic variable ordering. The swap operation is ready.
 - Include a parallel apply.
 - Review this README.
 
@@ -171,6 +172,10 @@ Bibliography
 [3] Efficient implementation of a BDD package, Karl S. Brace, Richard L. Rudell, Randal E. Bryant. 
 
 [4] Implementation of an Efﬁcient Parallel BDD Package. Tony Stornetta, Forrest Brewer.
+
+[5] Incremental  Reduction of Binary Decision Diagrams. R. Jacobi, N. Calazans, C. Trullemans.
+
+[6] An Introduction to Binary Decision Diagrams. Henrik Reif Andersen.
 
 FAQ
 -------------

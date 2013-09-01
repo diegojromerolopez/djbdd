@@ -1,5 +1,6 @@
 package djbdd;
 
+import djbdd.io.Printer;
 import java.util.*;
 import java.io.*;
 import java.lang.ref.WeakReference; 
@@ -525,6 +526,151 @@ public class TableT {
         WeakHashMap<Vertex, Boolean> verticesWithThatVariable = V.get(variable);
         return verticesWithThatVariable.keySet();
     }
+
+    /**************************************************************************/
+    /**************************************************************************/
+    /* Swapping of variables */
+
+    /**
+     * This method tests if a vertex can be added to the tree.
+     */
+    private Vertex addWithoutRedundant(int var, Vertex low, Vertex high) {
+        if (low.index == high.index) {
+            return low;
+        }
+        return this.add(var, low, high);
+    }
+    
+    /**
+     * Swaps a vertex with its descendants if they have the variable varJ.
+     * @param v Vertex that will be swapped.
+     * @param varJ Variable that MUST have the descendants of v to be swapped with it.
+     * @return there was a swapping?
+     */
+    private boolean swapVertexWithDescendantsWithVariable(Vertex v, int varJ){
+        boolean swapWasMade = false;
+        int varI = v.variable;
+
+        Vertex low = v.low();
+        Vertex high = v.high();
+
+        Vertex A = null;
+        Vertex B = null;
+        if (!low.isLeaf()) {
+            A = low.low();
+            B = low.high();
+        } else {
+            A = low;
+            B = low;
+        }
+
+        Vertex C = null;
+        Vertex D = null;
+        if (!high.isLeaf()) {
+            C = high.low();
+            D = high.high();
+        } else {
+            C = high;
+            D = high;
+        }
+
+        Vertex newLow = null;
+        Vertex newHigh = null;
+
+        // Case a:
+        if (low != null && low.variable == varJ && (high == null || high.variable != varJ)) {
+            if(VERBOSE){
+                System.out.println("CASE A");
+            }
+            newLow = addWithoutRedundant(varI, A, C);
+            newHigh = addWithoutRedundant(varI, B, C);
+            this.setVertex(v, varJ, newLow, newHigh);
+            swapWasMade = true;
+        }
+        // Case b:
+        else if ((low == null || low.variable != varJ) && (high != null && high.variable == varJ)) {
+            if(VERBOSE){
+                System.out.println("CASE B");
+            }
+            newLow = addWithoutRedundant(varI, A, B);
+            newHigh = addWithoutRedundant(varI, A, C);
+            this.setVertex(v, varJ, newLow, newHigh);
+            swapWasMade = true;
+        }
+        // Case c:
+        else if ((low != null && low.variable == varJ) && (high != null && high.variable == varJ)) {
+            if(VERBOSE){
+                System.out.println("CASE C");
+            }
+            newLow = addWithoutRedundant(varI, A, C);
+            newHigh = addWithoutRedundant(varI, B, D);
+            this.setVertex(v, varJ, newLow, newHigh);
+            swapWasMade = true;
+        }
+        // Case d:
+        else if ((low == null || low.variable != varJ) && (high == null || high.variable != varJ)) {
+            if(VERBOSE){
+                System.out.println("CASE D");
+            }
+            swapWasMade = false;
+        }
+        // Case e:
+        else if ((low == null || low.variable != varJ) && high == null) {
+            if(VERBOSE){
+                System.out.println("CASE E");
+            }
+            swapWasMade = false;
+        }
+
+        return swapWasMade;    
+     }
+    
+    /**
+     * Swaps the variable at the level i with the one at the level i+1
+     * @paran level Level that will be swapped with the next level.
+     * @return informs if the swap was made. Returns true if there was a swap, false otherwise.
+     */
+    public boolean swap(int level){
+        if(VERBOSE){
+            BDD.variables().print();
+        }
+        
+        VariableList variables = BDD.variables();
+        
+        // If is the last level, ignore
+        if(level == variables.size()-1)
+            return false;
+    
+        int variableI = variables.getVariableInPosition(level);
+        int variableJ = variables.getVariableInPosition(level+1);
+        
+        if(VERBOSE){
+            System.out.println("Let's swap "+variableI+" for "+variableJ);
+        }
+        
+        boolean swapWasMade = false;
+        // In other case, start Rudell algorithm to swaps two levels
+        HashSet<Vertex> verticesOfLevel = new HashSet<Vertex>(this.getVerticesWhoseVariableIs(variableI));
+        for(Vertex v : verticesOfLevel){
+            if(VERBOSE){
+                System.out.println("Swapping "+v);
+            }
+            swapWasMade = swapWasMade || this.swapVertexWithDescendantsWithVariable(v, variableJ);
+            if(VERBOSE){
+                System.out.println("Swapping "+v+" ENDED");
+                System.out.println("");
+                System.out.flush();
+                Printer.printTableT("table of "+v.index);
+            }
+        }
+    
+        BDD.variables().swapVariables(variableI, variableJ);
+        if(VERBOSE){
+            BDD.variables().print();
+        }
+        return swapWasMade;
+    }
+    
     
     /**************************************************************************/
     /**************************************************************************/
@@ -548,7 +694,7 @@ public class TableT {
      */
     @Override
     public String toString(){
-        ArrayList<String> variables = BDD.variables();
+        VariableList variables = BDD.variables();
         StringBuilder s = new StringBuilder("u\tvar_i\tvar\tlow\thigh\n");
         for (Vertex v : this.values()) {
             String variable;
@@ -586,7 +732,7 @@ public class TableT {
      * @param writer PrintWriter that will be used to write String representation of the table in a file.
      */
     public void write(PrintWriter writer){
-        ArrayList<String> variables = BDD.variables();
+        VariableList variables = BDD.variables();
         writer.println("u\tvar_i\tvar\tlow\thigh");
         for (Vertex v : this.values())
         {
