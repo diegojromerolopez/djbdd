@@ -183,7 +183,7 @@ public class Printer {
      * @param path Path that will be the image of the BDD.
      */
     public static void printTableT(String path){
-        BDD.gc();
+        //BDD.gc();
         Printer printer = new Printer();
         printer.print(path);
     }    

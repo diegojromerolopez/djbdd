@@ -417,15 +417,19 @@ public class TableT {
         
         // Compact the hash maps
         ArrayList<Integer> keys = new ArrayList<Integer>(this.T.keySet());
+        int deletions = 0;
         for(Integer key : keys){
             // For each Vertex that was erased there is an entry in
             // hash table T that weak-references to that and must be erased
             if(this.T.containsKey(key) && this.T.get(key).get()==null){
                 this.remove(key);
+                deletions++;
             }
         }
-        if(VERBOSE)
+        if(VERBOSE){
+            System.out.println(deletions+" vertices deleted");
             System.out.println("<<<<<<<<<<<<<< END GC >>>>>>>>>>>>>>");
+        }
     }
    
     /**************************************************************************/
@@ -581,16 +585,20 @@ public class TableT {
         if (low != null && low.variable == varJ && (high == null || high.variable != varJ)) {
             if(VERBOSE){
                 System.out.println("CASE A");
+                System.out.flush();
             }
+            Printer.printTableT("0");
             newLow = addWithoutRedundant(varI, A, C);
             newHigh = addWithoutRedundant(varI, B, C);
             this.setVertex(v, varJ, newLow, newHigh);
+            Printer.printTableT("01");
             swapWasMade = true;
         }
         // Case b:
         else if ((low == null || low.variable != varJ) && (high != null && high.variable == varJ)) {
             if(VERBOSE){
                 System.out.println("CASE B");
+                System.out.flush();
             }
             newLow = addWithoutRedundant(varI, A, B);
             newHigh = addWithoutRedundant(varI, A, C);
@@ -601,6 +609,7 @@ public class TableT {
         else if ((low != null && low.variable == varJ) && (high != null && high.variable == varJ)) {
             if(VERBOSE){
                 System.out.println("CASE C");
+                System.out.flush();
             }
             newLow = addWithoutRedundant(varI, A, C);
             newHigh = addWithoutRedundant(varI, B, D);
@@ -611,6 +620,7 @@ public class TableT {
         else if ((low == null || low.variable != varJ) && (high == null || high.variable != varJ)) {
             if(VERBOSE){
                 System.out.println("CASE D");
+                System.out.flush();
             }
             swapWasMade = false;
         }
@@ -621,7 +631,6 @@ public class TableT {
             }
             swapWasMade = false;
         }
-
         return swapWasMade;    
      }
     
@@ -645,7 +654,8 @@ public class TableT {
         int variableJ = variables.getVariableInPosition(level+1);
         
         if(VERBOSE){
-            System.out.println("Let's swap "+variableI+" for "+variableJ);
+            System.out.println("Let's swap "+variableI+" for "+variableJ+"\n");
+            System.out.flush();
         }
         
         boolean swapWasMade = false;
@@ -653,11 +663,11 @@ public class TableT {
         HashSet<Vertex> verticesOfLevel = new HashSet<Vertex>(this.getVerticesWhoseVariableIs(variableI));
         for(Vertex v : verticesOfLevel){
             if(VERBOSE){
-                System.out.println("Swapping "+v);
+                System.out.println("Swapping vertex "+v);
             }
             swapWasMade = swapWasMade || this.swapVertexWithDescendantsWithVariable(v, variableJ);
             if(VERBOSE){
-                System.out.println("Swapping "+v+" ENDED");
+                System.out.println("Swapping vertex "+v+" ENDED");
                 System.out.println("");
                 System.out.flush();
                 Printer.printTableT("table of "+v.index);

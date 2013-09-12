@@ -20,16 +20,12 @@ public class Tester {
     
     private static void wasteMemory(int kbs){
         memoryWasted = "xxx";
+        byte[] waste1;
+        byte[] waste2;
         for(int i=0; i<kbs; i++){
-            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-            memoryWasted += "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            waste1 = new byte[1000000000];
+            waste2 = new byte[1000000000];
+            
         }
     }
     
@@ -137,7 +133,7 @@ public class Tester {
         Printer.printBDD(bdd, "test2_bdd_"+bdd.size());
         
         // Swapping
-        BDDSiftingReduce.siftOrder(bdd);
+        BDDSiftingReduce.siftOrder();
         //Printer.printBDD(bdd, "test2_bddswapped_"+bdd.size());
         
         /*if(false){
@@ -322,18 +318,55 @@ public class Tester {
         bdd2.print(true);
     }
     
-    public static void test10(){
-        int num_variables = 6;
+    /**
+     * This example shows how the garbage collection works.
+     * When the JVM detects more memory is needed, the Java GC is called.
+     * We have to periodically call BDD.gc to erase the empty weak references.
+     */
+    private static void test10(){
+        // Variable initialization
+        int num_variables = 15;
         ArrayList<String> variables = new ArrayList<String>();
         for(int i=1; i<=num_variables; i++){
             variables.add("x"+i);
         }        
         BDD.init(variables);
-        BDD bdd = new BDD("(x1 && x2) || (x3 && x4) || (x5 && x6)");
-        bdd.print(true);
+        
+        // First BDD
+        BDD bdd1 = new BDD("(x1 && x2) || (x3 && x4) || (x5 && x6)");
+        bdd1.print(true);
+        
+        // Second BDD
+        BDD bdd2 = new BDD("(x6 && x7) || (x7 && x8) || (x9 && x6)");
+        bdd2.print(true);
+        
+        // The OR BDD
+        BDD bdd3 = bdd1.apply("or", bdd2);
+        bdd3.print(true);
+        
+        // Destroy BDD1 and BDD2
+        bdd1 = null;
+        bdd2 = null;
+        
+        // Waste some memory to force the garbage collection calling
+        wasteMemory(10);
+        
+        // Sleep some time to give the gc time to erase memory
+        try{
+            Thread.sleep(2000);
+        }catch(Exception e){
+            // There will be no exception
+        }
+        
+        // Erase of the empty weak references
+        BDD.gc();
+        
+        // This two graphs must have the same size and be the same
+        Printer.printBDD(bdd3, "test10_bdd3_"+bdd3.size());
+        Printer.printTableT("test10_allbdds_"+BDD.T.size());
     }
     
-    public static void test11(){
+    private static void test11(){
         String[] variables = {"f", "g", "a", "b", "c", "d", "e"};
         BDD.init(variables);
 
@@ -341,21 +374,24 @@ public class Tester {
         //BDD.initVariableOrdering(variableOrdering);
         
         // BDD1
-        String function1 = "(a && c) || (a && d) && (f || g)";
+        String function1 = "(a && c)";
         BDD bdd1 = new BDD(function1);
-        Printer.printBDD(bdd1, "test11_bdd1_"+bdd1.size());
+        //Printer.printBDD(bdd1, "test11_bdd1_"+bdd1.size());
         
         // BDD2
         String function2 = "(a && f && g)";
         BDD bdd2 = new BDD(function2);
-        Printer.printBDD(bdd2, "test11_bdd2_"+bdd2.size());
+        //Printer.printBDD(bdd2, "test11_bdd2_"+bdd2.size());
         
         /// BDDRes
 
         BDD bdd3 = bdd1.apply("and", bdd2);
+        bdd1 = null;
+        bdd2 = null;
         Printer.printBDD(bdd3, "test11_bdd3_"+bdd3.size());
         
         // Multitree
+        BDD.gc();
         BDD.T.print();
         Printer.printTableT("test11_allbdds_"+BDD.T.size());
     }

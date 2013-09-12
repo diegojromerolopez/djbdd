@@ -120,15 +120,6 @@ public class BDD {
     }
     
     /**
-     * Initialize BDD system.
-     * @param variables Array of variables existing in the system.
-     */
-    /*public static void init(String[] variables, String[] ordering){
-        BDD.initT();
-        BDD.initVariables(variables, ordering);
-    }*/    
-    
-    /**
      * Get the variables defined for all BDDs.
      * @return List of variables defined in this enviroment.
      */
@@ -773,12 +764,14 @@ public class BDD {
     /**
      * Gets the size of the BDD taking a vertex as root.
      * @param v Vertex that will be taken as root.
-     * @return int Size of the tree with v as root.
+     * @param computedVertexIndices Set of traversed vertex index.
      */
-    private int sizeFromVertex(Vertex v){
-        if(v.isLeaf())
-            return 1;
-        return ( this.sizeFromVertex(v.low()) + this.sizeFromVertex(v.high()) );
+    private void traverseFromVertex(Vertex v, HashSet<Integer> computedVertexIndices){
+        if(!v.isLeaf()){
+            this.traverseFromVertex(v.low(), computedVertexIndices);
+            this.traverseFromVertex(v.high(), computedVertexIndices);
+        }
+        computedVertexIndices.add(v.index);
     }
 
     /**
@@ -787,8 +780,10 @@ public class BDD {
      */
     public int size(){
         // If we have not computed the size
+        HashSet<Integer> indices = new HashSet<Integer>();
         if(this.size == -1 || true){
-            this.size = this.sizeFromVertex(this.root);
+            this.traverseFromVertex(this.root, indices);
+            this.size = indices.size();
         }
         // Size is already computed
         return this.size;

@@ -103,7 +103,7 @@ public class BDDSiftingReduce {
         return s;
     }
     */
-    public static void siftOrder(BDD bdd) {
+    public static void siftOrder() {
         /*
         int minSize = BDD.T.size();
         System.out.println("SIZE " + minSize);
