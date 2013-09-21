@@ -223,11 +223,12 @@ public class TableT {
      */
     void setVertex(Vertex v, int variable, Vertex low, Vertex high) {
         this.V.get(v.variable).remove(v);
+        this.U.remove(v.uniqueKey());
         v.setVariable(variable);
         v.setLow(low);
         v.setHigh(high);
         this.putInU(v);
-        this.V.get(v.variable).put(v, true);
+        this.putInV(v);
     }
     
     /**************************************************************************/
@@ -661,22 +662,33 @@ public class TableT {
         boolean swapWasMade = false;
         // In other case, start Rudell algorithm to swaps two levels
         HashSet<Vertex> verticesOfLevel = new HashSet<Vertex>(this.getVerticesWhoseVariableIs(variableI));
+        int vertex_i=0;
         for(Vertex v : verticesOfLevel){
-            if(VERBOSE){
-                System.out.println("Swapping vertex "+v);
-            }
-            swapWasMade = swapWasMade || this.swapVertexWithDescendantsWithVariable(v, variableJ);
-            if(VERBOSE){
-                System.out.println("Swapping vertex "+v+" ENDED");
-                System.out.println("");
-                System.out.flush();
-                Printer.printTableT("table of "+v.index);
+            if(v.variable == variableI){
+                if(VERBOSE){
+                    System.out.println("Swapping vertex "+v);
+                }
+                swapWasMade = swapWasMade || this.swapVertexWithDescendantsWithVariable(v, variableJ);
+                if(VERBOSE){
+                    System.out.println("Swapping vertex "+v+" ENDED");
+                    System.out.println("");
+                    System.out.flush();
+                    Printer.printTableT("swapping "+vertex_i+" table of "+v.index);
+                    vertex_i++;
+                }
             }
         }
     
+        if(VERBOSE){
+            Printer.printTableT("Before Swap of variable "+variableI+" has been done");
+        }
+        
         BDD.variables().swapVariables(variableI, variableJ);
         if(VERBOSE){
             BDD.variables().print();
+        }
+        if(VERBOSE){
+            Printer.printTableT("Swap of variable "+variableI+" has been done");
         }
         return swapWasMade;
     }
@@ -698,22 +710,29 @@ public class TableT {
     /**************************************************************************/
     /* I/O */
     
+    private String getVariableName(int variable){
+        if (variable == Vertex.TRUE_VARIABLE){
+            return "True";
+        }
+        if (variable == Vertex.FALSE_VARIABLE) {
+            return "False";
+        }
+        return BDD.VARIABLES.get(variable);
+    }
+    
+    private String getVertexVariableName(Vertex v){
+        return this.getVariableName(v.variable());
+    }
+    
     /**
      * Returns the String representation of the table.
      * @return String representation of the table.
      */
     @Override
     public String toString(){
-        VariableList variables = BDD.variables();
         StringBuilder s = new StringBuilder("u\tvar_i\tvar\tlow\thigh\n");
         for (Vertex v : this.values()) {
-            String variable;
-            if (v.variable() == Vertex.TRUE_VARIABLE || v.variable() == Vertex.FALSE_VARIABLE) {
-                variable = Boolean.toString(v.value());
-            }
-            else{
-                variable = variables.get(v.variable());
-            }
+            String variable = this.getVertexVariableName(v);
             s.append(v.index);
             s.append("\t");
             s.append(v.variable);
@@ -734,6 +753,78 @@ public class TableT {
      * Prints the table hash to the terminal.
      */
     public void print(){
+        System.out.println(this.toString());
+    }
+    
+    public void printT(){
+        System.out.println(this.toString());
+    }
+    
+    public void printU(){
+        StringBuilder s = new StringBuilder("key\tvar_i\tvar\tlow\thigh\n");
+        for(String key : this.U.keySet()){
+            WeakReference<Vertex> w = this.U.get(key);
+            Vertex v = w.get();
+            if(v != null){
+                String variable = this.getVertexVariableName(v);
+                s.append(key);
+                s.append("\t");
+                s.append(v.variable);
+                s.append("\t");
+                s.append(variable);
+                s.append("\t");
+                s.append(v.lowIndex());
+                s.append("\t");
+                s.append(v.highIndex());
+                s.append("\t");
+                //s.append(v.parents());
+                s.append("\n");
+            }
+        }
+        System.out.println(s);
+    }
+    
+    public void printV(){
+        StringBuilder s = new StringBuilder("var_i (variable)\n");
+        for (Integer var : this.V.keySet()) {
+            s.append(var).append(" (").append(this.getVariableName(var)).append(") \n");
+            WeakHashMap ws = this.V.get(var);
+            Set<Vertex> vertices = ws.keySet();
+            s.append("\tkey\tvar_i\tvar\tlow\thigh\n");
+            for (Vertex v : vertices) {
+                if (v != null) {
+                    String variable = this.getVertexVariableName(v);
+                    s.append("\t");
+                    s.append(v.index);
+                    s.append("\t");
+                    s.append(v.variable);
+                    s.append("\t");
+                    s.append(variable);
+                    s.append("\t");
+                    s.append(v.lowIndex());
+                    s.append("\t");
+                    s.append(v.highIndex());
+                    s.append("\t");
+                    //s.append(v.parents());
+                    s.append("\n");
+                }
+            }
+        }
+        System.out.println(s);
+    }
+    
+    public void debugPrint(){
+        System.out.println("");
+        System.out.println("Variables");
+        BDD.VARIABLES.print();
+        System.out.println("");
+        System.out.println("V hash");
+        this.printV();
+        System.out.println("");
+        System.out.println("U hash");
+        this.printU();
+        System.out.println("");
+        System.out.println("T hash");
         System.out.println(this.toString());
     }
     

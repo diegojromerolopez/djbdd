@@ -21,7 +21,7 @@ public class BDD {
     public static TableT T = null;
     
     /** All the variables that will be know by all BDDs in no particular order */
-    private static VariableList VARIABLES = null;
+    static VariableList VARIABLES = null;
     
     /** Maximum number of variables accepted in recursive creation */
     public static final int MAX_NUMBER_OF_VARIABLES_TO_LAUNCH_RECURSIVE_CREATION = 100;
@@ -841,7 +841,7 @@ public class BDD {
         StringBuilder text = new StringBuilder("");
         text.append("BDD tree for ").append(this.function).append("\n");
         text.append("Variables: ").append(VARIABLES.size()).append(". ").append("\n");
-        text.append("Variable ordering: ");
+        text.append("Present variables: ");
         int varIndex = 0;
         int lastElementIndex = this.present_variable_indices.size()-1;
         for(Integer varI : this.present_variable_indices){

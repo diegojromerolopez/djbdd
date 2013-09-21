@@ -198,12 +198,15 @@ public class BDDApply {
         int var = -1;
         Vertex low = null;
         Vertex high = null;
-        // v1.index < v2.index
-        if (!v1.isLeaf() && (v2.isLeaf() || v1.variable < v2.variable)) {
+        // v1.variable < v2.variable
+        if (!v1.isLeaf() && (v2.isLeaf() || BDD.VARIABLES.variableComesBeforeThan(v1.variable, v2.variable))) {
+        //if (!v1.isLeaf() && (v2.isLeaf() || v1.variable < v2.variable)) {
             var = v1.variable;
             low = this.app(v1.low(), v2);
             high = this.app(v1.high(), v2);
-        } else if (v1.isLeaf() || v1.variable > v2.variable) {
+        // v1.variable > v2.variable
+        } else if (v1.isLeaf() || BDD.VARIABLES.variableComesAfterThan(v1.variable, v2.variable)) {
+        //} else if (v1.isLeaf() || v1.variable > v2.variable) {
             var = v2.variable;
             low = this.app(v1, v2.low());
             high = this.app(v1, v2.high());
@@ -242,14 +245,6 @@ public class BDDApply {
         
         // Fill this.T with vertices of bdd1 and bdd2
         Vertex root = this.app(bdd1.root(), bdd2.root());
-        
-        // We get the variable indices present in both BDDs as fast as we can
-        /*
-        HashSet<Integer> presentIndicesSet = new HashSet<Integer>(bdd1.variable_ordering.size()+bdd2.variable_ordering.size());
-        presentIndicesSet.addAll(bdd1.variable_ordering);
-        presentIndicesSet.addAll(bdd2.variable_ordering);
-        ArrayList<Integer> presentVariableIndices = new ArrayList<Integer>(presentIndicesSet);
-        */
         
         // Construction of new BDD
         this.bdd = new BDD(function, root);

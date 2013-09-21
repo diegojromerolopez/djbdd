@@ -341,8 +341,8 @@ public class Tester {
         bdd2.print(true);
         
         // The OR BDD
-        BDD bdd3 = bdd1.apply("or", bdd2);
-        bdd3.print(true);
+        BDD bddRes = bdd1.apply("or", bdd2);
+        bddRes.print(true);
         
         // Destroy BDD1 and BDD2
         bdd1 = null;
@@ -362,7 +362,7 @@ public class Tester {
         BDD.gc();
         
         // This two graphs must have the same size and be the same
-        Printer.printBDD(bdd3, "test10_bdd3_"+bdd3.size());
+        Printer.printBDD(bddRes, "test10_bdd3_"+bddRes.size());
         Printer.printTableT("test10_allbdds_"+BDD.T.size());
     }
     
@@ -419,6 +419,114 @@ public class Tester {
         System.out.println(BDD.T.V);
     }
     
+    /**
+     * Tests if the swapping interferes with the apply algorigthm.
+     * It should not have any problem.
+     */
+    private static void test13(){
+        // We are going to test the variable swapping in the context
+        // of the APPLY algorithm
+        
+        String[] variables = {"d", "c", "b", "a"};
+        // Variable order that is gotten by swapping
+        //String[] variables = {"d", "b", "c", "a"};
+        BDD.init(variables);
+
+        // BDD1
+        String function1 = "(a && c) || (b && d)";
+        BDD bdd1 = new BDD(function1);
+
+        Printer.printBDD(bdd1, "test13_bdd1_BEFORE_"+bdd1.size());
+        
+        BDD.T.swap(1);
+        BDD.gc();
+
+        // The order is now
+        // 0, 2, 1, 3
+        BDD.variables().print();
+        
+        BDD.T.print();
+        
+        // Test each posible order comparison
+        // 0
+        System.out.println("0 < 1 "+BDD.variables().variableComesBeforeThan(0, 1)+" ==? TRUE");
+        System.out.println("0 < 2 "+BDD.variables().variableComesBeforeThan(0, 2)+" ==? TRUE");
+        System.out.println("0 < 3 "+BDD.variables().variableComesBeforeThan(0, 3)+" ==? TRUE");
+        // 1
+        System.out.println("1 < 0 "+BDD.variables().variableComesBeforeThan(1, 0)+" ==? FALSE");
+        System.out.println("1 < 2 "+BDD.variables().variableComesBeforeThan(1, 2)+" ==? FALSE");
+        System.out.println("1 < 3 "+BDD.variables().variableComesBeforeThan(1, 3)+" ==? TRUE");
+        // 2
+        System.out.println("2 < 0 "+BDD.variables().variableComesBeforeThan(2, 0)+" ==? FALSE");
+        System.out.println("2 < 1 "+BDD.variables().variableComesBeforeThan(2, 1)+" ==? TRUE");
+        System.out.println("2 < 3 "+BDD.variables().variableComesBeforeThan(2, 3)+" ==? TRUE");
+        // 3
+        System.out.println("3 < 0 "+BDD.variables().variableComesBeforeThan(3, 0)+" ==? FALSE");
+        System.out.println("3 < 1 "+BDD.variables().variableComesBeforeThan(3, 1)+" ==? FALSE");
+        System.out.println("3 < 2 "+BDD.variables().variableComesBeforeThan(3, 2)+" ==? FALSE");
+        
+        
+        System.out.println("0 > 1 "+BDD.variables().variableComesAfterThan(0, 1)+" ==? FALSE");
+        System.out.println("0 > 2 "+BDD.variables().variableComesAfterThan(0, 2)+" ==? FALSE");
+        System.out.println("0 > 3 "+BDD.variables().variableComesAfterThan(0, 3)+" ==? FALSE");
+        // 1
+        System.out.println("1 > 0 "+BDD.variables().variableComesAfterThan(1, 0)+" ==? TRUE");
+        System.out.println("1 > 2 "+BDD.variables().variableComesAfterThan(1, 2)+" ==? TRUE");
+        System.out.println("1 > 3 "+BDD.variables().variableComesAfterThan(1, 3)+" ==? FALSE");
+        // 2
+        System.out.println("2 > 0 "+BDD.variables().variableComesAfterThan(2, 0)+" ==? TRUE");
+        System.out.println("2 > 1 "+BDD.variables().variableComesAfterThan(2, 1)+" ==? FALSE");
+        System.out.println("2 > 3 "+BDD.variables().variableComesAfterThan(2, 3)+" ==? FALSE");
+        // 3
+        System.out.println("3 > 0 "+BDD.variables().variableComesAfterThan(3, 0)+" ==? TRUE");
+        System.out.println("3 > 1 "+BDD.variables().variableComesAfterThan(3, 1)+" ==? TRUE");
+        System.out.println("3 > 2 "+BDD.variables().variableComesAfterThan(3, 2)+" ==? TRUE");
+        
+        Printer.printBDD(bdd1, "test13_bdd1_AFTER_"+bdd1.size());
+        
+        // BDD2
+        String function2 = "(a && b)";
+        BDD bdd2 = new BDD(function2);
+        Printer.printBDD(bdd2, "test13_bdd2_AFTER_"+bdd2.size());
+        
+        BDD bddRes = bdd1.apply("and", bdd2);
+        Printer.printBDD(bddRes, "test13_bddRes_AFTER_"+bddRes.size());
+        
+        System.out.println("============= BDDRes ============= ");
+        bddRes.print(true);
+        Printer.printTableT("test13");
+        
+        BDD.T.debugPrint();
+    }
+    
+    /**
+     * This test is used to compare with test13.
+     */
+    public static void test14(){
+        // Variable order that is gotten by swapping in test 13
+        String[] variables = {"d", "b", "c", "a"};
+        BDD.init(variables);
+        
+        // BDD1
+        String function1 = "(a && c) || (b && d)";
+        BDD bdd1 = new BDD(function1);
+        Printer.printBDD(bdd1, "test14_bdd1_"+bdd1.size());
+        
+        // BDD2
+        String function2 = "(a && b)";
+        BDD bdd2 = new BDD(function2);    
+        Printer.printBDD(bdd2, "test14_bdd2_"+bdd2.size());
+        
+        BDD bddRes = bdd1.apply("and", bdd2);
+        Printer.printBDD(bddRes, "test14_bddRes_"+bddRes.size());
+        
+        System.out.println("============= BDDRes ============= ");
+        bddRes.print(true);
+        Printer.printTableT("test14");
+        
+        BDD.T.debugPrint();
+    }
+    
     public static void run(int testIndex){
         if(testIndex == 0)
             test0();
@@ -446,6 +554,10 @@ public class Tester {
             test11();
         else if(testIndex == 12)
             test12();
+        else if(testIndex == 13)
+            test13();
+        else if(testIndex == 14)
+            test14();
         else {
             System.err.println("This test does NOT exists");
             System.exit(-1);

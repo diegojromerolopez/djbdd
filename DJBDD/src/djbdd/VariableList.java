@@ -113,7 +113,7 @@ public class VariableList {
      * @return Variable with this index.
      */
     public String get(int var_index){
-        return this.orderedVariables.get(var_index);
+        return this.variables.get(var_index);
     }
 
     /**
@@ -165,7 +165,35 @@ public class VariableList {
     public int size(){
         return this.size;
     }
-
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    /**************************************************************************/
+    
+    /**
+     * Informs if variable varI is before varJ according to our variable order.
+     * @param varI Variable that has to be ahead of varJ to return true.
+     * @param varJ The other variable.
+     * @return true if varI comes before varJ, false otherwise.
+     */
+    public boolean variableComesBeforeThan(int varI, int varJ){
+        int positionI = this.order.get(varI);
+        int positionJ = this.order.get(varJ);
+        return positionI < positionJ;
+    }
+    
+    /**
+     * Informs if variable varI is after varJ according to our variable order.
+     * @param varI Variable that comes after varJ to return true.
+     * @param varJ The other variable.
+     * @return true if varI comes after varJ, false otherwise.* 
+     */
+    public boolean variableComesAfterThan(int varI, int varJ){
+        int positionI = this.order.get(varI);
+        int positionJ = this.order.get(varJ);
+        return positionI > positionJ;
+    }
+    
     /**************************************************************************/
     /**************************************************************************/
     /**************************************************************************/
@@ -179,10 +207,22 @@ public class VariableList {
      * @param variableJ Other variable. 
      */    
     void swapVariables(int variableI, int variableJ){
+        /*
+        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        System.out.println(this.order);
+        System.out.println(this.orderedVariables);
+        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        */
         // Order of variables
         Collections.swap(this.order, variableI, variableJ);
         // List of ordered variables
         Collections.swap(this.orderedVariables, variableI, variableJ);
+        /*
+        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        System.out.println(this.order);
+        System.out.println(this.orderedVariables);
+        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");        
+        */
     }
     
     /**************************************************************************/

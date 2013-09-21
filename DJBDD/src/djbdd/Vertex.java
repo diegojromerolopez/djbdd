@@ -145,7 +145,7 @@ public class Vertex {
      */
     public static String computeUniqueKey(int variable, Vertex low, Vertex high){
         if(low==null && high==null){
-            return variable+UNIQUE_KEY_SEPARATOR+"NULL"+UNIQUE_KEY_SEPARATOR+"NULL";
+            return variable+UNIQUE_KEY_SEPARATOR+"N"+UNIQUE_KEY_SEPARATOR+"N";
         }
         return variable+UNIQUE_KEY_SEPARATOR+low.index+UNIQUE_KEY_SEPARATOR+high.index;
     }
