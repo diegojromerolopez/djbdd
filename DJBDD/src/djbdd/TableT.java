@@ -1,6 +1,7 @@
 package djbdd;
 
 import djbdd.io.Printer;
+
 import java.util.*;
 import java.io.*;
 import java.lang.ref.WeakReference; 
@@ -412,12 +413,13 @@ public class TableT {
     /**
      * Calls the garbage collector that deletes the references to dead objects.
      */
-    public synchronized void gc(){
+    public synchronized int gc(){
         if(VERBOSE)
             System.out.println("<<<<<<<<<<<<<<< GC >>>>>>>>>>>>>>>>>");
         
         // Compact the hash maps
         ArrayList<Integer> keys = new ArrayList<Integer>(this.T.keySet());
+        int _size = keys.size();
         int deletions = 0;
         for(Integer key : keys){
             // For each Vertex that was erased there is an entry in
@@ -431,6 +433,11 @@ public class TableT {
             System.out.println(deletions+" vertices deleted");
             System.out.println("<<<<<<<<<<<<<< END GC >>>>>>>>>>>>>>");
         }
+        _size -= deletions;
+        if(VERBOSE){
+            System.out.println("The size is "+_size);
+        }
+        return _size;
     }
    
     /**************************************************************************/
@@ -561,6 +568,11 @@ public class TableT {
 
         Vertex A = null;
         Vertex B = null;
+        Vertex C = null;
+        Vertex D = null;
+        
+        /*Vertex A = null;
+        Vertex B = null;
         if (!low.isLeaf()) {
             A = low.low();
             B = low.high();
@@ -577,7 +589,7 @@ public class TableT {
         } else {
             C = high;
             D = high;
-        }
+        }*/
 
         Vertex newLow = null;
         Vertex newHigh = null;
@@ -588,11 +600,12 @@ public class TableT {
                 System.out.println("CASE A");
                 System.out.flush();
             }
-            Printer.printTableT("0");
+            A = v.low().low();
+            B = v.low().high();
+            C = v.high();
             newLow = addWithoutRedundant(varI, A, C);
             newHigh = addWithoutRedundant(varI, B, C);
             this.setVertex(v, varJ, newLow, newHigh);
-            Printer.printTableT("01");
             swapWasMade = true;
         }
         // Case b:
@@ -601,8 +614,17 @@ public class TableT {
                 System.out.println("CASE B");
                 System.out.flush();
             }
+            A = v.low();
+            B = v.high().low();
+            C = v.high().high();
+            /*
+            System.out.println(A);
+            System.out.println(B);
+            System.out.println(C);*/
             newLow = addWithoutRedundant(varI, A, B);
             newHigh = addWithoutRedundant(varI, A, C);
+            //System.out.println(newLow);
+            //System.out.println(newHigh);
             this.setVertex(v, varJ, newLow, newHigh);
             swapWasMade = true;
         }
@@ -612,6 +634,10 @@ public class TableT {
                 System.out.println("CASE C");
                 System.out.flush();
             }
+            A = v.low().low();
+            B = v.low().high();
+            C = v.high().low();            
+            D = v.high().high();
             newLow = addWithoutRedundant(varI, A, C);
             newHigh = addWithoutRedundant(varI, B, D);
             this.setVertex(v, varJ, newLow, newHigh);
@@ -629,6 +655,7 @@ public class TableT {
         else if ((low == null || low.variable != varJ) && high == null) {
             if(VERBOSE){
                 System.out.println("CASE E");
+                System.out.flush();
             }
             swapWasMade = false;
         }
@@ -680,7 +707,7 @@ public class TableT {
         }
     
         if(VERBOSE){
-            Printer.printTableT("Before Swap of variable "+variableI+" has been done");
+            //Printer.printTableT("Before Swap of variable "+variableI+" has been done in variables");
         }
         
         BDD.variables().swapVariables(variableI, variableJ);
@@ -693,6 +720,17 @@ public class TableT {
         return swapWasMade;
     }
     
+    /**
+     * Swaps the variable from the level i to level i-1.
+     * @paran level Level that will be swapped with the preceding level.
+     * @return informs if the swap was made. Returns true if there was a swap, false otherwise.
+     */
+    public boolean swapBack(int level){
+        if (level == 0)
+            return false;
+        return this.swap(level-1);
+    }
+    
     
     /**************************************************************************/
     /**************************************************************************/
@@ -703,7 +741,7 @@ public class TableT {
      * @return Number of vertices currently in the table.
      */
     public int size(){
-        return this.T.size();
+        return this.gc();
     }
     
     /**************************************************************************/

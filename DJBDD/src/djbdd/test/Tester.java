@@ -7,6 +7,7 @@ package djbdd.test;
 import djbdd.io.Printer;
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.*;
+import djbdd.reductors.*;
 import java.util.*;
 import org.mvel2.MVEL;
 
@@ -527,6 +528,39 @@ public class Tester {
         BDD.T.debugPrint();
     }
     
+        /**
+     * Tests if the swapping interferes with the apply algorigthm.
+     * It should not have any problem.
+     */
+    private static void test15(){
+        // We are going to test the variable swapping in the context
+        // of the APPLY algorithm
+        
+        String[] variables = {"a", "b", "c", "d"};
+        // Variable order that is gotten by swapping
+        //String[] variables = {"d", "b", "c", "a"};
+        BDD.init(variables);
+
+        // BDD1
+        String function1 = "(a && d) || (b && c)";
+        BDD bdd1 = new BDD(function1);
+
+        Printer.printBDD(bdd1, "test15_bdd1_BEFORE_"+bdd1.size());
+        
+        SiftingReductor reductor = new SiftingReductor();
+        reductor.run();
+        
+        // The order is now
+        // 0, 2, 1, 3
+        BDD.variables().print();
+        
+        BDD.T.print();
+        
+        Printer.printBDD(bdd1, "test15_bdd1_AFTER_"+bdd1.size());
+        
+        Printer.printTableT("test15_at_the_end");
+    }
+    
     public static void run(int testIndex){
         if(testIndex == 0)
             test0();
@@ -558,6 +592,8 @@ public class Tester {
             test13();
         else if(testIndex == 14)
             test14();
+        else if(testIndex == 15)
+            test15();
         else {
             System.err.println("This test does NOT exists");
             System.exit(-1);
