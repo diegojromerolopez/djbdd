@@ -59,6 +59,10 @@ BDD bdd3 = bdd.apply("and", bdd2);
 // This BDD is the logical OR between bdd and bdd2
 BDD bdd4 = bdd.apply("or", bdd2);
 
+// Destroy explicitly bdd2
+// In case we need to compute sizes, reduce the BDD or print it
+bdd2.delete();
+
 // If you think you can have few free memory, you would have to free it
 // calling to
 BDD.gc();
