@@ -421,12 +421,31 @@ public class TableT {
         ArrayList<Integer> keys = new ArrayList<Integer>(this.T.keySet());
         int _size = keys.size();
         int deletions = 0;
-        for(Integer key : keys){
-            // For each Vertex that was erased there is an entry in
-            // hash table T that weak-references to that and must be erased
-            if(this.T.containsKey(key) && this.T.get(key).get()==null){
-                this.remove(key);
-                deletions++;
+        boolean thereIsADeletion = true;
+        while(thereIsADeletion)
+        {
+            keys = new ArrayList<Integer>(this.T.keySet());
+            thereIsADeletion = false;
+            for(Integer key : keys){
+                // For each Vertex that was erased there is an entry in
+                // hash table T that weak-references to that and must be erased
+
+                if(this.T.containsKey(key)){
+                    Vertex v = this.T.get(key).get();
+                    if(v == null || v.isOrphan()){
+                        if(VERBOSE){
+                            System.out.println("DELETING "+v);
+                        }
+                        Vertex.decNumParentsOfVertex(v.low());
+                        Vertex.decNumParentsOfVertex(v.high());
+                        thereIsADeletion = true;
+                        this.remove(key);
+                        deletions++;
+                        if(VERBOSE){
+                            System.out.println("DELETED: "+v+" ");
+                        }
+                    }
+                }
             }
         }
         if(VERBOSE){
@@ -768,7 +787,7 @@ public class TableT {
      */
     @Override
     public String toString(){
-        StringBuilder s = new StringBuilder("u\tvar_i\tvar\tlow\thigh\n");
+        StringBuilder s = new StringBuilder("u\tvar_i\tvar\tlow\thigh\tparents\tbdds\n");
         for (Vertex v : this.values()) {
             String variable = this.getVertexVariableName(v);
             s.append(v.index);
@@ -781,7 +800,9 @@ public class TableT {
             s.append("\t");
             s.append(v.highIndex());
             s.append("\t");
-            //s.append(v.parents());
+            s.append(v.numberOfParents());
+            s.append("\t");
+            s.append(v.numberOfRootedBDDs());
             s.append("\n");
         }
         return s.toString();

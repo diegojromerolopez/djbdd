@@ -138,6 +138,11 @@ gcCollector.start();
 gcCollector.end();
 ```
 
+If you want to use the variable ordering algorithm or want to force the
+freeing of memory, you can destroy a BDD calling the delete method. This
+method updates the reference counting and marks the BDD as "dirty", so
+the garbage collector could free its memory.
+
 ### Shared hash table ###
 All BDDs use the same hash table, sharing the vertices and subgraphs.
 Each BDD has one root vertex though.
@@ -157,8 +162,30 @@ You can access the vertices that has each variable in an efficient way. This wil
 - Restrict. [2].
 - Swapping of two variables. [5].
 
+### Rudell's variable shifting ###
+This package contains a basic implementation of the variable reordering
+proposed by Richard L. Rudell in [7]. Please, consider this module as
+experimental and use it at your own risk. For example:
+
+```java
+String function1 = "(a && d) || (b && c)";
+BDD bdd1 = new BDD(function1);
+
+BDD.gc();
+BDD.T.print();
+        
+Printer.printBDD(bdd1, "test15_bdd1_BEFORE_"+bdd1.size());
+        
+SiftingReductor reductor = new SiftingReductor();
+reductor.run();
+        
+BDD.variables().print();
+        
+BDD.gc();
+BDD.T.print();
+```
+
 ### TODOs ###
-- Include dynamic variable ordering. The swap operation is ready.
 - Include a parallel apply.
 - Review this README.
 
@@ -181,6 +208,8 @@ Bibliography
 [5] Incremental  Reduction of Binary Decision Diagrams. R. Jacobi, N. Calazans, C. Trullemans.
 
 [6] An Introduction to Binary Decision Diagrams. Henrik Reif Andersen.
+
+[7] Dynamic variable ordering for ordered binary decision diagrams. Richard L. Rudell.
 
 FAQ
 -------------

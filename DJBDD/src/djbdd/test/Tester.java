@@ -545,8 +545,12 @@ public class Tester {
         String function1 = "(a && d) || (b && c)";
         BDD bdd1 = new BDD(function1);
 
+        BDD.gc();
+        BDD.T.print();
+        
         Printer.printBDD(bdd1, "test15_bdd1_BEFORE_"+bdd1.size());
         
+        Printer.printTableT("test15_before");
         SiftingReductor reductor = new SiftingReductor();
         reductor.run();
         
@@ -554,11 +558,13 @@ public class Tester {
         // 0, 2, 1, 3
         BDD.variables().print();
         
+        System.out.println("FIN");
+        BDD.gc();
         BDD.T.print();
         
         Printer.printBDD(bdd1, "test15_bdd1_AFTER_"+bdd1.size());
         
-        Printer.printTableT("test15_at_the_end");
+        Printer.printTableT("test15_after");
     }
     
     public static void run(int testIndex){

@@ -150,7 +150,12 @@ public class BDD {
             return;
         }
         
+        if(this.root!=null){
+            this.root.decNumRootedBDDs();
+        }
+        
         this.root = newRoot;
+        this.root.incNumRootedBDDs();
         if (this.root.isLeaf()) {
             this.isTautology = this.root == BDD.T.True;
             this.isContradiction = this.root == BDD.T.False;
@@ -371,8 +376,8 @@ public class BDD {
             BDD bddRes = null;//BDD.optimizeTreeGenerationFromAST(op, bdd, bddI);
             if (bddRes == null) {
                 bddRes = bdd.apply(applyOp, bddI);
-                bdd = null;
-                bddI = null;
+                bdd.delete();
+                bddI.delete();
             }
 
             bdd = bddRes;
@@ -402,6 +407,7 @@ public class BDD {
         // Call to create the BDD from an AST
         BDD bdd = BDD.generateTreeFromAST(tree, true);
         this.assignInTreeGeneration(bdd);
+        bdd = null;
         return this.root;
     }
     
@@ -568,6 +574,27 @@ public class BDD {
     /**************************************************************************/
     /**************************************************************************/
   
+    /**************************************************************************/
+    /**************************************************************************/
+    /* Destructor */
+
+    /**
+     * Frees the memory of a BDD.
+     * @param bdd BDD that will be marked as garbage-collectable.
+     */
+    private static void destruct(BDD bdd){
+        bdd = null;
+    }
+    
+    /**
+     * Frees the memory and makes the actions associated with the destruction of
+     * this BDD.
+     */
+    public void delete(){
+        this.root.decNumRootedBDDs();
+        BDD.destruct(this);
+    }
+    
     /**************************************************************************/
     /**************************************************************************/
     /* Apply algorithm */

@@ -6,6 +6,9 @@ package djbdd;
  */
 public class Vertex {
 
+    /** Debug boolean flag */
+    public static final boolean VERBOSE = false;
+    
     /** Index of the false leaf node */
     public static final int FALSE_INDEX = 0;
     
@@ -33,12 +36,17 @@ public class Vertex {
      */
     int variable = NULL_INDEX;
     
-    /** Index of the low child of this vertex in the hash T of the TBDD */
+    /** Low child of this vertex in the hash T of the TBDD */
     private Vertex low = null;
     
-    /** Index of the high child of this vertex in the hash T of the TBDD */
+    /** High child of this vertex in the hash T of the TBDD */
     private Vertex high = null;
+
+    /** Number of parents that this vertex has */
+    private int num_parents = 0;
     
+    /** Number of BDDs that have this vertex as root */
+    private int num_rooted_bdds = 0;
     
     /**
      * Constructs the vertex
@@ -52,6 +60,7 @@ public class Vertex {
         this.variable = var;
         this.setLow(low);
         this.setHigh(high);
+        this.num_parents = 0;
     }
     
     /**
@@ -66,6 +75,7 @@ public class Vertex {
             this.index = FALSE_INDEX;
             this.variable = FALSE_VARIABLE;
         }
+        this.num_parents = 0;
     }
     
     /**
@@ -221,15 +231,92 @@ public class Vertex {
         return this.variable;
     }
     
+    /**
+     * Gets the number of parents this vertex has.
+     * @return The number of parents this vertex has.
+     */
+    public int numberOfParents(){
+        return this.num_parents;
+    }
+    
+    /**
+     * Gets the number of BDDs that has this vertex as root.
+     * @return The number of BDDs that has this vertex as root.
+     */
+    public int numberOfRootedBDDs(){
+        return this.num_rooted_bdds;
+    }    
+    
     /**************************************************************************/
     /**************************************************************************/
+    /* Operations about the number of BDDs that has this vertex as root */
 
+    /**
+     * Decrement the number of BDDs that has this vertex as root.
+     * See {@link djbdd.Vertex#num_rooted_bdds}.
+     */
+    public void decNumRootedBDDs(){
+        this.num_rooted_bdds--;
+    }
+
+    /**
+     * Increment the number of BDDs that has this vertex as root.
+     * See {@link djbdd.Vertex#num_rooted_bdds}. 
+     */
+    public void incNumRootedBDDs(){
+        this.num_rooted_bdds++;
+    }    
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    /* Operations about the number of parents of a vertex */
+    
+    /**
+     * Decrement the number of parents of a given vertex.  See {@link djbdd.Vertex#num_parents}.
+     * @param v Vertex whose number of parents will be decremented in one.
+     */    
+    public static void decNumParentsOfVertex(Vertex v){
+        if(v != null){
+            if(VERBOSE){
+                System.out.println("Decrementing "+v+" num_parents to "+(v.num_parents-1));
+            }
+            v.num_parents--;
+        }
+    }
+    
+    /**
+     * Increment the number of parents of a given vertex. See {@link djbdd.Vertex#num_parents}.
+     * @param v Vertex whose number of parents will be incremented in one.
+     */        
+    public static void incNumParentsOfVertex(Vertex v){
+        if(v != null){
+            if(VERBOSE){
+                System.out.println("Incrementing "+v+" num_parents to "+(v.num_parents+1));
+            }
+            v.num_parents++;
+        }
+    }
+    
+    /**
+     * Informs if this vertex is orphan. That is, it has no vertex parents and
+     * is not the root of any BDD.
+     * @return true if has no parents and is not the root of any BDD.
+     */
+    public boolean isOrphan(){
+        // An orphan vertex is one that has not got:
+        // - Any vertex parent
+        // - BDD that has it as root
+        return (this.num_parents==0 && this.num_rooted_bdds==0);
+    }
+    
     /**
      * Sets the high descendant. See  {@link djbdd.Vertex#high}.
      * @param newHigh Vertex that will be assigned as high descendant of this vertex.
      */
     public final void setHigh(Vertex newHigh){
+        Vertex.decNumParentsOfVertex(this.high);
         this.high = newHigh;
+        Vertex.incNumParentsOfVertex(this.high);
     }
     
     /**
@@ -237,7 +324,9 @@ public class Vertex {
      * @param newLow Vertex that will be assigned as low descendant of this vertex.
      */
     public final void setLow(Vertex newLow){
+        Vertex.decNumParentsOfVertex(this.low);
         this.low = newLow;
+        Vertex.incNumParentsOfVertex(this.low);
     }
     
     /**

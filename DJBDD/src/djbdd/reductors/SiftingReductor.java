@@ -19,59 +19,87 @@ public class SiftingReductor extends ReductionAlgorithm {
         // For each variable find its better position given that
         // the other variables are in fixed positions
         for(int varIndex=0; varIndex<numVariables; varIndex++){
-            System.out.println("=============================================");
-            System.out.println("STARTS "+varIndex);
+            if(VERBOSE){
+                System.out.println("=============================================");
+                System.out.println("STARTS "+varIndex);
+            }
             String var = this.VARIABLES.get(varIndex);
             int varIndexBestPosition = this.VARIABLES.getPositionOfVariable(varIndex);
             int varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
             int newVarIndexPosition = varIndexPosition;
             boolean swapWasMade = false;
-            Printer.printTableT("test15_"+this.VARIABLES.toString());
+            if(VERBOSE){
+                Printer.printTableT("test15_"+this.VARIABLES.toString());
+            }
             int i=1;
             do{
-                System.out.println("---------------------------------------------");
-                System.out.println("---------------------------------------------");
-                System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                System.out.println("Before swap "+i+": variable  "+varIndex+" ("+var+") is in position "+varIndexPosition);
+                if(VERBOSE){
+                    System.out.println("---------------------------------------------");
+                    System.out.println("---------------------------------------------");
+                    System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                    System.out.println("Before swap "+i+": variable  "+varIndex+" ("+var+") is in position "+varIndexPosition);
+                }
                 this.VARIABLES.print();
                 
                 swapWasMade = this.T.swap(varIndexPosition);
                 
-                System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                newVarIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
-                if(swapWasMade){
-                    System.out.println("After swap "+i+": variable "+varIndex+" ("+var+") is in position "+newVarIndexPosition);
-                }else{
-                    System.out.println("NO swap "+i+": variable "+varIndex+" ("+var+") is in position "+newVarIndexPosition);
+                if(VERBOSE){
+                    System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                 }
-                this.VARIABLES.print();
-                
-                Printer.printTableT("test15_swap_"+i+"_swapped_var_at_"+varIndexPosition+"_("+var+")_"+this.VARIABLES.toString());
-                this.T.gc();
-                if(size > this.T.size()){
-                    size = this.T.size();
-                    varIndexBestPosition = varIndexPosition;
+                newVarIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
+                if(VERBOSE){
+                    if(swapWasMade){
+                        System.out.println("After swap "+i+": variable "+varIndex+" ("+var+") is in position "+newVarIndexPosition);
+                    }else{
+                        System.out.println("NO swap "+i+": variable "+varIndex+" ("+var+") is in position "+newVarIndexPosition);
+                    }
+                    this.VARIABLES.print();
+                    Printer.printTableT("test15_swap_"+i+"_swapped_var_at_"+varIndexPosition+"_("+var+")_"+this.VARIABLES.toString());
+                }
+
+                int Tsize = this.T.gc();
+                if(VERBOSE){
+                    System.out.println(this.VARIABLES.getOrderedVariables()+" "+size);
+                }
+                if(size > Tsize){
+                    size = Tsize;
+                    varIndexBestPosition = varIndexPosition+1;
+                    if(VERBOSE){
+                        System.out.println(Tsize+" IS THE FUCKIN BEST WITH "+varIndex+" ("+var+") at "+varIndexBestPosition);
+                    }
                 }
                 if(swapWasMade)
                     varIndexPosition++;
                 i++;
+
             }while(swapWasMade && varIndexPosition < lastVariablePosition);
             
             // We go back
             do{
-                System.out.println("Back!!! "+varIndex+" is in position "+varIndexPosition);
+                if(VERBOSE){
+                    System.out.println("Back!!! "+varIndex+" is in position "+varIndexPosition);
+                }
                 swapWasMade = this.T.swapBack(varIndexPosition);
-                this.T.gc();
-                if(size > this.T.size()){
-                    size = this.T.size();
-                    varIndexBestPosition = varIndexPosition;
-                    System.out.println("ALERT!!! When "+varIndex+" is at "+varIndexBestPosition+" the size is "+size);
+                int Tsize = this.T.gc();
+                
+                if(VERBOSE){
+                    System.out.println(this.VARIABLES.getOrderedVariables()+" "+size);
+                }
+                
+                if(size > Tsize){
+                    size = Tsize;
+                    varIndexBestPosition = varIndexPosition+1;
+                    if(VERBOSE){
+                        System.out.println(Tsize+" IS THE FUCKIN BEST WITH "+varIndex+" ("+var+") at "+varIndexBestPosition);
+                    }
                 }
                 if(swapWasMade)
                     varIndexPosition--;
             }while(swapWasMade);
             
-            System.out.println("The best position is "+varIndexBestPosition);
+            if(VERBOSE){
+                System.out.println("The best position is "+varIndexBestPosition);
+            }
             
             // Move to the best position
             varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
@@ -83,8 +111,10 @@ public class SiftingReductor extends ReductionAlgorithm {
             }
               
             //*/
-            System.out.println("ENDS "+varIndex);
-            System.out.println("=============================================");
+            if(VERBOSE){
+                System.out.println("ENDS "+varIndex);
+                System.out.println("=============================================");
+            }
             return;
         }
     }
