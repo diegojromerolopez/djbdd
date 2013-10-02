@@ -356,7 +356,8 @@ public class SheFileLoader {
             //bddI.reduce();
             if(VERBOSE){
                 System.out.println("BDD "+i+": "+bddI.function);
-                bddI.toFile("thread_bdds/bdd_"+i+".txt");
+                System.out.flush();
+                bddI.toFile("bdd_"+i+".txt");
             }
         }
         if(VERBOSE){

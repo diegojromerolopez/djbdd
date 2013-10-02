@@ -46,8 +46,12 @@ class SheFileLoaderThread implements Runnable {
         bdd = new BDD(formulas.get(0));
         if(verbose){
             System.out.println("\n[Thread "+this.index+"] Formula "+(1)+"/"+formulas.size()+": "+formulas.get(0));
-            bdd.print();
+            //bdd.print();
         }
+        
+        // Should we have to use a reduction algorithm?
+        boolean useBDDReduction = true;
+        
         // Loop throught formulas whose index > 0
         for(int i=1; i<formulas.size(); i++)
         {
@@ -64,8 +68,12 @@ class SheFileLoaderThread implements Runnable {
             TimeMeasurer t3 = new TimeMeasurer("\n[Thread "+this.index+"] BDD APPLY "+(i+1)+"/"+formulas.size());
             BDD bddRes = bdd.apply("and",bddI);
             bdd = bddRes;
-            //bdd.reduce();
-            //bdd.print();
+            if(useBDDReduction){
+                bddI.delete();
+                int size = BDD.gc();
+                System.out.println("\n[Thread "+this.index+"] Size : "+size);
+                BDD.reduce();
+            }
             t3.end().show();
             t.end().show();
         }

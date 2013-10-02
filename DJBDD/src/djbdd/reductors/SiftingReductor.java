@@ -38,8 +38,9 @@ public class SiftingReductor extends ReductionAlgorithm {
                     System.out.println("---------------------------------------------");
                     System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                     System.out.println("Before swap "+i+": variable  "+varIndex+" ("+var+") is in position "+varIndexPosition);
+                    System.out.flush();
+                    //this.VARIABLES.print();
                 }
-                this.VARIABLES.print();
                 
                 swapWasMade = this.T.swap(varIndexPosition);
                 

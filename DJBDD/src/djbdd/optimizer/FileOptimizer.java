@@ -88,8 +88,8 @@ public class FileOptimizer {
         System.out.flush();
 
         // GC Thread
-        GCThread gcCollector = new GCThread();
-        gcCollector.start();
+        //GCThread gcCollector = new GCThread();
+        //gcCollector.start();
         
         // Creating the optimized BDD file
         executor = Executors.newFixedThreadPool(numThreads);
@@ -252,7 +252,7 @@ public class FileOptimizer {
         
         // Close the file
         writer.close();
-        gcCollector.end();
+        //gcCollector.end();
      }
     
      public void run(){

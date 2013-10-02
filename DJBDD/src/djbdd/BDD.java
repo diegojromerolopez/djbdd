@@ -2,9 +2,11 @@ package djbdd;
 
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.logic.*;
+import djbdd.reductors.*;
 
 import java.util.*;
 import java.io.*;
+
 import java.util.regex.*;
 
 import org.antlr.runtime.*;
@@ -763,8 +765,8 @@ public class BDD {
     /**
      * Call the garbage collector to erase weak references.
      */
-    public static void gc(){
-        BDD.T.gc();
+    public static int gc(){
+        return BDD.T.gc();
     }
     
    
@@ -857,6 +859,35 @@ public class BDD {
     
     /**************************************************************************/
     /**************************************************************************/
+    /* Reductions of the BDDs in our enviroment */
+    
+    /**
+     * Reduce the global graph of vertices using some algorithm identified by the type parameter.
+     * @param type Type of the reduction algorithm.
+     */
+    public static void reduce(int type){
+        // Destroy the not used vertices
+        BDD.gc();
+        // Reduce the multirooted graph
+        ReductionAlgorithm reductor = null;
+        if(type == ReductionAlgorithm.SIFTING){
+            reductor = new SiftingReductor();
+        }
+        reductor.run();
+        // Destroy the not used vertices
+        BDD.gc();
+    }
+    
+    /**
+     * Reduce the global graph of vertices of vertices using Rudell's
+     * variable reordering.
+     */
+    public static void reduce(){
+        BDD.reduce(ReductionAlgorithm.SIFTING);
+    }
+    
+    /**************************************************************************/
+    /**************************************************************************/
     /* Output zone */
     
     /**
@@ -941,7 +972,7 @@ public class BDD {
             //Close the output stream
             out.close();
         } catch (Exception e) {//Catch exception if any
-            System.err.println("BDD "+this.function+" has create an error");
+            System.err.println("BDD "+this.function+" has created an error");
             System.err.println("Error: " + e.getMessage());
             e.printStackTrace();
         }

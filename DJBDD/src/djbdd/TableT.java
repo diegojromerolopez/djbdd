@@ -60,6 +60,9 @@ public class TableT {
         this.U = new HashMap<String,WeakReference<Vertex>>(initialCapacity, loadFactor);
         int vInitialCapacity = initialCapacity;
         this.V = new HashMap<Integer,WeakHashMap<Vertex,Boolean>>(vInitialCapacity, loadFactor);
+        /*int num_variables = BDD.VARIABLES.size();
+        for(int varI=0; varI<num_variables; varI++)
+            this.V.put(varI, new WeakHashMap<Vertex,Boolean>());*/
     }
     
     /**
@@ -436,13 +439,19 @@ public class TableT {
                         if(VERBOSE){
                             System.out.println("DELETING "+v);
                         }
-                        Vertex.decNumParentsOfVertex(v.low());
-                        Vertex.decNumParentsOfVertex(v.high());
+                        if(v!=null){
+                            Vertex.decNumParentsOfVertex(v.low());
+                            Vertex.decNumParentsOfVertex(v.high());
+                        }
                         thereIsADeletion = true;
                         this.remove(key);
                         deletions++;
                         if(VERBOSE){
-                            System.out.println("DELETED: "+v+" ");
+                            if(v!=null){
+                                System.out.println("DELETED: "+key+" "+v);
+                            }else{
+                                System.out.println("DELETED: "+key+" NULL");
+                            }
                         }
                     }
                 }
@@ -554,6 +563,11 @@ public class TableT {
      * @return List of vertices with the variable identified by the variable index pass as parameter.
      */
     public Set<Vertex> getVerticesWhoseVariableIs(int variable){
+        // If the variable has no vertices, we return the empty set
+        if(!V.containsKey(variable)){
+            return new HashSet<Vertex>();
+        }
+        // We have some vertices with this variable
         WeakHashMap<Vertex, Boolean> verticesWithThatVariable = V.get(variable);
         return verticesWithThatVariable.keySet();
     }
