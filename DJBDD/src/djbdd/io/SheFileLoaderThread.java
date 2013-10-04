@@ -70,8 +70,9 @@ class SheFileLoaderThread implements Runnable {
             bdd = bddRes;
             if(useBDDReduction){
                 bddI.delete();
+                int oldSize = BDD.totalSize();
                 int size = BDD.gc();
-                System.out.println("\n[Thread "+this.index+"] Size : "+size);
+                System.out.println("\n[Thread "+this.index+"] Decrement size in "+(oldSize-size)+" vertices (from "+oldSize+" to "+size+")");
                 BDD.reduce();
             }
             t3.end().show();

@@ -1,24 +1,71 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package djbdd.reductors;
 
 import djbdd.io.*;
 
+import java.util.*;
+import djbdd.*;
+
 /**
- *
+ * Runs the sifrint reductor invented by Rudell.
  * @author diegoj
  */
 public class SiftingReductor extends ReductionAlgorithm {
     
+    public TreeMap<Integer,Integer> variableOccurence;
+    public ArrayList<Integer> variableOrder;
+    
+    /**
+     * Creates a count of how many vertices have a particular variable.
+     * Stores this count in variableOccurence class member.
+     */
+    private void initVariableOcurrence(){
+        variableOccurence = new TreeMap<Integer,Integer>();
+        int numVariables = BDD.variables().size();
+        for(int variable=0; variable<numVariables; variable++){
+            int size = 0;
+            if(this.T.V.containsKey(variable))
+                size = this.T.V.get(variable).size();
+            variableOccurence.put(variable, size);
+        }
+    }
+    
+    /**
+     * Gets a list of the variables in descending order according to their
+     * associated number of vertices.
+     */
+    private void initVariableOrderDesc(){
+
+       //Transfer as List and sort it
+       ArrayList<Map.Entry<?, Integer>> l = new ArrayList(variableOccurence.entrySet());
+       Collections.sort(l, new Comparator<Map.Entry<?, Integer>>(){
+
+         public int compare(Map.Entry<?, Integer> o1, Map.Entry<?, Integer> o2) {
+            return o2.getValue().compareTo(o1.getValue());
+        }});
+
+       variableOrder = new ArrayList<Integer>(l.size());
+       for(Map.Entry<?, Integer> e : l){
+           variableOrder.add((Integer)e.getKey());
+       }
+       
+    }
+    
+    public SiftingReductor(){
+        super();
+        // Construct the order of variables
+        this.initVariableOcurrence();
+        this.initVariableOrderDesc();
+  }
+        
+
     public void run(){
         int numVariables = this.VARIABLES.size();
         int lastVariablePosition = numVariables - 1;
         int size = this.T.size();
         // For each variable find its better position given that
         // the other variables are in fixed positions
-        for(int varIndex=0; varIndex<numVariables; varIndex++){
+        //for(int varIndex=0; varIndex<numVariables; varIndex++){
+        for(int varIndex: this.variableOrder){
             if(VERBOSE){
                 System.out.println("=============================================");
                 System.out.println("STARTS "+varIndex);

@@ -58,11 +58,8 @@ public class TableT {
     private void initHashes(int initialCapacity, float loadFactor){
         this.T = new HashMap<Integer,WeakReference<Vertex>>(initialCapacity, loadFactor);
         this.U = new HashMap<String,WeakReference<Vertex>>(initialCapacity, loadFactor);
-        int vInitialCapacity = initialCapacity;
-        this.V = new HashMap<Integer,WeakHashMap<Vertex,Boolean>>(vInitialCapacity, loadFactor);
-        /*int num_variables = BDD.VARIABLES.size();
-        for(int varI=0; varI<num_variables; varI++)
-            this.V.put(varI, new WeakHashMap<Vertex,Boolean>());*/
+        
+        this.V = new HashMap<Integer,WeakHashMap<Vertex,Boolean>>(initialCapacity, loadFactor);
     }
     
     /**
@@ -155,6 +152,7 @@ public class TableT {
         this.V.get(variable).put(v,true);
     }
     
+  
     /**
      * Adds a new vertex to the table.
      * @param var_index Index of the variable that will have the vertex.
@@ -249,6 +247,11 @@ public class TableT {
         T.remove(index);
         if(removed != null){
             U.remove(removed.uniqueKey());
+            if(!V.containsKey(removed.variable)){
+                System.err.println(removed.variable+" no existe en V");
+                System.out.println(V);
+                System.exit(-1);
+            }
             V.get(removed.variable).remove(removed);
         }
         if(removed == null)
