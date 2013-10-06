@@ -105,15 +105,16 @@ public class Tester {
      */
     private static void test2(){
         // A test to study variable order
-        String function = "(a_ && b_) || (c_ && d_)";
-        //final String[] variables={"a_", "c_", "b_", "d_"};
-        final String[] variables={"a_", "c_", "b_", "d_"};
+        String function = "(a && b && c) || (d && f)";
+        final String[] variables={"a", "d", "b", "f", "c"};
         BDD.init(variables);
         
         // Big an inefficient BDD
         BDD bdd = new BDD(function);
         bdd.print();
-        Printer.printBDD(bdd, "test2_bdd_"+bdd.size());
+        
+        System.out.println("The size is "+bdd.size());
+        Printer.printBDD(bdd, "test2_bdd");
         
         BDD.gc();
         SiftingReductor r = new SiftingReductor();
