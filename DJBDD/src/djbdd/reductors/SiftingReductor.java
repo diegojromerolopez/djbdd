@@ -44,7 +44,7 @@ public class SiftingReductor extends ReductionAlgorithm {
         }});
 
        variableOrder = new ArrayList<Integer>(l.size());
-       for(Map.Entry<?, Integer> e : l){
+       for(Map.Entry<Integer, Integer> e : l){
            variableOrder.add((Integer)e.getKey());
        }
        
