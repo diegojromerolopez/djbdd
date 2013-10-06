@@ -74,27 +74,30 @@ public class Tester {
     }
     
     /**
-     * Test 1: a test to study the variable reordering of Rudell.
+     * Test 1: a test to study variable ordering importance.
      */
     private static void test1(){
         // A test to study variable order
-        String function = "(a_ && b_) || (c_ && d_)";
-        final String[] variables={"a_", "b_", "c_", "d_"};
+        String function1 = "(a && b) || (c && d)";
+        final String[] variables={"a", "b", "c", "d"};
         BDD.init(variables);
         
         // Small BDD
-        BDD bdd1 = new BDD(function);
+        BDD bdd1 = new BDD(function1);
         bdd1.print();
         Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_");
         
         // Big an inefficient BDD
-        BDD bdd2 = new BDD(function);
+        String function2 = "(a && c) || (b && d)";
+        BDD bdd2 = new BDD(function2);
         bdd2.print();
         Printer.printBDD(bdd2, "test1_bdd2_"+bdd2.size()+"_");
         
+        /*
         BDD.gc();
         SiftingReductor r = new SiftingReductor();
         r.run();
+        */
     }
 
     /**

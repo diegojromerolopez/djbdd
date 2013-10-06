@@ -691,7 +691,7 @@ public class TableT {
         StringBuilder s = new StringBuilder("var_i (variable)\n");
         for (Integer var : this.V.keySet()) {
             s.append(var).append(" (").append(this.getVariableName(var)).append(") \n");
-            WeakHashMap ws = this.V.get(var);
+            WeakHashMap<Vertex,Boolean> ws = this.V.get(var);
             Set<Vertex> vertices = ws.keySet();
             s.append("\tkey\tvar_i\tvar\tlow\thigh\n");
             for (Vertex v : vertices) {
