@@ -1,28 +1,25 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package djbdd.test;
 
 import djbdd.core.BDD;
 import djbdd.core.BooleanEvaluator;
 import djbdd.io.Printer;
 import djbdd.timemeasurer.TimeMeasurer;
-import djbdd.*;
 import djbdd.reductors.*;
 import java.util.*;
 import org.mvel2.MVEL;
 
 /**
- *
+ * Contains a collection of tests very useful for understand and
+ * check if this software package is right.
  * @author diegoj
  */
 public class Tester {
     
-    static String memoryWasted;
-    
+    /**
+     * Waste some memory to force the call of the garbage collector.
+     * @param kbs Kilobytes of memory to waste.
+     */
     private static void wasteMemory(int kbs){
-        memoryWasted = "xxx";
         byte[] waste1;
         byte[] waste2;
         for(int i=0; i<kbs; i++){
@@ -32,35 +29,26 @@ public class Tester {
         }
     }
     
+    /**
+     * Creates a BDD and prints it as png.
+     * @param function Boolean logic function that will be represented by the BDD.
+     * @return BDD that will contain the function.
+     */
     private static BDD makeBDD(String function){
         // Construction of the BDD1
-        BDD bdd = new BDD(function);//, variable_ordering);
+        BDD bdd = new BDD(function);
         bdd.print();
         Printer.printBDD(bdd, "makeBDD_"+function+"_");
         return bdd;
     }
     
-    public static void test0(){
+    /**
+     * Test 0: Make some basic operations between two BDDs.
+     */
+    private static void test0(){
         // Variables of the function (some of them not present)
-        ArrayList<String> variables = new ArrayList<String>();
-        variables.add("a");
-        variables.add("b");
-        variables.add("c");
-        variables.add("d");
-        variables.add("e");
-        variables.add("f");
-        variables.add("g");
-        variables.add("h");
-        // Variable ordering (pray that's right)
-        ArrayList<Integer> variable_ordering = new ArrayList<Integer>();
-        variable_ordering.add(2);// c
-        variable_ordering.add(3);// d
-        variable_ordering.add(0);// a
-        variable_ordering.add(1);// b
-        variable_ordering.add(4);// e
-        variable_ordering.add(5);// f
-        variable_ordering.add(6);// g
-        variable_ordering.add(7);// h
+        String[] vars = {"a","b","c","d","e","f","g","h"};
+        ArrayList<String> variables = new ArrayList<String>(Arrays.asList(vars));
         
         // Initializing
         BDD.init(variables);
@@ -85,45 +73,34 @@ public class Tester {
         BDD.T.print();//*/
     }
     
-    public static void test1(){
+    /**
+     * Test 1: a test to study the variable reordering of Rudell.
+     */
+    private static void test1(){
         // A test to study variable order
         String function = "(a_ && b_) || (c_ && d_)";
         final String[] variables={"a_", "b_", "c_", "d_"};
         BDD.init(variables);
         
         // Small BDD
-        final String[] variable_ordering1={"a_", "b_", "c_", "d_"};
         BDD bdd1 = new BDD(function);
         bdd1.print();
         Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_");
         
         // Big an inefficient BDD
-        final String[] variable_ordering2={"c_", "a_", "d_", "b_"};
         BDD bdd2 = new BDD(function);
         bdd2.print();
         Printer.printBDD(bdd2, "test1_bdd2_"+bdd2.size()+"_");
         
-        /*
-        // Heuristic BDD
-        String[] variable_orderingH={"c_", "a_", "e_", "b_", "f_", "d_"};
-        BDD bddMin = null;
-        int iterations = 1000;
-        int i = 0;
-        while(i< iterations){
-            BDD bddH = new BDD(function, variable_orderingH, useApplyInCreation);
-            if(bddMin == null || bddH.size() < bddMin.size()){
-                bddMin = bddH;
-            }
-            i++;
-            Collections.shuffle( Arrays.asList(variable_orderingH) );
-        }
-        bddMin.print();
-        Printer.printBDD(bddMin, "test1_bddMin_"+bddMin.size()+"_"+bddMin.variable_ordering.toString());
-         * 
-         */
+        BDD.gc();
+        SiftingReductor r = new SiftingReductor();
+        r.run();
     }
-    
-    public static void test2(){
+
+    /**
+     * Test 2: a test to study the variable reordering of Rudell.
+     */
+    private static void test2(){
         // A test to study variable order
         String function = "(a_ && b_) || (c_ && d_)";
         //final String[] variables={"a_", "c_", "b_", "d_"};
@@ -134,20 +111,17 @@ public class Tester {
         BDD bdd = new BDD(function);
         bdd.print();
         Printer.printBDD(bdd, "test2_bdd_"+bdd.size());
+        
+        BDD.gc();
+        SiftingReductor r = new SiftingReductor();
+        r.run();        
     }
     
-   public static void test3(){
-        // Un test para estudiar el orden de las variables (queremos hacer una heurística)
-        String function = "(((PPC?  || MAC?) && (ADB? && MAC?)) || ((false -> ADB_IOP?) && (ADB_IOP? -> false)))";
-        //String function = "(( (PPC?  || MAC?) ))";
-        final String[] variables={"PPC?", "MAC?", "ADB?", "ADB_IOP?"};
-        BDD.init(variables);
-        BDD bdd1 = new BDD(function);
-        bdd1.print();
-        Printer.printBDD(bdd1, "test1_bdd1_"+bdd1.size()+"_");      
-   }
-    
-    public static void test4(){
+
+    /**
+     * Test 3: test if the BDD construction is all right.
+     */
+    private static void test3(){
         String function = "( (!x1 || x2) && (x1 || !x2) ) && ( (!x3 || x4) && (x3 || !x4) )";
         ArrayList<String> variables = new ArrayList<String>();
         variables.add("x1");
@@ -172,7 +146,10 @@ public class Tester {
         );
     }
     
-    public static void test5(){
+    /**
+     * Test 4: a test of the creation of a BDD with many variables, over 500.
+     */
+    private static void test4(){
         TimeMeasurer t = new TimeMeasurer("test4", true);
 
         int num_variables = 1000;
@@ -215,6 +192,13 @@ public class Tester {
         t.end().show();
     }
     
+    /**
+     * Test a boolean operation between two boolean values.
+     * @param a A boolean value.
+     * @param b Other boolean value.
+     * @param op The operation. It can any operation like "and", "or", "nor" or "nand".
+     * @return Returns the result of operationg a <op> b.
+     */
     private static boolean testBooleanOperation(Boolean a, Boolean b, String op){
         String _function1 = a.toString()+" "+op+" "+b.toString();
         String _function2 = a.toString()+" "+op+" "+b.toString();
@@ -232,7 +216,10 @@ public class Tester {
         return res1==res2;
     }
     
-    public static void test6(){
+    /**
+     * Test 6: tests boolean operations.
+     */
+    private static void test5(){
         System.out.println("--- AND ---");
         for(int i=0; i<=1; i++){
             for(int j=0; j<=1; j++){
@@ -253,7 +240,10 @@ public class Tester {
         }
     }
     
-    public static void test7(){
+    /**
+     * Test 6: test if tautologies are right with this boolean engine.
+     */
+    private static void test6(){
         String function = "(false <-> false)";
         boolean res1 = BooleanEvaluator.run(function);
         //boolean res2 = (Boolean)MVEL.eval(function);
@@ -261,7 +251,10 @@ public class Tester {
         //System.out.println("MVEL\t\t"+function+" = "+res2);
     }
     
-    public static void test8(){
+    /**
+     * Test 7: see a BDD created with many variables involved in a disjunction.
+     */
+    private static void test7(){
 
         int num_variables = 3;
         ArrayList<String> variables = new ArrayList<String>();
@@ -279,10 +272,14 @@ public class Tester {
         bdd1.print();//*/
         BDD.T.print();
         BDD.T.gc();
-        Printer.printBDD(bdd1, "test8_bdd1_"+bdd1.size());
+        Printer.printBDD(bdd1, "test7_bdd1_"+bdd1.size());
      }
     
-    public static void test9(){
+    /**
+     * Test 8: test our restrict operation that extracts a new BDD given some
+     * constant values for variables.
+     */
+    private static void test8(){
 
         int num_variables = 5;
         ArrayList<String> variables = new ArrayList<String>();
@@ -299,22 +296,22 @@ public class Tester {
         BDD bdd1 = new BDD(function1);
         bdd1.print();//*/
         BDD.T.print();
-        Printer.printBDD(bdd1, "test9_bdd1_"+bdd1.size());
+        Printer.printBDD(bdd1, "test8_bdd1_"+bdd1.size());
         
         HashMap<Integer,Boolean> assignement = new HashMap<Integer,Boolean>();
         assignement.put(2, true);
         assignement.put(3, true);
         BDD bdd2 = bdd1.restrict(assignement);
-        Printer.printBDD(bdd2, "test9_bdd2_"+bdd2.size()+" "+assignement.toString()+"");
+        Printer.printBDD(bdd2, "test8_bdd2_"+bdd2.size()+" "+assignement.toString()+"");
         bdd2.print(true);
     }
     
     /**
-     * This example shows how the garbage collection works.
+     * Test 9: this example shows how the garbage collection works.
      * When the JVM detects more memory is needed, the Java GC is called.
      * We have to periodically call BDD.gc to erase the empty weak references.
      */
-    private static void test10(){
+    private static void test9(){
         // Variable initialization
         int num_variables = 15;
         ArrayList<String> variables = new ArrayList<String>();
@@ -353,11 +350,14 @@ public class Tester {
         BDD.gc();
         
         // This two graphs must have the same size and be the same
-        Printer.printBDD(bddRes, "test10_bdd3_"+bddRes.size());
-        Printer.printTableT("test10_allbdds_"+BDD.T.size());
+        Printer.printBDD(bddRes, "test9_bdd3_"+bddRes.size());
+        Printer.printTableT("test9_allbdds_"+BDD.T.size());
     }
     
-    private static void test11(){
+    /**
+     * Test 10: test several operations between "handy" BDDs.
+     */
+    private static void test10(){
         String[] variables = {"f", "g", "a", "b", "c", "d", "e"};
         BDD.init(variables);
 
@@ -379,22 +379,25 @@ public class Tester {
         BDD bdd3 = bdd1.apply("and", bdd2);
         bdd1 = null;
         bdd2 = null;
-        Printer.printBDD(bdd3, "test11_bdd3_"+bdd3.size());
+        Printer.printBDD(bdd3, "test10_bdd3_"+bdd3.size());
         
         // Multitree
         BDD.gc();
         BDD.T.print();
-        Printer.printTableT("test11_allbdds_"+BDD.T.size());
+        Printer.printTableT("test10_allbdds_"+BDD.T.size());
     }
     
-    private static void test12(){
+    /**
+     * Test 11: tests a variable swapping in a BDD.
+     */
+    private static void test11(){
         String[] variables = {"d", "c", "b", "a"};
         BDD.init(variables);
 
         // BDD1
         String function1 = "(a && c) || (b && d)";
         BDD bdd1 = new BDD(function1);
-        Printer.printBDD(bdd1, "test12_bdd1_BEFORE_"+bdd1.size());
+        Printer.printBDD(bdd1, "test11_bdd1_BEFORE_"+bdd1.size());
         Printer.printTableT("before");
         
         System.out.println(BDD.T.V);
@@ -403,7 +406,7 @@ public class Tester {
         System.out.println(function1);
         BDD.gc();
         BDD.T.swap(2);
-        Printer.printBDD(bdd1, "test12_bdd1_AFTER_"+bdd1.size());
+        Printer.printBDD(bdd1, "test11_bdd1_AFTER_"+bdd1.size());
         Printer.printTableT("after");
         
         // Show the variable hash
@@ -411,10 +414,10 @@ public class Tester {
     }
     
     /**
-     * Tests if the swapping interferes with the apply algorigthm.
+     * Test 12: tests if the swapping interferes with the apply algorigthm.
      * It should not have any problem.
      */
-    private static void test13(){
+    private static void test12(){
         // We are going to test the variable swapping in the context
         // of the APPLY algorithm
         
@@ -427,7 +430,7 @@ public class Tester {
         String function1 = "(a && c) || (b && d)";
         BDD bdd1 = new BDD(function1);
 
-        Printer.printBDD(bdd1, "test13_bdd1_BEFORE_"+bdd1.size());
+        Printer.printBDD(bdd1, "test12_bdd1_BEFORE_"+bdd1.size());
         
         BDD.T.swap(1);
         BDD.gc();
@@ -473,28 +476,28 @@ public class Tester {
         System.out.println("3 > 1 "+BDD.variables().variableComesAfterThan(3, 1)+" ==? TRUE");
         System.out.println("3 > 2 "+BDD.variables().variableComesAfterThan(3, 2)+" ==? TRUE");
         
-        Printer.printBDD(bdd1, "test13_bdd1_AFTER_"+bdd1.size());
+        Printer.printBDD(bdd1, "test12_bdd1_AFTER_"+bdd1.size());
         
         // BDD2
         String function2 = "(a && b)";
         BDD bdd2 = new BDD(function2);
-        Printer.printBDD(bdd2, "test13_bdd2_AFTER_"+bdd2.size());
+        Printer.printBDD(bdd2, "test12_bdd2_AFTER_"+bdd2.size());
         
         BDD bddRes = bdd1.apply("and", bdd2);
-        Printer.printBDD(bddRes, "test13_bddRes_AFTER_"+bddRes.size());
+        Printer.printBDD(bddRes, "test12_bddRes_AFTER_"+bddRes.size());
         
         System.out.println("============= BDDRes ============= ");
         bddRes.print(true);
-        Printer.printTableT("test13");
+        Printer.printTableT("test12");
         
         BDD.T.debugPrint();
     }
     
     /**
-     * This test is used to compare with test13.
+     * Test 14: this test is used to compare with test12.
      */
-    public static void test14(){
-        // Variable order that is gotten by swapping in test 13
+    private static void test13(){
+        // Variable order that is gotten by swapping in test 12
         String[] variables = {"d", "b", "c", "a"};
         BDD.init(variables);
         
@@ -518,11 +521,11 @@ public class Tester {
         BDD.T.debugPrint();
     }
     
-        /**
-     * Tests if the swapping interferes with the apply algorigthm.
+    /**
+     * Test 14: tests if the swapping interferes with the apply algorigthm.
      * It should not have any problem.
      */
-    private static void test15(){
+    private static void test14(){
         // We are going to test the variable swapping in the context
         // of the APPLY algorithm
         
@@ -538,9 +541,9 @@ public class Tester {
         BDD.gc();
         BDD.T.print();
         
-        Printer.printBDD(bdd1, "test15_bdd1_BEFORE_"+bdd1.size());
+        Printer.printBDD(bdd1, "test14_bdd1_BEFORE_"+bdd1.size());
         
-        Printer.printTableT("test15_before");
+        Printer.printTableT("test14_before");
         SiftingReductor reductor = new SiftingReductor();
         reductor.run();
         
@@ -552,9 +555,9 @@ public class Tester {
         BDD.gc();
         BDD.T.print();
         
-        Printer.printBDD(bdd1, "test15_bdd1_AFTER_"+bdd1.size());
+        Printer.printBDD(bdd1, "test14_bdd1_AFTER_"+bdd1.size());
         
-        Printer.printTableT("test15_after");
+        Printer.printTableT("test14_after");
     }
     
     public static void run(int testIndex){
@@ -588,8 +591,6 @@ public class Tester {
             test13();
         else if(testIndex == 14)
             test14();
-        else if(testIndex == 15)
-            test15();
         else {
             System.err.println("This test does NOT exists");
             System.exit(-1);
