@@ -60,7 +60,7 @@ BDD bdd3 = bdd.apply("and", bdd2);
 BDD bdd4 = bdd.apply("or", bdd2);
 
 // Destroy explicitly bdd2
-// In case we need to compute sizes, reduce the BDD or print it
+// In case we need to compute sizes, reduce the global graph or print it
 bdd2.delete();
 
 // If you think you can have few free memory, you would have to free it
@@ -166,7 +166,7 @@ You can access the vertices that has each variable in an efficient way. This wil
 - Restrict. [2].
 - Swapping of two variables. [5].
 
-### Rudell's variable shifting ###
+### Rudell's Variable Sifting ###
 This package contains a basic implementation of the variable reordering
 proposed by Richard L. Rudell in [7]. Please, consider this module as
 experimental and use it at your own risk. For example:
@@ -237,14 +237,17 @@ It depends on the exception type, but my money is on a memory-related exception.
 This library is memory greedy, use BDD.gc or the threaded garbage collector or help me
 to implement some reduction method on the vertex table :)
 
-### Why don't you use dynamic variable ordering? ###
-I'm implementing that, but I'm finding some problems that are slowing me down.
+### Why don't you use dynamic variable ordering when creating the BDD? ###
+I prefer buidling the BDD "as is" and relying in the developper using some
+variable reordering algorightm, like Variable Sifting, implemented in this
+package.
 
 ### Your code is inefficient/wrong/could be improved ###
 I accept suggestions, critiques and comments you want to communicate me. 
 
-### Why don't you use whatever method? ###
-Maybe I don't know it, please send me an email asking me and pointing me to a paper where it is explained. I will see that.
+### Why don't you use <whatever> method? ###
+Maybe I don't know it, please send me an email asking me and pointing me
+to a paper where it is explained. I will take a look to that.
 
 ### What is the licence of this code? ###
 This code is GPL3 with classpath linking exception. That's the same license than the OpenJDK7 one.
