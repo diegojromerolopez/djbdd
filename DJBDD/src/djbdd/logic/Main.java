@@ -1,5 +1,6 @@
 package djbdd.logic;
 
+import djbdd.core.BDD;
 import djbdd.*;
 import djbdd.io.Printer;
 import org.antlr.runtime.*;

@@ -7,7 +7,7 @@ package djbdd.optimizer;
 import java.util.*;
 import java.io.*;
 import djbdd.timemeasurer.TimeMeasurer;
-import djbdd.BDD;
+import djbdd.core.BDD;
 
 /**
  *

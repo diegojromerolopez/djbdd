@@ -1,11 +1,13 @@
-package djbdd;
+package djbdd.core;
 
+import logger.*;
 import djbdd.io.Printer;
 
 import java.util.*;
 import java.io.*;
 import java.lang.ref.WeakReference; 
-import djbdd.timemeasurer.TimeMeasurer;
+
+
 
 /**
  * Wrapper of the hashmap that contains the vertices of a BDD.
@@ -279,149 +281,11 @@ public class TableT {
     }
 
 
-    /**************************************************************************/
-    /**************************************************************************/
-    /* Reduction */
-    
-    /**
-     * Deletes a vertex from the BDD.
-     * Updates the references of the vertices of the BDD accordingly our deletion.
-     * Modifies the hash T
-     * @param deletedVertex Vertex to be deleted.
-     * @deprecated Only called by deleteRedundantVertices.
-     */
-    private void deleteRedundantVertex(Vertex deletedVertex){
-        Vertex low = deletedVertex.low();
-        Vertex high = deletedVertex.high();
-        T.remove(deletedVertex.index);
-        // Update the low and high pointers to the new values
-        // (the low and high of the deleted vertex resp.)
-        for(WeakReference<Vertex> w : this.T.values()){
-            Vertex v = w.get();
-            if(v!=null){
-                if(v.low() == deletedVertex)
-                    v.setLow(low);
-                if(v.high() == deletedVertex)
-                    v.setHigh(high);
-            }
-        }
-    }
-    
-    /**
-     * Delete all redundante vertices of the tree.
-     * That is, all vertex with the same low and high values.
-     * Of course modifies the T table.
-     * @return boolean True if there has been a deletion of a redundant vertex. False otherwise.
-     * @deprecated Only called by reduce.
-     */
-    private boolean deleteRedundantVertices(){
-        TimeMeasurer t = new TimeMeasurer("---- deleteRedundantVertices ----");
-        boolean deleted = false;
-        for(Vertex v : this.values()){
-            //Vertex v = this.T.get(i);
-            if(v.isRedundant()){
-                //System.out.println("Eliminamos el "+v.index);
-                deleted = true;
-                this.deleteRedundantVertex(v);
-            }
-        }//*/
-        t.end().show();
-        return deleted;
-    }
-    
- 
-    /**
-     * Gets all duplicate vertex indices.
-     * @deprecated Only called by reduce.
-     */
-    private ArrayList<Integer> getDuplicateVertexIndices(Vertex v){
-        
-        ArrayList<Integer> vertixKeys = new ArrayList<Integer>(this.T.keySet());
-        ArrayList<Integer> duplicates = new ArrayList<Integer>();
-        
-        for(int k : vertixKeys){
-            if(k!=Vertex.TRUE_INDEX && k!=Vertex.FALSE_INDEX && k != v.index){
-                WeakReference<Vertex> w = T.get(k);
-                Vertex wVertex = w.get();
-                if(wVertex!=null && v.isDuplicate(wVertex))
-                    duplicates.add(wVertex.index);
-            }
-        }
-        return duplicates;
-    }
-    
-    
-    /**
-     * Delete all duplicate vertices.
-     * @deprecated Only called by reduce.
-     */
-    private boolean deleteDuplicateVertices(){
-        TimeMeasurer t = new TimeMeasurer("++++++ deleteDuplicateVertices ++++++");
-        // Uniqueness
-        boolean _change = false;
-        boolean change = false;
-        do{
-            change = false;
-            ArrayList<Integer> vertexKeys = new ArrayList<Integer>(this.T.keySet());
-            // For every vertex that is not True or False
-            for(Integer k : vertexKeys){
-                if(k!=Vertex.TRUE_INDEX && k!=Vertex.FALSE_INDEX){
-                    WeakReference<Vertex> rV = T.get(k);
-                    Vertex v = rV.get();
-                    if(v != null){
-                        // Get all of its duplicates
-                        ArrayList<Integer> duplicateIndices = getDuplicateVertexIndices(v);
-                        change = change || duplicateIndices.size()>0;
-                        for(Integer d : duplicateIndices){
-                            ArrayList<Integer> remining = new ArrayList<Integer>(this.T.keySet());
-                            for(Integer q : remining){
-                                WeakReference<Vertex> rvQ = T.get(q);
-                                Vertex vQ = rvQ.get();
-                                if(vQ!=null){
-                                    if(vQ.low().index == d)
-                                        vQ.setLow(v);
-                                    if(vQ.high().index == d)
-                                        vQ.setHigh(v);
-                                }
-                            }
-                            T.remove(d);
-                            _change = true;
-                        }
-                    }
-                }
-            }
-        }
-        while(change);
-        t.end().show();
-        return _change;
-    }
-    
-    
-    /**
-     * Reduces the BDD deleting redundant and duplicate vertices.
-     * @deprecated There are no need to call this method.
-     */
-    public synchronized void reduce(){
-        TimeMeasurer t = new TimeMeasurer("********* REDUCE *********");
-        boolean change = false;
-        do{
-            change = this.deleteRedundantVertices();
-            change = change || this.deleteDuplicateVertices();
-        }while(change);
-        //this.assignNewIndices();
-        // Asignamos U
-        //this.updateU();
-        // Asignamos la raiz
-        //this.assignRoot();
-        t.end().show();
-    }
-    
     /**
      * Calls the garbage collector that deletes the references to dead objects.
      */
     public synchronized int gc(){
-        if(VERBOSE)
-            System.out.println("<<<<<<<<<<<<<<< GC >>>>>>>>>>>>>>>>>");
+        Log.println(VERBOSE, "<<<<<<<<<<<<<<< GC >>>>>>>>>>>>>>>>>");
         
         // Compact the hash maps
         ArrayList<Integer> keys = new ArrayList<Integer>(this.T.keySet());
@@ -439,9 +303,7 @@ public class TableT {
                 if(this.T.containsKey(key)){
                     Vertex v = this.T.get(key).get();
                     if(v == null || v.isOrphan()){
-                        if(VERBOSE){
-                            System.out.println("DELETING "+v);
-                        }
+                        Log.println(VERBOSE, "DELETING "+v);
                         if(v!=null){
                             Vertex.decNumParentsOfVertex(v.low());
                             Vertex.decNumParentsOfVertex(v.high());
@@ -449,25 +311,21 @@ public class TableT {
                         thereIsADeletion = true;
                         this.remove(key);
                         deletions++;
-                        if(VERBOSE){
-                            if(v!=null){
-                                System.out.println("DELETED: "+key+" "+v);
-                            }else{
-                                System.out.println("DELETED: "+key+" NULL");
-                            }
-                        }
+                        
+                        Log.println(VERBOSE, (v!=null), "DELETED: "+key+" "+v);
+                        Log.println(VERBOSE, (v==null), "DELETED: "+key+" NULL ");
                     }
                 }
             }
         }
-        if(VERBOSE){
-            System.out.println(deletions+" vertices deleted");
-            System.out.println("<<<<<<<<<<<<<< END GC >>>>>>>>>>>>>>");
-        }
+
+        Log.println(VERBOSE, deletions+" vertices deleted");
+        Log.println(VERBOSE, "<<<<<<<<<<<<<< END GC >>>>>>>>>>>>>>");
+
         _size -= deletions;
-        if(VERBOSE){
-            System.out.println("The size is "+_size);
-        }
+        
+        Log.println(VERBOSE, "The size is "+_size);
+
         return _size;
     }
    
@@ -632,10 +490,7 @@ public class TableT {
 
         // Case a:
         if (low != null && low.variable == varJ && (high == null || high.variable != varJ)) {
-            if(VERBOSE){
-                System.out.println("CASE A");
-                System.out.flush();
-            }
+            Log.println(VERBOSE, "CASE A");
             A = v.low().low();
             B = v.low().high();
             C = v.high();
@@ -646,30 +501,18 @@ public class TableT {
         }
         // Case b:
         else if ((low == null || low.variable != varJ) && (high != null && high.variable == varJ)) {
-            if(VERBOSE){
-                System.out.println("CASE B");
-                System.out.flush();
-            }
+            Log.println(VERBOSE, "CASE B");
             A = v.low();
             B = v.high().low();
             C = v.high().high();
-            /*
-            System.out.println(A);
-            System.out.println(B);
-            System.out.println(C);*/
             newLow = addWithoutRedundant(varI, A, B);
             newHigh = addWithoutRedundant(varI, A, C);
-            //System.out.println(newLow);
-            //System.out.println(newHigh);
             this.setVertex(v, varJ, newLow, newHigh);
             swapWasMade = true;
         }
         // Case c:
         else if ((low != null && low.variable == varJ) && (high != null && high.variable == varJ)) {
-            if(VERBOSE){
-                System.out.println("CASE C");
-                System.out.flush();
-            }
+            Log.println(VERBOSE, "CASE C");
             A = v.low().low();
             B = v.low().high();
             C = v.high().low();            
@@ -681,18 +524,12 @@ public class TableT {
         }
         // Case d:
         else if ((low == null || low.variable != varJ) && (high == null || high.variable != varJ)) {
-            if(VERBOSE){
-                System.out.println("CASE D");
-                System.out.flush();
-            }
+            Log.println(VERBOSE, "CASE D");
             swapWasMade = false;
         }
         // Case e:
         else if ((low == null || low.variable != varJ) && high == null) {
-            if(VERBOSE){
-                System.out.println("CASE E");
-                System.out.flush();
-            }
+            Log.println(VERBOSE, "CASE ·");
             swapWasMade = false;
         }
         return swapWasMade;    
@@ -717,42 +554,33 @@ public class TableT {
         int variableI = variables.getVariableInPosition(level);
         int variableJ = variables.getVariableInPosition(level+1);
         
-        if(VERBOSE){
-            System.out.println("Let's swap "+variableI+" for "+variableJ+"\n");
-            System.out.flush();
-        }
-        
+        Log.println(VERBOSE, "Let's swap "+variableI+" for "+variableJ+"\n");
+
         boolean swapWasMade = false;
         // In other case, start Rudell algorithm to swaps two levels
         HashSet<Vertex> verticesOfLevel = new HashSet<Vertex>(this.getVerticesWhoseVariableIs(variableI));
         int vertex_i=0;
         for(Vertex v : verticesOfLevel){
             if(v.variable == variableI){
-                if(VERBOSE){
-                    System.out.println("Swapping vertex "+v);
-                }
+                Log.println(VERBOSE, "Swapping vertex "+v);
                 swapWasMade = swapWasMade || this.swapVertexWithDescendantsWithVariable(v, variableJ);
                 if(VERBOSE){
-                    System.out.println("Swapping vertex "+v+" ENDED");
-                    System.out.println("");
-                    System.out.flush();
+                    Log.println(VERBOSE, "Swapping vertex "+v+" ENDED");
                     Printer.printTableT("swapping "+vertex_i+" table of "+v.index);
                     vertex_i++;
                 }
             }
         }
-    
-        if(VERBOSE){
-            //Printer.printTableT("Before Swap of variable "+variableI+" has been done in variables");
-        }
         
+        // Swap the variables i and j
         BDD.variables().swapVariables(variableI, variableJ);
+        
+        // If we are in VERBOSE mode, print the variables and the graph
         if(VERBOSE){
             BDD.variables().print();
-        }
-        if(VERBOSE){
             Printer.printTableT("Swap of variable "+variableI+" has been done");
         }
+
         return swapWasMade;
     }
     
@@ -853,7 +681,6 @@ public class TableT {
                 s.append("\t");
                 s.append(v.highIndex());
                 s.append("\t");
-                //s.append(v.parents());
                 s.append("\n");
             }
         }
@@ -881,7 +708,6 @@ public class TableT {
                     s.append("\t");
                     s.append(v.highIndex());
                     s.append("\t");
-                    //s.append(v.parents());
                     s.append("\n");
                 }
             }

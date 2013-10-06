@@ -1,4 +1,4 @@
-package djbdd;
+package djbdd.core;
 
 /**
  * Representation of a vertex of the graph that contains the BDDs.

@@ -4,7 +4,7 @@
  */
 package djbdd.optimizer;
 
-import djbdd.BDD;
+import djbdd.core.BDD;
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.io.*;
 import djbdd.io.SheFileLoader;

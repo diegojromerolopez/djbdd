@@ -1,4 +1,4 @@
-package djbdd;
+package djbdd.core;
 
 import net.astesana.javaluator.*;
 

@@ -7,7 +7,7 @@ package djbdd.io;
 import java.util.*;
 import java.io.*;
 
-import djbdd.BDD;
+import djbdd.core.BDD;
 
 /**
  *

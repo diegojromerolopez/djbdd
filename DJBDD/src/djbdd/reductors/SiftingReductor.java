@@ -3,7 +3,7 @@ package djbdd.reductors;
 import djbdd.io.*;
 
 import java.util.*;
-import djbdd.*;
+import djbdd.core.*;
 
 /**
  * Runs the sifrint reductor invented by Rudell.

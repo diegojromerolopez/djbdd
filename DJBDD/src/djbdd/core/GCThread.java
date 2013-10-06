@@ -1,4 +1,6 @@
-package djbdd;
+package djbdd.core;
+
+import djbdd.core.BDD;
 
 /**
  * Thread that collects the garbage vertices with some frequency.

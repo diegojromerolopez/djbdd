@@ -4,6 +4,7 @@
  */
 package djbdd.optimizer;
 
+import djbdd.core.BDD;
 import java.util.*;
 import djbdd.*;
 

@@ -4,7 +4,8 @@
  */
 package djbdd.prob;
 
-import djbdd.*;
+import djbdd.core.BDD;
+import djbdd.core.Vertex;
 import java.util.*;
 
 /**
@@ -70,7 +71,7 @@ public class ProbComputer {
         // BDD
         this.bdd = bdd;
         
-        ArrayList<Vertex> bddVertices = bdd.vertices();
+        ArrayList<Vertex> bddVertices = this.bdd.vertices();
         
         // Number of variables
         this.numVariables = BDD.variables().size();

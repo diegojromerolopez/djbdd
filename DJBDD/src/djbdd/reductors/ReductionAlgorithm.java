@@ -1,6 +1,8 @@
 package djbdd.reductors;
 
-import djbdd.*;
+import djbdd.core.BDD;
+import djbdd.core.TableT;
+import djbdd.core.VariableList;
 
 /**
  * Abstract class that representes the different reduction algorithms

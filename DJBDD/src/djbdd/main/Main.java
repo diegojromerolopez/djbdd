@@ -5,7 +5,7 @@
 package djbdd.main;
 
 import djbdd.optimizer.FileOptimizer;
-import djbdd.BDD;
+import djbdd.core.BDD;
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.prob.*;
 import djbdd.io.*;

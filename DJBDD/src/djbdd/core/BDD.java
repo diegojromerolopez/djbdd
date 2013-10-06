@@ -1,4 +1,4 @@
-package djbdd;
+package djbdd.core;
 
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.logic.*;
@@ -84,15 +84,6 @@ public class BDD {
     }
     
     /**
-     * Initialize variables and its order
-     * @param variables List of variables existing in the system.
-     */
-    /*private static void initVariables(String[] variables, String[] orderedVariables){
-        BDD.VARIABLES = new VariableList(variables, orderedVariables);
-    }*/ 
-
-    
-    /**
      * Initialize BDD system.
      * @param variables List of variables existing in the system.
      */
@@ -128,18 +119,6 @@ public class BDD {
     public static VariableList variables(){
         return VARIABLES;
     }
-    /*
-    public static boolean variableIsLessThan(int var1, int var2){
-        return BDD.VARIABLE_ORDERING.get(var1) < BDD.VARIABLE_ORDERING.get(var2);
-    }
-    
-    public static boolean variableIsEqualTo(int var1, int var2){
-        return BDD.VARIABLE_ORDERING.get(var1) == BDD.VARIABLE_ORDERING.get(var2);
-    }
-    
-   public static boolean variableIsGreaterThan(int var1, int var2){
-        return BDD.VARIABLE_ORDERING.get(var1) > BDD.VARIABLE_ORDERING.get(var2);
-   }*/  
     
     /************************* END INIT BDD SYSTEM ****************************/
     
@@ -350,14 +329,6 @@ public class BDD {
         
         // For each children, we recursively call generateTreeFromAST
         // And assign current node as parent of the subtree generated
-        /*
-        List<CommonTree> children = (List<CommonTree>) tree.getChildren();
-        ArrayList<BDD> bdds = new ArrayList<BDD>(childCount);
-        for (CommonTree child : children) {
-            BDD bddI = BDD.generateTreeFromAST(child);
-            bdds.add(bddI);
-        }
-        */
         ArrayList<BDD> bdds = new ArrayList<BDD>(childCount);
         for(int childI=0; childI<childCount; childI++)
         {
@@ -419,25 +390,6 @@ public class BDD {
     /* Constructors */
 
     /**
-     * Initialize parameters dependant of variables and variable ordering in BDD constructor.
-     * @param variables Name of the variables and order of them in the BDD.
-     * @param variable_ordering Order of the variables given this way: variable_ordering[i]=j => jth variable is in ith position.
-     */
-    /*private void initVariableOrder(ArrayList<Integer> variable_ordering){
-        this.variable_ordering = variable_ordering;
-        this.present_variable_indices = new ArrayList<Integer>();
-        this.variable_existence = new HashMap<String,Boolean>();
-        for(int i=0; i<variable_ordering.size(); i++){
-            int variable_index = variable_ordering.get(i);
-            String var = VARIABLES.get(variable_index);
-            Boolean exists_variable = function.contains(var);
-            this.variable_existence.put(var,exists_variable);
-            if(exists_variable)
-                this.present_variable_indices.add(variable_index);
-        }
-    }*/
-    
-    /**
      * Initializes lists which tells the BDD what variables have.
      * Initialize the variable_existence and present_variable_indices lists.
      */
@@ -497,9 +449,8 @@ public class BDD {
         else
             bdd.function = "!"+variable;
         int var_index = -1;
-        //ArrayList<Integer> trivial_variable_ordering = new ArrayList<Integer>(VARIABLES.size());
+
         for (int i = 0; i < VARIABLES.size(); i++) {
-            //trivial_variable_ordering.add(i);
             if (variable.equals(VARIABLES.get(i))) {
                 var_index = i;
             }
@@ -563,13 +514,11 @@ public class BDD {
      * @param function_str Boolean logic function in string form.
      */
     BDD(String function_str, Vertex root){
-        //TimeMeasurer t = new TimeMeasurer("BDD constructor from T");
         this.function = function_str;
         // Init lists that shows if a variable is in this BDD or else.
         this.initVariablePresence();
         // Root assignement of the BDD tree
         this.assignRoot(root);
-        //t.end().show();
     }
     
     /* END Constructors */
@@ -764,6 +713,7 @@ public class BDD {
     
     /**
      * Call the garbage collector to erase weak references.
+     * @return Current size of the global graph after applying the collection.
      */
     public static int gc(){
         return BDD.T.gc();

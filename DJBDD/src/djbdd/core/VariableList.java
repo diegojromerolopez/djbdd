@@ -1,4 +1,4 @@
-package djbdd;
+package djbdd.core;
 
 import java.util.*;
 
@@ -207,30 +207,13 @@ public class VariableList {
      * @param variableJ Other variable. 
      */    
     void swapVariables(int variableI, int variableJ){
-        /*
-        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-        System.out.println(this.order);
-        System.out.println(this.orderedVariables);
-        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-        */
         // Order of variables
         int posI = this.order.get(variableI);
         int posJ = this.order.get(variableJ);
-        //System.out.println("Vars : "+variableI+" <-> "+variableJ);
-        //System.out.println("Pos: "+posI+" <-> "+posJ);
         this.order.set(variableI, posJ);
         this.order.set(variableJ, posI);
         // List of ordered variables
         Collections.swap(this.orderedVariables, posI, posJ);
-        //System.out.println(this.order);
-        //this.orderedVariables.set(posI, this.get(variableJ));
-        //this.orderedVariables.set(posJ, this.get(variableI));
-        /*
-        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-        System.out.println(this.order);
-        System.out.println(this.orderedVariables);
-        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");        
-        */
     }
     
     /**************************************************************************/
@@ -251,10 +234,7 @@ public class VariableList {
      * Gests list of variables, its order a the ordered variable list.
      */
     public String toString(){
-        //String s = "Variables: " + this.variables;
-        //s += "Variable position: " + this.order;
         return "" + this.orderedVariables;
-        //return s;
     }
     
 }

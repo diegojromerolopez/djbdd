@@ -4,7 +4,7 @@
  */
 package djbdd.io;
 
-import djbdd.BDD;
+import djbdd.core.BDD;
 import djbdd.timemeasurer.TimeMeasurer;
 import java.io.*;
 import java.util.*;

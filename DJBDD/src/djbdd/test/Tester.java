@@ -4,6 +4,8 @@
  */
 package djbdd.test;
 
+import djbdd.core.BDD;
+import djbdd.core.BooleanEvaluator;
 import djbdd.io.Printer;
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.*;
@@ -132,18 +134,6 @@ public class Tester {
         BDD bdd = new BDD(function);
         bdd.print();
         Printer.printBDD(bdd, "test2_bdd_"+bdd.size());
-        
-        // Swapping
-        BDDSiftingReduce.siftOrder();
-        //Printer.printBDD(bdd, "test2_bddswapped_"+bdd.size());
-        
-        /*if(false){
-            int var_i = 1;//c
-            BDD.T.swap(var_i);
-            Printer.printBDD(bdd, "test2_xbdd1_"+bdd.size());
-            BDD.T.swap(var_i);
-            Printer.printBDD(bdd, "test2_xbdd2_"+bdd.size());
-        }*/
     }
     
    public static void test3(){

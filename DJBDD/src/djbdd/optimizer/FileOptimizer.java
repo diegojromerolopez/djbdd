@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 package djbdd.optimizer;
+import djbdd.core.BDD;
 import java.util.*;
 import java.io.*;
 import djbdd.*;

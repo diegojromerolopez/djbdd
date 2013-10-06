@@ -4,8 +4,8 @@
  */
 package djbdd.io;
 
-import djbdd.BDD;
-import djbdd.Vertex;
+import djbdd.core.BDD;
+import djbdd.core.Vertex;
 import graphvizjava.*;
 import java.util.*;
 import java.io.File;
