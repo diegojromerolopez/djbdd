@@ -67,8 +67,10 @@ public class SiftingReductor extends ReductionAlgorithm {
         //for(int varIndex=0; varIndex<numVariables; varIndex++){
         for(int varIndex: this.variableOrder){
             if(VERBOSE){
+                System.out.println("");
                 System.out.println("=============================================");
-                System.out.println("STARTS "+varIndex);
+                System.out.println("=============================================");
+                System.out.println("STARTS "+varIndex+" ("+this.VARIABLES.get(varIndex)+")");
             }
             String var = this.VARIABLES.get(varIndex);
             int varIndexBestPosition = this.VARIABLES.getPositionOfVariable(varIndex);
@@ -109,7 +111,7 @@ public class SiftingReductor extends ReductionAlgorithm {
                 if(VERBOSE){
                     System.out.println(this.VARIABLES.getOrderedVariables()+" "+size);
                 }
-                if(size > Tsize){
+                if(Tsize <= size){
                     size = Tsize;
                     varIndexBestPosition = varIndexPosition+1;
                     if(VERBOSE){
@@ -134,9 +136,9 @@ public class SiftingReductor extends ReductionAlgorithm {
                     System.out.println(this.VARIABLES.getOrderedVariables()+" "+size);
                 }
                 
-                if(size > Tsize){
+                if(Tsize <= size){
                     size = Tsize;
-                    varIndexBestPosition = varIndexPosition+1;
+                    varIndexBestPosition = varIndexPosition-1;
                     if(VERBOSE){
                         System.out.println(Tsize+" IS THE FUCKIN BEST WITH "+varIndex+" ("+var+") at "+varIndexBestPosition);
                     }
@@ -163,7 +165,6 @@ public class SiftingReductor extends ReductionAlgorithm {
                 System.out.println("ENDS "+varIndex);
                 System.out.println("=============================================");
             }
-            return;
         }
     }
     

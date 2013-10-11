@@ -564,6 +564,51 @@ public class Tester {
         Printer.printTableT("test14_after");
     }
     
+    /**
+     * Study about reordering of variables.
+     * Uses the Ruddel's sifting algorithm
+     */
+    private static void test15(){
+    
+        //String[] variables = {"x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4"};
+        String[] variables = {"x1", "y1", "x2", "y2", "x3", "x4"};
+        BDD.init(variables);
+
+        // BDD1
+        //String function1 = "(x1 && x2 && x3 && x4) || (y1 && y2 && y3 && y4)";
+        String function1 = "(x1 && x2 && x3 && x4) || (y1 && y2)";
+        BDD bdd1 = new BDD(function1);
+        
+        System.out.println("\nBEFORE the reordering");
+        System.out.println("Size of bdd1: "+bdd1.size());
+        System.out.println("Variables before the reordering algorithm");
+        BDD.variables().print();
+        
+        // Clean the orphan nodes and print the non-optimal tree
+        BDD.gc();
+        Printer.printTableT("test15_before");
+        
+        // Reduce the tree
+        SiftingReductor reductor = new SiftingReductor();
+        reductor.run();
+        
+        System.out.println("\nAFTER the reordering");
+        System.out.println("Size of bdd1: "+bdd1.size());
+        System.out.println("Variables after the reordering algorithm");
+        BDD.variables().print();
+        
+        // Clean the orphan nodes and print the optimal tree
+        BDD.gc();
+        Printer.printTableT("test14_after");
+    }
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    /**************************************************************************/
+    
+    /**
+     * Ejecuta un test determinado.
+     */
     public static void run(int testIndex){
         if(testIndex == 0)
             test0();
@@ -595,6 +640,8 @@ public class Tester {
             test13();
         else if(testIndex == 14)
             test14();
+        else if(testIndex == 15)
+            test15();
         else {
             System.err.println("This test does NOT exists");
             System.exit(-1);
