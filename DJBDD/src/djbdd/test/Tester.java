@@ -602,6 +602,46 @@ public class Tester {
         Printer.printTableT("test14_after");
     }
     
+    /**
+     * Study about swapping of variables.
+     * Uses the Ruddel's swapping
+     */
+    private static void test16(){
+    
+        //String[] variables = {"x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4"};
+        String[] variables = {"x1", "x2", "y1", "y2", "x4", "x3"};
+        BDD.init(variables);
+
+        // BDD1
+        //String function1 = "(x1 && x2 && x3 && x4) || (y1 && y2 && y3 && y4)";
+        String function1 = "(x1 && x2 && x3 && x4) || (y1 && y2)";
+        BDD bdd1 = new BDD(function1);
+        
+        System.out.println("\nBEFORE the reordering");
+        System.out.println("Size of bdd1: "+bdd1.size());
+        System.out.println("Variables before the reordering algorithm");
+        BDD.variables().print();
+        
+        // Clean the orphan nodes and print the non-optimal tree
+        BDD.gc();
+        Printer.printTableT("test15_before");
+        
+        // Reduce the tree
+        //SiftingReductor reductor = new SiftingReductor();
+        //reductor.run();
+        
+        BDD.T.swap(2);
+        
+        System.out.println("\nAFTER the reordering");
+        System.out.println("Size of bdd1: "+bdd1.size());
+        System.out.println("Variables after the reordering algorithm");
+        BDD.variables().print();
+        
+        // Clean the orphan nodes and print the optimal tree
+        BDD.gc();
+        Printer.printTableT("test14_after");
+    }
+    
     /**************************************************************************/
     /**************************************************************************/
     /**************************************************************************/
@@ -642,6 +682,8 @@ public class Tester {
             test14();
         else if(testIndex == 15)
             test15();
+        else if(testIndex == 16)
+            test16();
         else {
             System.err.println("This test does NOT exists");
             System.exit(-1);

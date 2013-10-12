@@ -21,7 +21,7 @@ public class TableT {
     /** Default load factor of the hash tables */
     public static final float LOAD_FACTOR = 0.75f;
     
-    /** Should operations be verbose? */
+    /** Should operations be verbose and print its results? */
     private static final boolean VERBOSE = false;
     
     /**
@@ -529,9 +529,16 @@ public class TableT {
         }
         // Case e:
         else if ((low == null || low.variable != varJ) && high == null) {
-            Log.println(VERBOSE, "CASE ·");
+            Log.println(VERBOSE, "CASE E");
             swapWasMade = false;
         }
+        
+        if(VERBOSE){
+            if(!swapWasMade){
+                Log.println(VERBOSE, "-> There was NO SWAP");
+            }
+        }
+        
         return swapWasMade;    
      }
     
@@ -563,10 +570,11 @@ public class TableT {
         for(Vertex v : verticesOfLevel){
             if(v.variable == variableI){
                 Log.println(VERBOSE, "Swapping vertex "+v);
-                swapWasMade = swapWasMade || this.swapVertexWithDescendantsWithVariable(v, variableJ);
+                boolean swapWasMadeVertexV = this.swapVertexWithDescendantsWithVariable(v, variableJ);
+                swapWasMade = (swapWasMadeVertexV || swapWasMade);
                 if(VERBOSE){
-                    Log.println(VERBOSE, "Swapping vertex "+v+" ENDED");
-                    Printer.printTableT("swapping "+vertex_i+" table of "+v.index);
+                    Log.println(VERBOSE, "Swapping vertex "+v+" ENDED\n");
+                    Printer.printTableT("swapping "+vertex_i+" table of vertex.index = "+v.index);
                     vertex_i++;
                 }
             }

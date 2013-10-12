@@ -5,40 +5,48 @@
 package logger;
 
 /**
- *
+ * Debug message log.
  * @author diegoj
  */
 public class Log {
     
-    public static boolean ACTIVATED = false;
+    /**
+     * Activate / Deactivate the log print
+     */
+    public static final boolean ACTIVATED = false;
     
     public static void print(String str){
         if(ACTIVATED){
             System.out.print(str);
+            System.out.flush();
         }
     }
     
     public static void print(boolean activated, String str){
         if(activated && ACTIVATED){
             System.out.print(str);
+            System.out.flush();
         }
     }
     
     public static void println(String str){
         if(ACTIVATED){
             System.out.println(str);
+            System.out.flush();
         }
     }
     
     public static void println(boolean activated, String str){
         if(activated && ACTIVATED){
             System.out.println(str);
+            System.out.flush();
         }
     }
     
     public static void println(boolean activated, boolean condition, String str){
         if(activated && ACTIVATED && condition){
             System.out.println(str);
+            System.out.flush();
         }
     }    
     

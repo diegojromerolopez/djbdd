@@ -11,8 +11,23 @@ import djbdd.core.*;
  */
 public class SiftingReductor extends ReductionAlgorithm {
     
-    public TreeMap<Integer,Integer> variableOccurence;
-    public ArrayList<Integer> variableOrder;
+    /**
+     * Occurence of variables. Used to get the variables in the
+     * reduction method in descendant order according to its occurrence.
+     */
+    protected TreeMap<Integer,Integer> variableOccurence;
+    
+    /** Order of variables */
+    protected ArrayList<Integer> variableOrder;
+    
+    /** Number of vertices in the system */
+    protected int size;
+    
+    /** Number of variables in the system */
+    protected final int numVariables;
+    
+    /** Maximum variable position */
+    protected final int lastVariablePosition;
     
     /**
      * Creates a count of how many vertices have a particular variable.
@@ -50,121 +65,315 @@ public class SiftingReductor extends ReductionAlgorithm {
        
     }
     
+    /**
+     * Constructor of the Rudell's reduction method.
+     */
     public SiftingReductor(){
         super();
         // Construct the order of variables
         this.initVariableOcurrence();
         this.initVariableOrderDesc();
-  }
-        
+        this.size = this.T.size();
+        this.numVariables = this.VARIABLES.size();
+        this.lastVariablePosition = this.numVariables - 1;
+                
+    }
 
-    public void run(){
-        int numVariables = this.VARIABLES.size();
-        int lastVariablePosition = numVariables - 1;
-        int size = this.T.size();
+    /**
+     * Finds the best position of a variable before its current position.
+     * @param varIndex Index of the variable.
+     * @return Best backward position found for variable with index varIndex.
+     */
+    protected int findBestBackwardPosition(int varIndex){
+        int varIndexBestPosition = this.VARIABLES.getPositionOfVariable(varIndex);
+        int varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
+        boolean swapWasMade = false;
+        final String var = this.VARIABLES.get(varIndex);
+        
+        do {
+            if (VERBOSE) {
+                System.out.println("Back!!! " + varIndex + " is in position " + varIndexPosition);
+            }
+            swapWasMade = this.T.swapBack(varIndexPosition);
+            int Tsize = this.T.gc();
+
+            if (VERBOSE) {
+                System.out.println(this.VARIABLES.getOrderedVariables() + " " + size);
+            }
+
+            if (Tsize <= size) {
+                size = Tsize;
+                varIndexBestPosition = varIndexPosition - 1;
+                if (VERBOSE) {
+                    System.out.println(Tsize + " IS THE FUCKIN BEST WITH " + varIndex + " (" + var + ") at " + varIndexBestPosition);
+                }
+            }
+            if (swapWasMade) {
+                varIndexPosition--;
+            }
+        } while (swapWasMade);
+        return varIndexBestPosition;
+    }
+    
+    /**
+     * Finds the best position of a variable next to its current position.
+     * @param varIndex Index of the variable.
+     * @return Best position found for variable with index varIndex.
+     */
+    protected int findBestForwardPosition(int varIndex){
+        int varIndexBestPosition = this.VARIABLES.getPositionOfVariable(varIndex);
+        int varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
+        int newVarIndexPosition = varIndexPosition;
+        boolean swapWasMade = false;
+        final String var = this.VARIABLES.get(varIndex);
+        
+        int i = 1;
+        do {
+            if (VERBOSE) {
+                System.out.println("---------------------------------------------");
+                System.out.println("---------------------------------------------");
+                System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                System.out.println("Before swap " + i + ": variable  " + varIndex + " (" + var + ") is in position " + varIndexPosition);
+                System.out.flush();
+                //this.VARIABLES.print();
+            }
+
+            swapWasMade = this.T.swap(varIndexPosition);
+
+            if (VERBOSE) {
+                System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            }
+            newVarIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
+            if (VERBOSE) {
+                if (swapWasMade) {
+                    System.out.println("After swap " + i + ": variable " + varIndex + " (" + var + ") is in position " + newVarIndexPosition);
+                } else {
+                    System.out.println("NO swap " + i + ": variable " + varIndex + " (" + var + ") is in position " + newVarIndexPosition);
+                }
+                this.VARIABLES.print();
+                Printer.printTableT("test15_swap_" + i + "_swapped_var_at_" + varIndexPosition + "_(" + var + ")_" + this.VARIABLES.toString());
+            }
+
+            int Tsize = this.T.gc();
+            if (VERBOSE) {
+                System.out.println(this.VARIABLES.getOrderedVariables() + " " + size);
+            }
+            if (Tsize <= size) {
+                size = Tsize;
+                varIndexBestPosition = varIndexPosition + 1;
+                if (VERBOSE) {
+                    System.out.println(Tsize + " IS THE FUCKIN BEST WITH " + varIndex + " (" + var + ") at " + varIndexBestPosition);
+                }
+            }
+            if (swapWasMade) {
+                varIndexPosition++;
+            }
+            i++;
+
+        } while (swapWasMade && varIndexPosition < lastVariablePosition);
+        return varIndexBestPosition;
+    }
+    
+    /**
+     * Moves the variable to its best position.
+     * @param varIndex Index of the variable to move ot its best position.
+     * @param varIndexBestPosition Future position of the variable with varIndex.
+     */
+    protected void moveToBestPosition(int varIndex, int varIndexBestPosition){
+        
+        // Move to the best position
+        int varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
+        boolean swapWasMade = true;
+        
+        // If we have got the variable before the best position we move forward
+        // the variable
+        if(varIndexPosition < varIndexBestPosition){
+            while (swapWasMade && varIndexPosition < varIndexBestPosition) {
+                swapWasMade = this.T.swap(varIndexPosition);
+                if (swapWasMade) {
+                    varIndexPosition++;
+                }
+            }
+        }
+        // Otherwise we move backward the variable
+        else if(varIndexPosition > varIndexBestPosition){
+            while (swapWasMade && varIndexPosition >=0) {
+                swapWasMade = this.T.swapBack(varIndexPosition);
+                if (swapWasMade) {
+                    varIndexPosition--;
+                }
+            }
+        
+        
+        }
+        
+        
+    }
+    
+    /**
+     * Finds the best position of a variable supossing the others are fixed in
+     * their positions.
+     * @param varIndex Index of the variable to move to its best position.
+     * @return Best position of the variables whose index is varIndex.
+     */
+    protected int findBestPositionForVariable(int varIndex){
+        if (VERBOSE) {
+            System.out.println("");
+            System.out.println("=============================================");
+            System.out.println("=============================================");
+            System.out.println("STARTS " + varIndex + " (" + this.VARIABLES.get(varIndex) + ")");
+        }
+
+        int varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
+        int varIndexBestPosition = varIndexPosition;
+        if (VERBOSE) {
+            Printer.printTableT("test15_" + this.VARIABLES.toString());
+        }
+        
+        if(varIndexPosition < this.numVariables/2){
+            varIndexBestPosition = this.findBestBackwardPosition(varIndex);
+            varIndexBestPosition = this.findBestForwardPosition(varIndex);
+        }
+        else
+        {
+            varIndexBestPosition = this.findBestForwardPosition(varIndex);
+            varIndexBestPosition = this.findBestBackwardPosition(varIndex);
+        }
+        
+        if (VERBOSE) {
+            System.out.println("The best position is " + varIndexBestPosition);
+        }
+
+        this.moveToBestPosition(varIndex, varIndexBestPosition);
+
+        //*/
+        if (VERBOSE) {
+            System.out.println("ENDS " + varIndex);
+            System.out.println("=============================================");
+        }
+        return size;
+    }
+    
+    /*
+    public void run() {
         // For each variable find its better position given that
         // the other variables are in fixed positions
         //for(int varIndex=0; varIndex<numVariables; varIndex++){
-        for(int varIndex: this.variableOrder){
-            if(VERBOSE){
+        for (int varIndex : this.variableOrder) {
+            if (VERBOSE) {
                 System.out.println("");
                 System.out.println("=============================================");
                 System.out.println("=============================================");
-                System.out.println("STARTS "+varIndex+" ("+this.VARIABLES.get(varIndex)+")");
+                System.out.println("STARTS " + varIndex + " (" + this.VARIABLES.get(varIndex) + ")");
             }
             String var = this.VARIABLES.get(varIndex);
             int varIndexBestPosition = this.VARIABLES.getPositionOfVariable(varIndex);
             int varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
             int newVarIndexPosition = varIndexPosition;
             boolean swapWasMade = false;
-            if(VERBOSE){
-                Printer.printTableT("test15_"+this.VARIABLES.toString());
+            if (VERBOSE) {
+                Printer.printTableT("test15_" + this.VARIABLES.toString());
             }
-            int i=1;
-            do{
-                if(VERBOSE){
+            int i = 1;
+            do {
+                if (VERBOSE) {
                     System.out.println("---------------------------------------------");
                     System.out.println("---------------------------------------------");
                     System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                    System.out.println("Before swap "+i+": variable  "+varIndex+" ("+var+") is in position "+varIndexPosition);
+                    System.out.println("Before swap " + i + ": variable  " + varIndex + " (" + var + ") is in position " + varIndexPosition);
                     System.out.flush();
                     //this.VARIABLES.print();
                 }
-                
+
                 swapWasMade = this.T.swap(varIndexPosition);
-                
-                if(VERBOSE){
+
+                if (VERBOSE) {
                     System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                 }
                 newVarIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
-                if(VERBOSE){
-                    if(swapWasMade){
-                        System.out.println("After swap "+i+": variable "+varIndex+" ("+var+") is in position "+newVarIndexPosition);
-                    }else{
-                        System.out.println("NO swap "+i+": variable "+varIndex+" ("+var+") is in position "+newVarIndexPosition);
+                if (VERBOSE) {
+                    if (swapWasMade) {
+                        System.out.println("After swap " + i + ": variable " + varIndex + " (" + var + ") is in position " + newVarIndexPosition);
+                    } else {
+                        System.out.println("NO swap " + i + ": variable " + varIndex + " (" + var + ") is in position " + newVarIndexPosition);
                     }
                     this.VARIABLES.print();
-                    Printer.printTableT("test15_swap_"+i+"_swapped_var_at_"+varIndexPosition+"_("+var+")_"+this.VARIABLES.toString());
+                    Printer.printTableT("test15_swap_" + i + "_swapped_var_at_" + varIndexPosition + "_(" + var + ")_" + this.VARIABLES.toString());
                 }
 
                 int Tsize = this.T.gc();
-                if(VERBOSE){
-                    System.out.println(this.VARIABLES.getOrderedVariables()+" "+size);
+                if (VERBOSE) {
+                    System.out.println(this.VARIABLES.getOrderedVariables() + " " + size);
                 }
-                if(Tsize <= size){
+                if (Tsize <= size) {
                     size = Tsize;
-                    varIndexBestPosition = varIndexPosition+1;
-                    if(VERBOSE){
-                        System.out.println(Tsize+" IS THE FUCKIN BEST WITH "+varIndex+" ("+var+") at "+varIndexBestPosition);
+                    varIndexBestPosition = varIndexPosition + 1;
+                    if (VERBOSE) {
+                        System.out.println(Tsize + " IS THE FUCKIN BEST WITH " + varIndex + " (" + var + ") at " + varIndexBestPosition);
                     }
                 }
-                if(swapWasMade)
+                if (swapWasMade) {
                     varIndexPosition++;
+                }
                 i++;
 
-            }while(swapWasMade && varIndexPosition < lastVariablePosition);
-            
+            } while (swapWasMade && varIndexPosition < lastVariablePosition);
+
             // We go back
-            do{
-                if(VERBOSE){
-                    System.out.println("Back!!! "+varIndex+" is in position "+varIndexPosition);
+
+            do {
+                if (VERBOSE) {
+                    System.out.println("Back!!! " + varIndex + " is in position " + varIndexPosition);
                 }
                 swapWasMade = this.T.swapBack(varIndexPosition);
                 int Tsize = this.T.gc();
-                
-                if(VERBOSE){
-                    System.out.println(this.VARIABLES.getOrderedVariables()+" "+size);
+
+                if (VERBOSE) {
+                    System.out.println(this.VARIABLES.getOrderedVariables() + " " + size);
                 }
-                
-                if(Tsize <= size){
+
+                if (Tsize <= size) {
                     size = Tsize;
-                    varIndexBestPosition = varIndexPosition-1;
-                    if(VERBOSE){
-                        System.out.println(Tsize+" IS THE FUCKIN BEST WITH "+varIndex+" ("+var+") at "+varIndexBestPosition);
+                    varIndexBestPosition = varIndexPosition - 1;
+                    if (VERBOSE) {
+                        System.out.println(Tsize + " IS THE FUCKIN BEST WITH " + varIndex + " (" + var + ") at " + varIndexBestPosition);
                     }
                 }
-                if(swapWasMade)
+                if (swapWasMade) {
                     varIndexPosition--;
-            }while(swapWasMade);
-            
-            if(VERBOSE){
-                System.out.println("The best position is "+varIndexBestPosition);
+                }
+            } while (swapWasMade);
+
+            if (VERBOSE) {
+                System.out.println("The best position is " + varIndexBestPosition);
             }
-            
+
             // Move to the best position
             varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
             swapWasMade = true;
-            while(swapWasMade && varIndexPosition < varIndexBestPosition){
+            while (swapWasMade && varIndexPosition < varIndexBestPosition) {
                 swapWasMade = this.T.swap(varIndexPosition);
-                if(swapWasMade)
+                if (swapWasMade) {
                     varIndexPosition++;
+                }
             }
-              
-            //*/
-            if(VERBOSE){
-                System.out.println("ENDS "+varIndex);
+
+            //
+            if (VERBOSE) {
+                System.out.println("ENDS " + varIndex);
                 System.out.println("=============================================");
             }
+        }
+    }*/
+    
+    /**
+     * Executes the reduction method.
+     */
+    public void run() {
+        // For each variable find its better position given that
+        // the other variables are in fixed positions
+        for (int varIndex : this.variableOrder) {
+            this.findBestPositionForVariable(varIndex);
         }
     }
     

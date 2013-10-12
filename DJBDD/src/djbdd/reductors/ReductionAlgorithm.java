@@ -17,7 +17,7 @@ public abstract class ReductionAlgorithm {
     /** Variables of the system (used for readibility) */
     protected VariableList VARIABLES;
     
-    /** */
+    /** Should the process be verbose and prints a debug trace in the stdout? */
     public static final boolean VERBOSE = false;
     
     /** Rudell's sifting algorightm */
