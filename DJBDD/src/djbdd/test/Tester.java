@@ -599,7 +599,7 @@ public class Tester {
         
         // Clean the orphan nodes and print the optimal tree
         BDD.gc();
-        Printer.printTableT("test14_after");
+        Printer.printTableT("test15_after");
     }
     
     /**
@@ -624,7 +624,7 @@ public class Tester {
         
         // Clean the orphan nodes and print the non-optimal tree
         BDD.gc();
-        Printer.printTableT("test15_before");
+        Printer.printTableT("test16_before");
         
         // Reduce the tree
         //SiftingReductor reductor = new SiftingReductor();
@@ -639,8 +639,91 @@ public class Tester {
         
         // Clean the orphan nodes and print the optimal tree
         BDD.gc();
-        Printer.printTableT("test14_after");
+        Printer.printTableT("test16_after");
     }
+    
+    /**
+     * Study about swapping of variables.
+     * Uses the Ruddel's swapping.
+     * 
+     */
+    private static void test17(){
+    
+        int numVariables = 40;
+        ArrayList<String> variables = new ArrayList<String>(numVariables);
+        for(int i=1; i<=numVariables; i++){
+            variables.add("{x"+i+"}");
+        }
+        
+        String function1 = "";
+        for(int i=2; i<=numVariables; i+=2){
+            function1 += "{x"+i+"} && ";
+        }
+        function1 = function1.substring(0, function1.length()-3);
+        
+        String function2 = "";
+        for(int i=1; i<numVariables; i+=2){
+            function2 += "{x"+i+"} && ";
+        }
+
+        function2 = function2.substring(0, function2.length()-3);
+        
+        // The logic function is:
+        // (Conjunction of even variables) OR (Conjunction of odd variables)
+        // i. e. {x2} && {x4} && ... && {x20} ) || ({x1} && {x3} && ... && {x17} && {x19}
+        String function = "("+function1+") || ("+function2+")";
+        // Show it
+        System.out.println(function);
+        
+        // Initializing the system
+        BDD.init(variables);
+        
+        // BDD1
+        BDD bdd1 = new BDD(function);
+        
+        // Shows the old, non-optimal BDD
+        int oldSize = bdd1.size();
+        System.out.println("\nBEFORE the reordering");
+        System.out.println("Size of bdd1: "+oldSize);
+        System.out.println("Variables before the reordering algorithm");
+        BDD.variables().print();
+        
+        // Clean the orphan nodes and print the non-optimal tree
+        BDD.gc();
+        Printer.printTableT("test16_before");
+        
+        // Reduction type
+        int reductionType = ReductionAlgorithm.TOTAL_SEARCH;
+        
+        // Reduce the tree
+        ReductionAlgorithm reductor = null;
+        if(reductionType == ReductionAlgorithm.SIFTING_ALGORIGHTM){
+            System.out.println("Sifting reductor");
+            reductor = new SiftingReductor();
+        }else if(reductionType == ReductionAlgorithm.TOTAL_SEARCH){
+            System.out.println("Executing exact reductor");
+            reductor = new ExactReductor();
+        }
+        reductor.run();
+        
+        // Shows the new BDD
+        int newSize = bdd1.size();
+        System.out.println("\nAFTER the reordering");
+        System.out.println("Size of bdd1: "+bdd1.size());
+        System.out.println("Variables after the reordering algorithm");
+        BDD.variables().print();
+        
+        // Clean the orphan nodes and print the optimal tree
+        BDD.gc();
+        Printer.printTableT("test16_after");
+        
+        // Shows how many vertices we are reducing
+        int reduction = oldSize-newSize;
+        double reductionPercentage = (100.0 - (newSize*100.0) / (oldSize*1.0));
+        System.out.println("\n-----------------------------------------------");
+        System.out.println("Reduce the size of the BDD in "+reduction+" vertices "+"(Reduction in "+reductionPercentage+"%)");
+    }
+    
     
     /**************************************************************************/
     /**************************************************************************/
@@ -684,6 +767,8 @@ public class Tester {
             test15();
         else if(testIndex == 16)
             test16();
+        else if(testIndex == 17)
+            test17();
         else {
             System.err.println("This test does NOT exists");
             System.exit(-1);

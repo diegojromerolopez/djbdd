@@ -25,7 +25,16 @@ public abstract class ReductionAlgorithm {
     
     /** Rudell's sifting algorightm */
     public static final int SIFTING_ALGORIGHTM = 1;
-   
+
+    /** Total search algorightm */
+    public static final int TOTAL_SEARCH = 2;
+    
+    /** Total search algorightm */
+    public static final int TOTAL_SEARCH_ALGORIGHTM = 2;
+    
+    /**
+     * Constructor of the reduction algorigthm.
+     */
     public ReductionAlgorithm(){
         this.T = BDD.T;
         this.VARIABLES = BDD.variables();
