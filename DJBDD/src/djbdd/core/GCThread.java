@@ -25,6 +25,13 @@ public class GCThread extends Thread {
     }
     
     /**
+     * Constructor of the garbage collection thread.
+     */
+    public GCThread(int frequency){
+        this.frequency = frequency;
+    }
+    
+    /**
      * Run the process of garbage collection.
      */
     @Override

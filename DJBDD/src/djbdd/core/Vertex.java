@@ -313,7 +313,7 @@ public class Vertex {
      * Sets the high descendant. See  {@link djbdd.Vertex#high}.
      * @param newHigh Vertex that will be assigned as high descendant of this vertex.
      */
-    public final void setHigh(Vertex newHigh){
+    final void setHigh(Vertex newHigh){
         Vertex.decNumParentsOfVertex(this.high);
         this.high = newHigh;
         Vertex.incNumParentsOfVertex(this.high);
@@ -323,7 +323,7 @@ public class Vertex {
      * Sets the low descendant. See  {@link djbdd.Vertex#low}.
      * @param newLow Vertex that will be assigned as low descendant of this vertex.
      */
-    public final void setLow(Vertex newLow){
+    final void setLow(Vertex newLow){
         Vertex.decNumParentsOfVertex(this.low);
         this.low = newLow;
         Vertex.incNumParentsOfVertex(this.low);
