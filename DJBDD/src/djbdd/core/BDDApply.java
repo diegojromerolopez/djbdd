@@ -88,10 +88,10 @@ public class BDDApply {
         String function2 = bdd2.function.trim();
         // Get the function based on the operation
         if (operation == OP_AND) {
-            return function1 + " && " + function2;
+            return "("+function1 + " && " + function2+")";
         }
         if (operation == OP_OR) {
-            return function1 + " || " + function2;
+            return "("+function1 + " || " + function2+")";
         }
         if (operation == OP_IFF) {
             return "(" + function1 + " || !(" + function2 + ")) && (!(" + function1 + ") || " + function2 + ")";

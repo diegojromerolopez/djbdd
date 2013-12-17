@@ -346,7 +346,8 @@ public class BDD {
         BDD bdd = bdds.get(0);
         for (int i = 1; i < bdds.size(); i++) {
             BDD bddI = bdds.get(i);
-            BDD bddRes = null;//BDD.optimizeTreeGenerationFromAST(op, bdd, bddI);
+            //BDD bddRes = null;
+            BDD bddRes = BDD.optimizeTreeGenerationFromAST(op, bdd, bddI);
             if (bddRes == null) {
                 bddRes = bdd.apply(applyOp, bddI);
                 bdd.delete();

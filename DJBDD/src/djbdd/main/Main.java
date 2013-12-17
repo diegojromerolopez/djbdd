@@ -4,16 +4,13 @@
  */
 package djbdd.main;
 
-import djbdd.optimizer.FileOptimizer;
 import djbdd.core.BDD;
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.prob.*;
 import djbdd.io.*;
-import djbdd.io.DimacsFileLoader;
 import djbdd.io.Printer;
 import djbdd.test.Tester;
-import djbdd.io.SheFileLoader;
-import java.util.*;
+import djbdd.reductors.ReductorBenchmark;
 import java.io.*;
 
 /**
@@ -29,34 +26,8 @@ public class Main {
      * @return BDD contained in the filename.
      */
     private static BDD loadBDDFromFile(String format, String filename){
-        // Loading of a DIMACS file
-        if(format.equals("dimacs")){
-            DimacsFileLoader loader = new DimacsFileLoader(filename);
-            BDD bdd = loader.run();
-            return bdd;
-        }
-        
-        // Loading of a She file
-        if(format.equals("she")){
-            SheFileLoader loader = new SheFileLoader(filename);
-            BDD bdd = loader.run();
-            return bdd;            
-        }
-        
-        // Loading of a C-Style formula in BDD
-        if(format.equals("cstyle") || format.equals("c-style")){
-            CStyleFormulaFileLoader loader = new CStyleFormulaFileLoader(filename);
-            BDD bdd = loader.run();
-            return bdd;
-        }
-        
-        // Loading of a BDD in a djbdd file
-        if(format.equals("djbdd")){
-            return BDD.fromFile(filename);
-        }
-        
-        System.err.println("Type "+format+" not recognized");
-        return null;
+        BDDReader reader = new BDDReader(format, filename);
+        return reader.read();
     }
     
     public static void main(String[] args) {
@@ -68,19 +39,23 @@ public class Main {
             System.out.println("\tjava -jar BDD.jar --print --<format> <file>");
             System.out.println("2. BDD PNG image generation:");
             System.out.println("\tjava -jar BDD.jar --image --<format> <file>");
-            System.out.println("3. Probability computation:");
-            System.out.println("\tjava -jar DJBDD.jar --prob --<format> <file>");
+            System.out.println("3. Test BDD memory optimization algorithm benchmark:");
+            System.out.println("\tjava -jar BDD.jar --memory-optimization-benchmark <algorithm> --<format> <file|directory>");
+            //System.out.println("3. Probability computation:");
+            //System.out.println("\tjava -jar DJBDD.jar --prob --<format> <file>");
             System.out.println("Formats allowed: ");
             System.out.println("\tdimacs\tDimacs CNF format. See http://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps or http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html.");
             System.out.println("\tshe\tSteven she file. See https://code.google.com/p/linux-variability-analysis-tools/");
             System.out.println("\tc-style\tC-style boolean expression preceded by a line with all variables separated by commas");
             System.out.println("\tdjbdd\tDJBDD file. Don't see anything because there are no documentation yet.");
+            System.out.println("Algorithms allowed: ");
+            System.out.println("whatever: ");
             return;
         }
         
         // Main option selected for the user 
         String option = args[0];
-        TimeMeasurer t = new TimeMeasurer(option);
+        TimeMeasurer t = new TimeMeasurer(option, true);
         
         // Option switch
         if(option.equals("--runtests")){
@@ -120,7 +95,16 @@ public class Main {
             return;
         }
         
+        // Make the benchmark
+        if(option.equals("--memory-optimization-benchmark")){
+            String algorithm = args[1];
+            String format = args[2].replace("--", "");
+            String resource = args[3];
+            ReductorBenchmark.makeBenchmark(algorithm, format, resource);
+        }
+        
         t.end();
         t.show();
     }
+
 }

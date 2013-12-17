@@ -32,6 +32,8 @@ public class DimacsFileLoader {
      */
     public DimacsFileLoader(String filename){
         this.filename = filename;
+        if(VERBOSE)
+              System.out.println("Extracting "+this.filename);
     }
     
     /**
@@ -85,7 +87,11 @@ public class DimacsFileLoader {
                   else
                   {
                     String formulaI = line.substring(0, line.length()-2).trim();
-                    formulaI = formulaI.replaceAll(" ", " || ");
+                    formulaI = formulaI.replaceAll("\\s+", " ");
+                    if(formulaI.charAt(0)==' '){
+                        formulaI = formulaI.substring(1);
+                    }
+                    formulaI = formulaI.replaceAll("\\s+", " || ");
                     formulaI = formulaI.replaceAll("-", " !");
                     formulaI = formulaI.replaceAll("  ", " ");
                     formulaI += " ";

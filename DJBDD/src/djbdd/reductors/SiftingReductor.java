@@ -35,12 +35,11 @@ public class SiftingReductor extends ReductionAlgorithm {
      */
     private void initVariableOcurrence(){
         variableOccurence = new TreeMap<Integer,Integer>();
-        int numVariables = BDD.variables().size();
-        for(int variable=0; variable<numVariables; variable++){
-            int size = 0;
+        for(int variable=0; variable<this.numVariables; variable++){
+            int varSize = 0;
             if(this.T.V.containsKey(variable))
-                size = this.T.V.get(variable).size();
-            variableOccurence.put(variable, size);
+                varSize = this.T.V.get(variable).size();
+            variableOccurence.put(variable, varSize);
         }
     }
     
