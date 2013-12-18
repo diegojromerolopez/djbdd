@@ -5,7 +5,7 @@
 package djbdd.reductors;
 
 import djbdd.core.*;
-import djbdd.io.*;
+import djbdd.reductors.io.*;
 import java.io.*;
 
 /**
@@ -25,6 +25,9 @@ public class ReductorBenchmark {
     
     /** Size of the BDD after the reduction process */
     private int reducedBDDSize = 0;
+    
+    /** Should the benchmark be verbose? */
+    public static final boolean VERBOSE = false;
     
     /**
      * Gets the reduction algorithm from a string that identifies it.
@@ -46,8 +49,10 @@ public class ReductorBenchmark {
         // Read the BDD
         BDDReader reader = new BDDReader(format, file);
         this.bdd = reader.read();
-        this.bdd.print(true);
-        Printer.printBDD(this.bdd, "cocks.png");
+        if(VERBOSE){
+            this.bdd.print(true);
+            //Printer.printBDD(this.bdd, "cocks.png");
+        }
         // Apply the algorithm
         this.initialBDDSize = this.bdd.size();
         this.algorithm = ReductorBenchmark.initAlgorithm(algorithm);

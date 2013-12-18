@@ -18,7 +18,7 @@ public class DimacsFileLoader {
     String filename;
     
     /** Should it be verbose? */
-    public static final boolean VERBOSE = true;
+    public static final boolean VERBOSE = false;
     
     /** Character of starting variable in a formula */
     final static String START_VAR = "{";
