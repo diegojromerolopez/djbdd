@@ -55,6 +55,8 @@ public class ReductorBenchmark {
         }
         // Apply the algorithm
         this.initialBDDSize = this.bdd.size();
+        BDD.variables().print();
+        System.out.println(BDD.T.gc());
         this.algorithm = ReductorBenchmark.initAlgorithm(algorithm);
     }
     
@@ -63,6 +65,8 @@ public class ReductorBenchmark {
      */
     public BDD run(){
         this.algorithm.run();
+        BDD.variables().print();
+        System.out.println(BDD.T.gc());
         this.reducedBDDSize = this.bdd.size();
         return this.bdd;
     }

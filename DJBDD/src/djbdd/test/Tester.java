@@ -649,7 +649,7 @@ public class Tester {
      */
     private static void test17(){
     
-        int numVariables = 40;
+        int numVariables = 5;
         ArrayList<String> variables = new ArrayList<String>(numVariables);
         for(int i=1; i<=numVariables; i++){
             variables.add("{x"+i+"}");
@@ -690,10 +690,10 @@ public class Tester {
         
         // Clean the orphan nodes and print the non-optimal tree
         BDD.gc();
-        Printer.printTableT("test16_before");
+        Printer.printTableT("test17_before");
         
         // Reduction type
-        int reductionType = ReductionAlgorithm.TOTAL_SEARCH;
+        int reductionType = ReductionAlgorithm.SIFTING_ALGORIGHTM;
         
         // Reduce the tree
         ReductionAlgorithm reductor = null;
@@ -703,6 +703,8 @@ public class Tester {
         }else if(reductionType == ReductionAlgorithm.TOTAL_SEARCH){
             System.out.println("Executing exact reductor");
             reductor = new ExactReductor();
+        }else{
+            System.err.println("Method not selected");
         }
         reductor.run();
         
@@ -715,7 +717,7 @@ public class Tester {
         
         // Clean the orphan nodes and print the optimal tree
         BDD.gc();
-        Printer.printTableT("test16_after");
+        Printer.printTableT("test17_after");
         
         // Shows how many vertices we are reducing
         int reduction = oldSize-newSize;
@@ -733,43 +735,44 @@ public class Tester {
      * Ejecuta un test determinado.
      */
     public static void run(int testIndex){
-        if(testIndex == 0)
+        if (testIndex == 0)
             test0();
-        else if(testIndex == 1)
+        else if (testIndex == 1)
             test1();
-        else if(testIndex == 2)
+        else if (testIndex == 2)
             test2();
-        else if(testIndex == 3)
+        else if (testIndex == 3)
             test3();
-        else if(testIndex == 4)
+        else if (testIndex == 4)
             test4();
-        else if(testIndex == 5)
+        else if (testIndex == 5)
             test5();
-        else if(testIndex == 6)
+        else if (testIndex == 6)
             test6();
-        else if(testIndex == 7)
+        else if (testIndex == 7)
             test7();
-        else if(testIndex == 8)
+        else if (testIndex == 8)
             test8();
-        else if(testIndex == 9)
+        else if (testIndex == 9)
             test9();
-        else if(testIndex == 10)
+        else if (testIndex == 10)
             test10();
-        else if(testIndex == 11)
+        else if (testIndex == 11)
             test11();
-        else if(testIndex == 12)
+        else if (testIndex == 12)
             test12();
-        else if(testIndex == 13)
+        else if (testIndex == 13)
             test13();
-        else if(testIndex == 14)
+        else if (testIndex == 14)
             test14();
-        else if(testIndex == 15)
+        else if (testIndex == 15)
             test15();
-        else if(testIndex == 16)
+        else if (testIndex == 16)
             test16();
-        else if(testIndex == 17)
+        else if (testIndex == 17){
+            //System.out.println("test17");
             test17();
-        else {
+        }else {
             System.err.println("This test does NOT exists");
             System.exit(-1);
         }

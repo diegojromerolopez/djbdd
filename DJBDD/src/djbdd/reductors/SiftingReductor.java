@@ -3,7 +3,6 @@ package djbdd.reductors;
 import djbdd.io.*;
 
 import java.util.*;
-import djbdd.core.*;
 
 /**
  * Runs the sifrint reductor invented by Rudell.
@@ -28,6 +27,10 @@ public class SiftingReductor extends ReductionAlgorithm {
     
     /** Maximum variable position */
     protected final int lastVariablePosition;
+    
+    public final int VARIABLES_WITH_MORE_VERTICES_BEFORE = 0;
+    public final int VARIABLES_WITH_RANDOM_ORDER = 1;
+    public final int VARIABLES_WITH_SAME_ORDER = 2;
     
     /**
      * Creates a count of how many vertices have a particular variable.
@@ -57,11 +60,37 @@ public class SiftingReductor extends ReductionAlgorithm {
             return o2.getValue().compareTo(o1.getValue());
         }});
 
-       variableOrder = new ArrayList<Integer>(l.size());
+       this.variableOrder = new ArrayList<Integer>(l.size());
        for(Map.Entry<Integer, Integer> e : l){
-           variableOrder.add((Integer)e.getKey());
+           this.variableOrder.add((Integer)e.getKey());
        }
-       
+    }
+    
+    private static final int RANDOM_SEED = 10;
+    private static Random generator = new Random(RANDOM_SEED);
+    
+    private static int randomInt(int min, int max){
+        return min + (int)(generator.nextDouble() * ((max - min) + 1));
+    }
+    
+    private void initVariableOrderRandom(){
+        // Randomize the variable order
+        HashMap<Integer,Boolean> selectedVariables = new HashMap<Integer,Boolean>();
+        this.variableOrder = new ArrayList<Integer>(this.numVariables);
+        for(int i=0; i<this.numVariables; i++){
+            int selectedVariable = SiftingReductor.randomInt(0, this.lastVariablePosition);
+            while(selectedVariables.containsKey(selectedVariable)){
+                selectedVariable = SiftingReductor.randomInt(0, this.lastVariablePosition);
+            }
+            selectedVariables.put(selectedVariable, VERBOSE);
+            this.variableOrder.add(selectedVariable);
+        }
+    }
+    
+    private void initVariableOrderWithSameOrder(){
+        for(int i=0; i<this.numVariables; i++){
+           this.variableOrder.add(i);
+        }
     }
     
     /**
@@ -70,12 +99,31 @@ public class SiftingReductor extends ReductionAlgorithm {
     public SiftingReductor(){
         super();
         // Construct the order of variables
-        this.initVariableOcurrence();
-        this.initVariableOrderDesc();
-        this.size = this.T.size();
         this.numVariables = this.VARIABLES.size();
         this.lastVariablePosition = this.numVariables - 1;
-                
+        this.size = this.T.size();
+        // Init the order of variables
+        this.initVariableOcurrence();
+        this.initVariableOrderDesc();
+    }
+    
+    public SiftingReductor(int variableOrder){
+        super();
+        // Construct the order of variables
+        this.numVariables = this.VARIABLES.size();
+        this.lastVariablePosition = this.numVariables - 1;
+        this.size = this.T.size();
+        // Init the order of variables
+        if(variableOrder == VARIABLES_WITH_MORE_VERTICES_BEFORE){
+            this.initVariableOcurrence();
+            this.initVariableOrderDesc();
+        }
+        else if(variableOrder == VARIABLES_WITH_RANDOM_ORDER){
+            this.initVariableOrderRandom();
+        }
+        else if(variableOrder == VARIABLES_WITH_SAME_ORDER){
+            this.initVariableOrderWithSameOrder();
+        }
     }
 
     /**
@@ -261,6 +309,9 @@ public class SiftingReductor extends ReductionAlgorithm {
         // For each variable find its better position given that
         // the other variables are in fixed positions
         for (int varIndex : this.variableOrder) {
+            if(VERBOSE){
+                System.out.println("Start searching for best position for variable "+varIndex);
+            }
             this.findBestPositionForVariable(varIndex);
         }
     }
