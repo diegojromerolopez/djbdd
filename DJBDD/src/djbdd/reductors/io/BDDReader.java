@@ -26,7 +26,7 @@ public class BDDReader extends djbdd.io.BDDReader{
     @Override
     public BDD readDimacs(){
             DimacsFileLoader loader = new DimacsFileLoader(filename);
-            BDD bdd = loader.run(1, 5);
+            BDD bdd = loader.run(1, 50);
             return bdd;
     }
        

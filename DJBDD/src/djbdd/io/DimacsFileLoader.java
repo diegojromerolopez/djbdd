@@ -157,6 +157,8 @@ public class DimacsFileLoader {
                 System.exit(-1);
             }*/
             BDD bddRes = bdd.apply("and",bddI);
+            bdd.delete();
+            bddI.delete();
             /*
             if(bddRes == null){
                 System.out.println("bddRes obtenido del apply es null");

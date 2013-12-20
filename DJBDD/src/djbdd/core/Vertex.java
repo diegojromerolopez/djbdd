@@ -353,4 +353,22 @@ public class Vertex {
         String variableName = BDD.variables().get(this.variable);
         return "<Vertex index="+this.index+", var="+this.variable+" ("+variableName+"), (low="+this.low.index+", high="+this.high.index+")>";
     }
+    
+    /**
+     * Gets the string representation of a vertex and prints it on the stdio.
+     * @return String Vertex in human legible format.
+     */
+    public String debugPrint(){
+        String vertexStr = "";
+        if(this.index == FALSE_INDEX)
+            vertexStr = "<Vertex FALSE>";
+        else if(this.index == TRUE_INDEX)
+            vertexStr = "<Vertex TRUE>";
+        else{
+            String variableName = BDD.variables().get(this.variable);
+            vertexStr = "<Vertex index="+this.index+", var="+this.variable+" ("+variableName+"), (low="+this.low.index+", high="+this.high.index+"), (parents="+this.num_parents+", rooted_bdds="+this.num_rooted_bdds+">";
+        }
+        System.out.println(vertexStr);
+        return vertexStr;
+    }    
 }
