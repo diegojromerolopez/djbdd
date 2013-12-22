@@ -593,6 +593,17 @@ public class TableT {
     }
     
     /**
+     * Swaps the variable with the next variable given the variable order.
+     * @param variable Variable that will be swapped with the next one.
+     * @return informs if the swap was made. Returns true if there was a swap, false otherwise.
+     */
+    public boolean swapVariable(int variable){
+        VariableList variables = BDD.variables();
+        int level = variables.getPositionOfVariable(variable);
+        return this.swap(level);
+    }
+    
+    /**
      * Swaps the variable from the level i to level i-1.
      * @paran level Level that will be swapped with the preceding level.
      * @return informs if the swap was made. Returns true if there was a swap, false otherwise.
@@ -603,6 +614,75 @@ public class TableT {
         return this.swap(level-1);
     }
     
+    /**
+     * Swaps the variable with the previous variable given the variable order.
+     * @param variable Variable that will be swapped with the previous one.
+     * @return informs if the swap was made. Returns true if there was a swap, false otherwise.
+     */
+    public boolean swapBackVariable(int variable){
+        VariableList variables = BDD.variables();
+        int level = variables.getPositionOfVariable(variable);
+        return this.swapBack(level);
+    }    
+
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    /* Exchange two levels (uses the swap operation) */
+    
+    public void exchange(int levelI, int levelJ){
+        VariableList variables = BDD.variables();
+        
+        int variableI = variables.getVariableInPosition(levelI);
+        int variableJ = variables.getVariableInPosition(levelJ);
+        
+        // First we swap forward the variable at levelI to the position
+        // of variable in levelJ
+        for(int level=levelI; level<levelJ; level++){
+            this.swap(level);
+        }
+        
+        // Second, we swap back the variable at levelJ-1 to the position
+        // of variable in levelI
+        for(int level=levelJ-1; level>levelI; level--){
+            this.swapBack(level);
+        }
+        
+        // Swap the variables i and j
+        BDD.variables().swapVariables(variableI, variableJ);
+    }
+    
+    /**
+     * Moves the variable to a new position.
+     * @param varIndex Index of the variable to move ot its best position.
+     * @param newVarPosition Future position of the variable with varIndex.
+     */
+    public void moveVariable(int varIndex, int newVarPosition){
+        VariableList variables = BDD.variables();
+        // Move to the best position
+        int varIndexPosition = variables.getPositionOfVariable(varIndex);
+        boolean swapWasMade = true;
+        
+        // If we have got the variable before the best position we move forward
+        // the variable
+        if(varIndexPosition < newVarPosition){
+            while (swapWasMade && varIndexPosition < newVarPosition) {
+                swapWasMade = this.swap(varIndexPosition);
+                if (swapWasMade) {
+                    varIndexPosition++;
+                }
+            }
+        }
+        // Otherwise we move backward the variable
+        else if(varIndexPosition > newVarPosition){
+            while (swapWasMade && varIndexPosition >=0) {
+                swapWasMade = this.swapBack(varIndexPosition);
+                if (swapWasMade) {
+                    varIndexPosition--;
+                }
+            }
+        }
+    }
     
     /**************************************************************************/
     /**************************************************************************/

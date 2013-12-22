@@ -693,7 +693,7 @@ public class Tester {
         Printer.printTableT("test17_before");
         
         // Reduction type
-        int reductionType = ReductionAlgorithm.SIFTING_ALGORIGHTM;
+        int reductionType = ReductionAlgorithm.WINDOW_PERMUTATION;
         
         // Reduce the tree
         ReductionAlgorithm reductor = null;
@@ -703,6 +703,10 @@ public class Tester {
         }else if(reductionType == ReductionAlgorithm.TOTAL_SEARCH){
             System.out.println("Executing exact reductor");
             reductor = new ExactReductor();
+        }else if(reductionType == ReductionAlgorithm.WINDOW_PERMUTATION){
+            System.out.println("Executing window permutation algorithm");
+            int windowSize = 2;
+            reductor = new WindowPermutationReductor(windowSize);
         }else{
             System.err.println("Method not selected");
         }
@@ -726,6 +730,9 @@ public class Tester {
         System.out.println("Reduce the size of the BDD in "+reduction+" vertices "+"(Reduction in "+reductionPercentage+"%)");
     }
     
+    public static void test18(){
+    
+    }
     
     /**************************************************************************/
     /**************************************************************************/
@@ -770,8 +777,9 @@ public class Tester {
         else if (testIndex == 16)
             test16();
         else if (testIndex == 17){
-            //System.out.println("test17");
             test17();
+        }else if (testIndex == 18){
+            test18();
         }else {
             System.err.println("This test does NOT exists");
             System.exit(-1);

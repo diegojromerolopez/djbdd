@@ -66,7 +66,7 @@ public class SiftingReductor extends ReductionAlgorithm {
        }
     }
     
-    private static final int RANDOM_SEED = 10;
+    private static int RANDOM_SEED = 10;
     private static Random generator = new Random(RANDOM_SEED);
     
     private static int randomInt(int min, int max){
@@ -250,11 +250,7 @@ public class SiftingReductor extends ReductionAlgorithm {
                     varIndexPosition--;
                 }
             }
-        
-        
         }
-        
-        
     }
     
     /**

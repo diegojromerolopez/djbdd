@@ -19,15 +19,23 @@ public class BDDReader extends djbdd.io.BDDReader{
         super(format, filename);
     }
 
+   /**
+     * We want to specify the number of formulas for the benchmarks.
+     * @return BDD with only some of the CNFs.
+     */
+    public BDD readDimacs(int numberOfReadCnfs){
+            DimacsFileLoader loader = new DimacsFileLoader(filename);
+            BDD bdd = loader.run(1, numberOfReadCnfs);
+            return bdd;
+    }
+    
     /**
      * We only want 50 formulas for the benchmarks.
      * @return BDD with 50 first CNFs.
      */
     @Override
     public BDD readDimacs(){
-            DimacsFileLoader loader = new DimacsFileLoader(filename);
-            BDD bdd = loader.run(1, 50);
-            return bdd;
+        return this.readDimacs(50);
     }
        
     

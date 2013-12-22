@@ -20,6 +20,12 @@ public abstract class ReductionAlgorithm {
     /** Should the process be verbose and prints a debug trace in the stdout? */
     public static final boolean VERBOSE = false;
     
+    /** Window permutationalgorightm */
+    public static final int WINDOW_PERMUTATION = 0;
+    
+    /** Window permutationalgorightm */
+    public static final int WINDOW_PERMUTATION_ALGORITHM = 0;
+    
     /** Rudell's sifting algorightm */
     public static final int SIFTING = 1;
     

@@ -108,6 +108,22 @@ public class VariableList {
     }
     
     /**
+     * Copy constructor.
+     * @param variableList Other object that will be copied in this object.
+     */
+    public VariableList(VariableList variableList){
+        this.size = variableList.size;
+        this.variables = new ArrayList<String>(this.size);
+        this.order = new ArrayList<Integer>(this.size);
+        this.orderedVariables = new ArrayList<String>(this.size);
+        for(int i=0; i<this.size; i++){
+            this.variables.add(variableList.variables.get(i));
+            this.order.add(variableList.order.get(i));
+            this.orderedVariables.add(variableList.orderedVariables.get(i));
+        }
+    }
+    
+    /**
      * Gets the name of a variable identifed by its index.
      * @param var_index Unique index of the variable.
      * @return Variable with this index.
