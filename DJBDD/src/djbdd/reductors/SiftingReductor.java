@@ -226,7 +226,7 @@ public class SiftingReductor extends ReductionAlgorithm {
      * @param varIndex Index of the variable to move ot its best position.
      * @param varIndexBestPosition Future position of the variable with varIndex.
      */
-    protected void moveToBestPosition(int varIndex, int varIndexBestPosition){
+    /*protected void moveToBestPosition(int varIndex, int varIndexBestPosition){
         
         // Move to the best position
         int varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
@@ -251,7 +251,7 @@ public class SiftingReductor extends ReductionAlgorithm {
                 }
             }
         }
-    }
+    }*/
     
     /**
      * Finds the best position of a variable supossing the others are fixed in
@@ -287,7 +287,8 @@ public class SiftingReductor extends ReductionAlgorithm {
             System.out.println("The best position is " + varIndexBestPosition);
         }
 
-        this.moveToBestPosition(varIndex, varIndexBestPosition);
+        // Moves variable to best position
+        this.T.moveVariable(varIndex, varIndexBestPosition);
 
         //*/
         if (VERBOSE) {
