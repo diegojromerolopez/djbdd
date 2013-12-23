@@ -28,9 +28,9 @@ public class SiftingReductor extends ReductionAlgorithm {
     /** Maximum variable position */
     protected final int lastVariablePosition;
     
-    public final int VARIABLES_WITH_MORE_VERTICES_BEFORE = 0;
-    public final int VARIABLES_WITH_RANDOM_ORDER = 1;
-    public final int VARIABLES_WITH_SAME_ORDER = 2;
+    public static final int VARIABLES_WITH_MORE_VERTICES_BEFORE = 0;
+    public static final int VARIABLES_WITH_RANDOM_ORDER = 1;
+    public static final int VARIABLES_WITH_SAME_ORDER = 2;
     
     /**
      * Creates a count of how many vertices have a particular variable.

@@ -42,6 +42,18 @@ public class ReductorBenchmark {
         else if(algorithm.equals("sifting")){
             reductor = new SiftingReductor();
         }
+        else if(algorithm.equals("sifting_sameorder")){
+            reductor = new SiftingReductor(SiftingReductor.VARIABLES_WITH_SAME_ORDER);
+        }
+        else if(algorithm.equals("window_permutation_2") || algorithm.equals("window_permutation_2")){
+            reductor = new WindowPermutationReductor(2);
+        }
+        else if(algorithm.equals("window_permutation_3")){
+            reductor = new WindowPermutationReductor(3);
+        }
+        else if(algorithm.equals("window_permutation_4")){
+            reductor = new WindowPermutationReductor(4);
+        }
         return reductor;
     }
     
