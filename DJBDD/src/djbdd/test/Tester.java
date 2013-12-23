@@ -693,7 +693,9 @@ public class Tester {
         Printer.printTableT("test17_before");
         
         // Reduction type
-        int reductionType = ReductionAlgorithm.SIFTING_ALGORIGHTM;
+        int reductionType = ReductionAlgorithm.WINDOW_PERMUTATION;
+        
+        System.out.println("");
         
         // Reduce the tree
         ReductionAlgorithm reductor = null;
