@@ -825,7 +825,7 @@ public class BDD {
             reductor = new SiftingReductor();
         }
         else if(type == ReductionAlgorithm.TOTAL_SEARCH){
-            reductor = new ExactReductor();
+            reductor = new TotalSearchReductor();
         }
         reductor.run();
         // Destroy the not used vertices

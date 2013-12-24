@@ -52,6 +52,22 @@ public class TableT {
     /** Vertex that represents the true value */
     public final Vertex True;
     
+    /** Swap operation counter */
+    private int swapCounter = 0;
+    
+    /** Flag to start the swap counting */
+    private static boolean COUNT_SWAPS = false;
+    
+    private void incSwapCounter(){
+        if(COUNT_SWAPS){
+            this.swapCounter++;
+        }
+    }
+    
+    public int getSwapCounter(){
+        return this.swapCounter;
+    }
+    
     /**
      * Init the hashes wit initial capacity and load factor.
      * @param initialCapacity Initial capacity of the hash tables.
@@ -588,7 +604,12 @@ public class TableT {
             BDD.variables().print();
             Printer.printTableT("Swap of variable "+variableI+" has been done");
         }
-
+        
+        // Count the vertices swaps
+        if(swapWasMade){
+            this.incSwapCounter();
+        }
+            
         return swapWasMade;
     }
     

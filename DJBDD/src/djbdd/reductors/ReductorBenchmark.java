@@ -37,7 +37,7 @@ public class ReductorBenchmark {
     private static ReductionAlgorithm initAlgorithm(String algorithm){
         ReductionAlgorithm reductor = null;
         if(algorithm.equals("exact")){
-            reductor = new ExactReductor();
+            reductor = new TotalSearchReductor();
         }
         else if(algorithm.equals("sifting")){
             reductor = new SiftingReductor();

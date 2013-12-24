@@ -6,9 +6,9 @@ package djbdd.reductors;
  * NOTE: expect this algorightm to be very slow.
  * @author diegoj
  */
-public class ExactReductor extends SiftingReductor {
+public class TotalSearchReductor extends SiftingReductor {
   
-    public ExactReductor(){
+    public TotalSearchReductor(){
         super();
     }
     

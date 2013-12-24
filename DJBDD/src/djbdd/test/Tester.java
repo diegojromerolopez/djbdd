@@ -704,7 +704,7 @@ public class Tester {
             reductor = new SiftingReductor();
         }else if(reductionType == ReductionAlgorithm.TOTAL_SEARCH){
             System.out.println("Executing exact reductor");
-            reductor = new ExactReductor();
+            reductor = new TotalSearchReductor();
         }else if(reductionType == ReductionAlgorithm.WINDOW_PERMUTATION){
             System.out.println("Executing window permutation algorithm");
             int windowSize = 2;
