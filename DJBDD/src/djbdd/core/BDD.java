@@ -1,5 +1,7 @@
 package djbdd.core;
 
+import djbdd.reductors.totalsearch.TotalSearchReductor;
+import djbdd.reductors.sifting.SiftingReductor;
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.logic.*;
 import djbdd.reductors.*;

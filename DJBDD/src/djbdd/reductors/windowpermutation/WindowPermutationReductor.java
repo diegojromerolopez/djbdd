@@ -1,8 +1,9 @@
-package djbdd.reductors;
+package djbdd.reductors.windowpermutation;
 
 import djbdd.core.BDD;
 import java.util.*;
 import djbdd.core.VariableList;
+import djbdd.reductors.ReductionAlgorithm;
 
 /**
  * Fujita et al. & Ishiura et al. Algorithm.

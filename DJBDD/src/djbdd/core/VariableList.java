@@ -10,16 +10,22 @@ import java.util.*;
 public class VariableList {
     
     /** All the variables that will be know by all BDDs in no particular order */
-    private ArrayList<String> variables = null;
+    protected ArrayList<String> variables = null;
     
-    /** All the variables according to the order setted obtained using the swap operator */
-    private ArrayList<String> orderedVariables = null;
+    /**
+     * All the variables according to the order setted
+     * obtained using the swap operator.
+     */
+    protected ArrayList<String> orderedVariables = null;
     
-    /** Global variable ordering */
-    private ArrayList<Integer> order = null;
+    /**
+     * Global variable ordering.
+     * That is, order[i] = val iff ith variable is in position valth.
+     */
+    protected ArrayList<Integer> order = null;
     
     /** Number of variables */
-    private int size = 0;
+    protected int size = 0;
     
     /**
      * Init the list of ordered variables.
@@ -232,6 +238,7 @@ public class VariableList {
         Collections.swap(this.orderedVariables, posI, posJ);
     }
     
+   
     /**************************************************************************/
     /**************************************************************************/
     /**************************************************************************/

@@ -4,6 +4,9 @@
  */
 package djbdd.reductors;
 
+import djbdd.reductors.totalsearch.TotalSearchReductor;
+import djbdd.reductors.windowpermutation.WindowPermutationReductor;
+import djbdd.reductors.sifting.SiftingReductor;
 import djbdd.core.*;
 import djbdd.reductors.io.*;
 import java.io.*;

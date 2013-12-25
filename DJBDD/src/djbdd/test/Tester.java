@@ -1,5 +1,9 @@
 package djbdd.test;
 
+import djbdd.reductors.totalsearch.TotalSearchReductor;
+import djbdd.reductors.windowpermutation.WindowPermutationReductor;
+import djbdd.reductors.sifting.SiftingReductor;
+import djbdd.reductors.genetic.GeneticReductor;
 import djbdd.core.BDD;
 import djbdd.core.BooleanEvaluator;
 import djbdd.io.Printer;
@@ -693,7 +697,7 @@ public class Tester {
         Printer.printTableT("test17_before");
         
         // Reduction type
-        int reductionType = ReductionAlgorithm.WINDOW_PERMUTATION;
+        int reductionType = ReductionAlgorithm.GENETIC_ALGORITHM;
         
         System.out.println("");
         
@@ -709,6 +713,12 @@ public class Tester {
             System.out.println("Executing window permutation algorithm");
             int windowSize = 2;
             reductor = new WindowPermutationReductor(windowSize);
+        }else if(reductionType == ReductionAlgorithm.GENETIC_ALGORITHM){
+            System.out.println("Genetic algorithm");
+            int populationSize = 10;
+            int generations = 1000;
+            double mutationProbability = 0.1;
+            reductor = new GeneticReductor(populationSize, generations, mutationProbability);
         }else{
             System.err.println("Method not selected");
         }

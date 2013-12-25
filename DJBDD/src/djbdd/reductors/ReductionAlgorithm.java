@@ -37,6 +37,9 @@ public abstract class ReductionAlgorithm {
     
     /** Total search algorightm */
     public static final int TOTAL_SEARCH_ALGORIGHTM = 2;
+
+    /** Genetic algorightm */
+    public static final int GENETIC_ALGORITHM = 3;
     
     /**
      * Constructor of the reduction algorigthm.

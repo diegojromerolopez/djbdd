@@ -1,7 +1,8 @@
-package djbdd.reductors;
+package djbdd.reductors.sifting;
 
 import djbdd.io.*;
 
+import djbdd.reductors.ReductionAlgorithm;
 import java.util.*;
 
 /**
@@ -66,11 +67,8 @@ public class SiftingReductor extends ReductionAlgorithm {
        }
     }
     
-    private static int RANDOM_SEED = 10;
-    private static Random generator = new Random(RANDOM_SEED);
-    
     private static int randomInt(int min, int max){
-        return min + (int)(generator.nextDouble() * ((max - min) + 1));
+        return random.Random.randInt(min, max);
     }
     
     private void initVariableOrderRandom(){
