@@ -61,7 +61,7 @@ public class ReductorBenchmark {
         }
         else if(algorithm.equals("genetic")){
             int populationSize = 100;
-            int generations = 1000;
+            int generations = 1;
             double selectionPercentage = 0.2;
             double mutationProbability = 0.1;
             reductor = new GeneticReductor(populationSize, generations, selectionPercentage, mutationProbability);

@@ -653,20 +653,20 @@ public class Tester {
      */
     private static void test17(){
     
-        int numVariables = 5;
+        int numVariables = 4;
         ArrayList<String> variables = new ArrayList<String>(numVariables);
-        for(int i=1; i<=numVariables; i++){
+        for(int i=0; i<numVariables; i++){
             variables.add("{x"+i+"}");
         }
         
         String function1 = "";
-        for(int i=2; i<=numVariables; i+=2){
+        for(int i=1; i<numVariables; i+=2){
             function1 += "{x"+i+"} && ";
         }
         function1 = function1.substring(0, function1.length()-3);
         
         String function2 = "";
-        for(int i=1; i<numVariables; i+=2){
+        for(int i=0; i<numVariables-1; i+=2){
             function2 += "{x"+i+"} && ";
         }
 
@@ -701,7 +701,7 @@ public class Tester {
         
         System.out.println("");
         
-        random.Random.initSeed(10);
+        random.Random.init(10);
         // Reduce the tree
         ReductionAlgorithm reductor = null;
         if(reductionType == ReductionAlgorithm.SIFTING_ALGORIGHTM){
@@ -716,9 +716,9 @@ public class Tester {
             reductor = new WindowPermutationReductor(windowSize);
         }else if(reductionType == ReductionAlgorithm.GENETIC_ALGORITHM){
             System.out.println("Genetic algorithm");
-            int populationSize = 100;
-            int generations = 1000;
-            double selectionPercentage = 0.2;
+            int populationSize = 400;
+            int generations = 100;
+            double selectionPercentage = 0.25;
             double mutationProbability = 0.1;
             reductor = new GeneticReductor(populationSize, generations, selectionPercentage, mutationProbability);
         }else{

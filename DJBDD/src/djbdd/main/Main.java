@@ -100,7 +100,7 @@ public class Main {
             String algorithm = args[1];
             String format = args[2].replace("--", "");
             String resource = args[3];
-            random.Random.initSeed(0);
+            random.Random.init(10);
             ReductorBenchmark.makeBenchmark(algorithm, format, resource);
         }
         

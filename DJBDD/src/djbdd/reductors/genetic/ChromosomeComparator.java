@@ -14,14 +14,12 @@ public class ChromosomeComparator implements Comparator<Chromosome> {
     
     @Override
     public int compare(Chromosome o1, Chromosome o2) {
-        if(o1.treeSize < o2.treeSize){
+        if(o1.graphSize < o2.graphSize){
             return -1;
-        }else if(o1.treeSize == o2.treeSize){
-            if(o1.hashCode() < o2.hashCode())
-                return -1;
-            else if(o1.hashCode() > o2.hashCode())
-                return 1;
-            return 0;
+        }else if(o1.graphSize == o2.graphSize){
+            String o1Hash = o1.key();
+            String o2Hash = o2.key();
+            return o1Hash.compareTo(o2Hash);
         }else{
             return 1;
         }

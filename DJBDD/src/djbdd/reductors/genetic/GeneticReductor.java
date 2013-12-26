@@ -29,24 +29,39 @@ public class GeneticReductor extends ReductionAlgorithm {
     /** Percentage of population that will be selected in each iteration of the algorithm */
     private double selectionPercentage;
     
+    /** Comparator between chromosomes */
     ChromosomeComparator comparator;
     
+    /**
+     * Prints the population given as a parameter.
+     * @param chromosomes Chromosomes that will be printed.
+     */
     private void printPopulation(ArrayList<Chromosome> chromosomes){
         for(Chromosome c : chromosomes){
             c.print();
         }
     }
     
+    /**
+     * Constructor of the genetic algorithm.
+     * @param populationSize Size of the population, that is, number of chromosomes.
+     * @param generations Number of generations that will be executed.
+     * @param selectionPercentage Percentage of selected chromosomes. 
+     * @param mutationProbability Probability of mutation of each gene of each chromosome.
+     */
     public GeneticReductor(int populationSize, int generations, double selectionPercentage, double mutationProbability){
         super();
         this.numberOfGenerations = generations;
         this.populationSize = populationSize;
-        this.selectionPercentage = mutationProbability;
+        this.selectionPercentage = selectionPercentage;
         this.mutationProbability = mutationProbability;
         this.comparator = new ChromosomeComparator();
         
     }
     
+    /**
+     * Create the initial population.
+     */
     protected void generatePopulation(){
         this.population = new ArrayList<Chromosome>(this.populationSize);
         for(int i=0; i<this.populationSize; i++){
@@ -57,8 +72,11 @@ public class GeneticReductor extends ReductionAlgorithm {
         }
     }
     
+    /**
+     * Select the parents of the population that will be crossed to create children.
+     * @return Chromosome selected of the population that will be parents of the spawn.
+     */    
     protected ArrayList<Chromosome> select(){
-        Collections.sort(this.population, this.comparator);
         double dSelectionSize = this.populationSize*this.selectionPercentage;
         int selectionSize = (int)Math.round(dSelectionSize);
         if(selectionSize%2==1){
@@ -69,53 +87,60 @@ public class GeneticReductor extends ReductionAlgorithm {
                 selectionSize -= 1;
             }
         }
-        Collections.shuffle(this.population);
+        Collections.shuffle(this.population, random.Random.getRandom());
         return new ArrayList<Chromosome>(this.population.subList(0, selectionSize));
     }
     
-  
+    /**
+     * Executes the genetic algorithm.
+     */
     @Override
     public void run(){
         // First we generate the population
         this.generatePopulation();
 
-        printPopulation(this.population);
+        //printPopulation(this.population);
         
         // Later, we spawn some generations
         int genI = 0;
-        while(genI < this.numberOfGenerations){
-        
-                ArrayList<Chromosome> parents = this.select();
-                ArrayList<Chromosome> spawns = new ArrayList<Chromosome>(parents.size()/2);
-                for(int i=0; i<parents.size(); i+=2){
-                    Chromosome parent1 = parents.get(i);
-                    Chromosome parent2 = parents.get(i+1);
-                    spawns.add(parent1.cross(parent2));
-                }
-                
-                //System.out.println("WE got "+spawns.size()+" spawns");
-                
-                for(int i=0; i<spawns.size(); i++){
-                    spawns.get(i).mutate(this.mutationProbability);
-                }
-                
-                //System.out.println("We mutate the "+spawns.size()+" spawns");
-                
-                this.population.addAll(spawns);
-                Collections.sort(this.population, comparator);
-                
-                //System.out.println("We got a new population of "+this.population.size()+" chromosomes");
-                
-                this.population = new ArrayList<Chromosome>(this.population.subList(0, this.populationSize));
-                genI++;
-                
-                printPopulation(this.population);
+        while (genI < this.numberOfGenerations) {
+
+            // Select the best parents of the population
+            ArrayList<Chromosome> parents = this.select();
+
+            // This parents will spawn some children
+            ArrayList<Chromosome> spawns = new ArrayList<Chromosome>(parents.size() / 2);
+            for (int i = 0; i < parents.size(); i += 2) {
+                Chromosome parent1 = parents.get(i);
+                Chromosome parent2 = parents.get(i + 1);
+                spawns.add(parent1.cross(parent2));
+            }
+
+            // The children are mutated
+            for (int i = 0; i < spawns.size(); i++) {
+                spawns.get(i).mutate(this.mutationProbability);
+            }
+
+            // The population increases with the new children
+            this.population.addAll(spawns);
+
+            // We order the chromosomes in generated graph size ascendent order
+            Collections.sort(this.population, comparator);
+
+            // We get the best elements of the population
+            this.population = new ArrayList<Chromosome>(this.population.subList(0, this.populationSize));
+            genI++;
+
+            //printPopulation(this.population);
         }
         
+        //printPopulation(this.population);
         Collections.sort(this.population, comparator);
         
         Chromosome bestSolution = this.population.get(0);
-        bestSolution.computeTreeSize();
+        //System.out.println("BEST SOLUTION");
+        //bestSolution.print();
+        bestSolution.applyOrderToGraph();
         
     }
     

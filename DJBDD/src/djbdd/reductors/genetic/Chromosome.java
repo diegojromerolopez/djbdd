@@ -17,21 +17,47 @@ import djbdd.core.VariableList;
 public class Chromosome extends VariableList {
     
     /** Size that will have the BDD using this order. */
-    int treeSize;
+    int graphSize;
+    
+    /** Cache used to avoid repeated graph size computaltions */
+    private static HashMap<String,Integer> GRAPH_SIZE_CACHE = new HashMap<String,Integer>();
     
     /**
      * Assign the order given by this chromosome.
-     */
-    public void computeTreeSize(){
-        for(int varIndex=0; varIndex<this.size; varIndex++){
+     * @return The new size of the graph.
+     */    
+    public int applyOrderToGraph() {
+        // For each variable, move that to its position
+        for (int varIndex = 0; varIndex < this.size; varIndex++) {
             int varPosition = this.order.get(varIndex);
             BDD.T.moveVariable(varIndex, varPosition);
         }
+        // Clean the rubbish
         BDD.T.gc();
-        this.treeSize = BDD.T.size();
-        //System.out.println("T size for chromosome "+this.order+": "+this.treeSize);
+        // Returns the new size of the graph
+        return BDD.T.size();
     }
     
+    /**
+     * Get the graph size given this order.
+     */
+    public void computeGraphSize(){
+        String thisKey = this.key();
+        if(Chromosome.GRAPH_SIZE_CACHE.containsKey(thisKey)){
+            //System.out.println(thisKey+" "+Chromosome.GRAPH_SIZE_CACHE.get(thisKey));
+            this.graphSize = Chromosome.GRAPH_SIZE_CACHE.get(thisKey);
+        }
+        else{
+            this.graphSize = this.applyOrderToGraph();
+            Chromosome.GRAPH_SIZE_CACHE.put(thisKey, this.graphSize);
+        }
+        
+        //System.out.println("T size for chromosome "+this.order+": "+this.graphSize);
+    }
+    
+    /**
+     * Initialize the ordered variables member.
+     */
     private void initOrderedVariables(){
         this.orderedVariables = new ArrayList<String>(this.size);
         for(int i=0; i<this.size; i++){
@@ -44,23 +70,34 @@ public class Chromosome extends VariableList {
         }
     }
     
-    private void initOrder(){
+    /**
+     * Init the order of the variables in a randomized way
+     */
+    private void initRandomOrder(){
         // Order hash that gives the position of each variable
         this.order = new ArrayList<Integer>(this.size);
         for(int i=0; i<this.size; i++){
             this.order.add(i);
         }
         // Randomize the order
-        Collections.shuffle(this.order);
+        Collections.shuffle(this.order, random.Random.getRandom());
         this.initOrderedVariables();
-        this.computeTreeSize();
+        this.computeGraphSize();
     }
     
+    /**
+     * Constructor of the Chromosome.
+     * Creates a random order.
+     */
     public Chromosome(){
         super(BDD.variables());
-        this.initOrder();
+        this.initRandomOrder();
     }
-    
+
+    /**
+     * Copy constructor of the Chromosome.
+     * @param original Order that will be copied
+     */
     public Chromosome(Chromosome original){
         super(BDD.variables());
         this.variables = original.variables;
@@ -83,7 +120,7 @@ public class Chromosome extends VariableList {
         }
         
         mutant.initOrderedVariables();
-        mutant.computeTreeSize();
+        mutant.computeGraphSize();
         return mutant;
     }*/
     
@@ -97,7 +134,7 @@ public class Chromosome extends VariableList {
         }
         
         this.initOrderedVariables();
-        this.computeTreeSize();
+        this.computeGraphSize();
     }
     
     public Chromosome cross(Chromosome other){
@@ -138,12 +175,16 @@ public class Chromosome extends VariableList {
         //System.out.println(spawn.order);
         
         spawn.initOrderedVariables();
-        spawn.computeTreeSize();
+        spawn.computeGraphSize();
         return spawn;
     }
     
     public void print(){
-        System.out.println(this.orderedVariables+" S:"+this.treeSize);
+        System.out.println(this.orderedVariables+" S:"+this.graphSize);
+    }
+    
+    public String key(){
+        return this.order.toString();
     }
     
 }
