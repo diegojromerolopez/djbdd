@@ -53,7 +53,7 @@ public class TableT {
     public final Vertex True;
     
     /** Swap operation counter */
-    private int swapCounter = 0;
+    private long swapCounter = 0;
     
     /** Flag to start the swap counting */
     private static boolean COUNT_SWAPS = false;
@@ -64,7 +64,7 @@ public class TableT {
         }
     }
     
-    public int getSwapCounter(){
+    public long getSwapCounter(){
         return this.swapCounter;
     }
     

@@ -29,9 +29,14 @@ public class Chromosome extends VariableList {
         }
         BDD.T.gc();
         this.treeSize = BDD.T.size();
+        //System.out.println("T size for chromosome "+this.order+": "+this.treeSize);
     }
     
     private void initOrderedVariables(){
+        this.orderedVariables = new ArrayList<String>(this.size);
+        for(int i=0; i<this.size; i++){
+            orderedVariables.add("");
+        }
         for(int var_index=0; var_index<this.size; var_index++){
             int position = this.order.get(var_index);
             String var = this.variables.get(var_index);
@@ -47,11 +52,6 @@ public class Chromosome extends VariableList {
         }
         // Randomize the order
         Collections.shuffle(this.order);
-        // Assign to each position its variable
-        this.orderedVariables = new ArrayList<String>(this.size);
-        for(int i=0; i<this.size; i++){
-            orderedVariables.add("");
-        }
         this.initOrderedVariables();
         this.computeTreeSize();
     }
@@ -64,13 +64,15 @@ public class Chromosome extends VariableList {
     public Chromosome(Chromosome original){
         super(BDD.variables());
         this.variables = original.variables;
+        this.order = new ArrayList<Integer>(this.size);
+        this.orderedVariables = new ArrayList<String>(this.size);
         for(int i=0; i<this.size; i++){
             this.order.add(original.order.get(i));
             this.orderedVariables.add(original.orderedVariables.get(i));
         }
     }
- 
-     public Chromosome spawnMutant(double percentage){
+
+   /*  public Chromosome spawnMutant(double percentage){
         Chromosome mutant = new Chromosome(this);
         
         int mutatedNumberOfGenes = (int)Math.round(this.size*percentage);
@@ -83,15 +85,15 @@ public class Chromosome extends VariableList {
         mutant.initOrderedVariables();
         mutant.computeTreeSize();
         return mutant;
-    }
+    }*/
     
-    public void mutate(double percentage){
-       
-        int mutatedNumberOfGenes = (int)Math.round(this.size*percentage);
-        for(int i=0; i<mutatedNumberOfGenes; i++){
-            int variableI = Random.randInt(0,this.size-1);
-            int variableJ = Random.randInt(0,this.size-1);
-            Collections.swap(this.order, variableI, variableJ);
+    public void mutate(double probability){
+        for(int i=0; i<this.size; i++){
+            if(random.Random.rand()<probability){
+                int variableI = Random.randInt(0,this.size-1);
+                int variableJ = Random.randInt(0,this.size-1);
+                Collections.swap(this.order, variableI, variableJ);
+            }
         }
         
         this.initOrderedVariables();
@@ -104,31 +106,44 @@ public class Chromosome extends VariableList {
         int thisI = 0;
         int otherI = 0;
         spawn.order = new ArrayList<Integer>(this.size);
+        for(int i =0; i<this.size; i++){
+            spawn.order.add(-1);
+        }
+        
         HashSet<Integer> usedPositions = new HashSet<Integer>();
         for(int varIndex=0; varIndex<this.size; varIndex++){
-            
+            //System.out.println(spawn.order);
             int varPosition = -1;
             if(varIndex % 2 == 0){
-                while(usedPositions.contains(varPosition) || varPosition==-1){
+                do{
                     varPosition = this.order.get(thisI);
-                    usedPositions.add(varPosition);
                     thisI++;
-                }
+                }while(usedPositions.contains(varPosition));
+                usedPositions.add(varPosition);
+                
+                //System.out.println(thisI+ " "+varPosition);
             }
             else{
-                while(usedPositions.contains(varPosition) || varPosition==-1){
-                    varPosition = this.order.get(otherI);
-                    usedPositions.add(varPosition);
+                do{
+                    varPosition = other.order.get(otherI);
                     otherI++;
-                }
+                }while(usedPositions.contains(varPosition));
+                usedPositions.add(varPosition);
             }
             
-            spawn.order.add(varPosition);
+            spawn.order.set(varIndex,varPosition);
         }
+        
+        //System.out.println(this.order+" + "+other.order);
+        //System.out.println(spawn.order);
         
         spawn.initOrderedVariables();
         spawn.computeTreeSize();
         return spawn;
+    }
+    
+    public void print(){
+        System.out.println(this.orderedVariables+" S:"+this.treeSize);
     }
     
 }

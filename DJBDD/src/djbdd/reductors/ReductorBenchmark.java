@@ -7,9 +7,11 @@ package djbdd.reductors;
 import djbdd.reductors.totalsearch.TotalSearchReductor;
 import djbdd.reductors.windowpermutation.WindowPermutationReductor;
 import djbdd.reductors.sifting.SiftingReductor;
+import djbdd.reductors.genetic.GeneticReductor;
 import djbdd.core.*;
 import djbdd.reductors.io.*;
 import java.io.*;
+import java.util.*;
 import djbdd.io.Printer;
 
 /**
@@ -56,6 +58,13 @@ public class ReductorBenchmark {
         }
         else if(algorithm.equals("window_permutation_4")){
             reductor = new WindowPermutationReductor(4);
+        }
+        else if(algorithm.equals("genetic")){
+            int populationSize = 100;
+            int generations = 1000;
+            double selectionPercentage = 0.2;
+            double mutationProbability = 0.1;
+            reductor = new GeneticReductor(populationSize, generations, selectionPercentage, mutationProbability);
         }
         return reductor;
     }

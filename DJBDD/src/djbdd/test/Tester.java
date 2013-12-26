@@ -701,6 +701,7 @@ public class Tester {
         
         System.out.println("");
         
+        random.Random.initSeed(10);
         // Reduce the tree
         ReductionAlgorithm reductor = null;
         if(reductionType == ReductionAlgorithm.SIFTING_ALGORIGHTM){
@@ -715,10 +716,11 @@ public class Tester {
             reductor = new WindowPermutationReductor(windowSize);
         }else if(reductionType == ReductionAlgorithm.GENETIC_ALGORITHM){
             System.out.println("Genetic algorithm");
-            int populationSize = 10;
+            int populationSize = 100;
             int generations = 1000;
+            double selectionPercentage = 0.2;
             double mutationProbability = 0.1;
-            reductor = new GeneticReductor(populationSize, generations, mutationProbability);
+            reductor = new GeneticReductor(populationSize, generations, selectionPercentage, mutationProbability);
         }else{
             System.err.println("Method not selected");
         }

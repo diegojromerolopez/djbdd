@@ -26,21 +26,51 @@ public class GeneticReductor extends ReductionAlgorithm {
     /** Probability of having a position altered in the process */
     private double mutationProbability;
     
+    /** Percentage of population that will be selected in each iteration of the algorithm */
+    private double selectionPercentage;
     
-    public GeneticReductor(int populationSize, int generations, double mutationProbability){
+    ChromosomeComparator comparator;
+    
+    private void printPopulation(ArrayList<Chromosome> chromosomes){
+        for(Chromosome c : chromosomes){
+            c.print();
+        }
+    }
+    
+    public GeneticReductor(int populationSize, int generations, double selectionPercentage, double mutationProbability){
         super();
         this.numberOfGenerations = generations;
         this.populationSize = populationSize;
+        this.selectionPercentage = mutationProbability;
         this.mutationProbability = mutationProbability;
+        this.comparator = new ChromosomeComparator();
         
     }
     
     protected void generatePopulation(){
-        this.population = null;
+        this.population = new ArrayList<Chromosome>(this.populationSize);
+        for(int i=0; i<this.populationSize; i++){
+            this.population.add(new Chromosome());
+        }
+        if(VERBOSE){
+            System.out.println("WE GOT "+this.population.size()+" chromosomes");
+        }
     }
     
     protected ArrayList<Chromosome> select(){
-        return null;
+        Collections.sort(this.population, this.comparator);
+        double dSelectionSize = this.populationSize*this.selectionPercentage;
+        int selectionSize = (int)Math.round(dSelectionSize);
+        if(selectionSize%2==1){
+            if(selectionSize+1 < this.populationSize){
+                selectionSize += 1;
+            }
+            else{
+                selectionSize -= 1;
+            }
+        }
+        Collections.shuffle(this.population);
+        return new ArrayList<Chromosome>(this.population.subList(0, selectionSize));
     }
     
   
@@ -48,8 +78,8 @@ public class GeneticReductor extends ReductionAlgorithm {
     public void run(){
         // First we generate the population
         this.generatePopulation();
-        
-        ChromosomeComparator comparator = new ChromosomeComparator();
+
+        printPopulation(this.population);
         
         // Later, we spawn some generations
         int genI = 0;
@@ -63,17 +93,23 @@ public class GeneticReductor extends ReductionAlgorithm {
                     spawns.add(parent1.cross(parent2));
                 }
                 
+                //System.out.println("WE got "+spawns.size()+" spawns");
+                
                 for(int i=0; i<spawns.size(); i++){
                     spawns.get(i).mutate(this.mutationProbability);
                 }
                 
-                ArrayList<Chromosome> newPopulation = new ArrayList<Chromosome>(spawns.size()+parents.size());
-                newPopulation.addAll(spawns);
-                newPopulation.addAll(parents);
-                Collections.sort(newPopulation, comparator);
+                //System.out.println("We mutate the "+spawns.size()+" spawns");
                 
-                this.population = (ArrayList<Chromosome>)newPopulation.subList(0, this.populationSize);
+                this.population.addAll(spawns);
+                Collections.sort(this.population, comparator);
+                
+                //System.out.println("We got a new population of "+this.population.size()+" chromosomes");
+                
+                this.population = new ArrayList<Chromosome>(this.population.subList(0, this.populationSize));
                 genI++;
+                
+                printPopulation(this.population);
         }
         
         Collections.sort(this.population, comparator);

@@ -15,11 +15,15 @@ public class Random {
     
     public static void initSeed(int seed){
         Random.RANDOM_SEED = seed;
-        Random.generator = new java.util.Random(RANDOM_SEED);
+        Random.generator = new java.util.Random(Random.RANDOM_SEED);
     }
     
     public static int randInt(int min, int max){
         return min + (int)(Random.generator.nextDouble() * ((max - min) + 1));
+    }
+    
+    public static double rand(){
+        return Random.generator.nextDouble();
     }
     
 }
