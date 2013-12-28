@@ -239,6 +239,22 @@ public class VariableList {
     }
     
    
+    /**
+     * Apply order to graph.
+     * Used in djbdd.reductors.genetic and djbdd.reductors.random.
+     */
+    public int applyOrderToGraph() {
+        // For each variable, move that to its position
+        for (int varIndex = 0; varIndex < this.size; varIndex++) {
+            int varPosition = this.order.get(varIndex);
+            BDD.T.moveVariable(varIndex, varPosition);
+        }
+        // Clean the rubbish
+        BDD.T.gc();
+        // Returns the new size of the graph
+        return BDD.T.size();
+    }
+    
     /**************************************************************************/
     /**************************************************************************/
     /**************************************************************************/

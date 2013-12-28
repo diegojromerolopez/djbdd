@@ -8,6 +8,7 @@ import djbdd.reductors.totalsearch.TotalSearchReductor;
 import djbdd.reductors.windowpermutation.WindowPermutationReductor;
 import djbdd.reductors.sifting.SiftingReductor;
 import djbdd.reductors.genetic.GeneticReductor;
+import djbdd.reductors.random.*;
 import djbdd.core.*;
 import djbdd.reductors.io.*;
 import java.io.*;
@@ -35,13 +36,21 @@ public class ReductorBenchmark {
     /** Should the benchmark be verbose? */
     public static final boolean VERBOSE = false;
     
+    private static void assertParameter(HashMap<String,String> params, String parameter, String explanation){
+        if(!params.containsKey(parameter)){
+            System.err.println(explanation);
+            System.exit(-1);
+        }
+    }
+    
     /**
      * Gets the reduction algorithm from a string that identifies it.
-     * @param algorithm 
+     * @param algorithm Algorithm that will be executed.
+     * @param params Parameters of each algorith.
      */
-    private static ReductionAlgorithm initAlgorithm(String algorithm){
+    private static ReductionAlgorithm initAlgorithm(String algorithm, HashMap<String,String> params){
         ReductionAlgorithm reductor = null;
-        if(algorithm.equals("exact")){
+        if(algorithm.equals("total_search")){
             reductor = new TotalSearchReductor();
         }
         else if(algorithm.equals("sifting")){
@@ -50,39 +59,55 @@ public class ReductorBenchmark {
         else if(algorithm.equals("sifting_sameorder")){
             reductor = new SiftingReductor(SiftingReductor.VARIABLES_WITH_SAME_ORDER);
         }
-        else if(algorithm.equals("window_permutation_2") || algorithm.equals("window_permutation_2")){
-            reductor = new WindowPermutationReductor(2);
-        }
-        else if(algorithm.equals("window_permutation_3")){
-            reductor = new WindowPermutationReductor(3);
-        }
-        else if(algorithm.equals("window_permutation_4")){
-            reductor = new WindowPermutationReductor(4);
+        else if(algorithm.equals("window_permutation")){
+            assertParameter(params, "window_size", "Size of the window in the algorithm. Suggested values are 2, 3 or 4.");
+            int window_size = Integer.parseInt(params.get("population"));
+            reductor = new WindowPermutationReductor(window_size);
         }
         else if(algorithm.equals("genetic")){
-            int populationSize = 100;
-            int generations = 1;
-            double selectionPercentage = 0.2;
-            double mutationProbability = 0.1;
+            // Population size
+            assertParameter(params, "population", "Number of chromosomes in the genetic algorithm.");
+            int populationSize = Integer.parseInt(params.get("population"));
+            // Generations (iterations of the algorithm)
+            assertParameter(params, "generations", "Number of iterations of the genetic algorithm.");
+            int generations = Integer.parseInt(params.get("generations"));
+            // Selection percentage
+            assertParameter(params, "selection_percentage", "Percentage of chromosomes selected in the algorithm.");
+            double selectionPercentage = Double.parseDouble(params.get("selection_percentage"));
+            if(selectionPercentage > 1)
+                selectionPercentage = selectionPercentage / 100;
+            // Mutation probability
+            assertParameter(params, "mutation_probability", "Probability of mutation in each gene of each chromosome.");
+            double mutationProbability = Double.parseDouble(params.get("mutation_probability"));
+            if(mutationProbability > 1)
+            {
+                System.err.println("This value must be in the interval [0, 1]");
+                System.exit(-1);
+            }
             reductor = new GeneticReductor(populationSize, generations, selectionPercentage, mutationProbability);
+        }
+        else if(algorithm.equals("random_swapper")){
+            // Iterations
+            assertParameter(params, "iterations", "Iterations of the random swapper algorithm.");
+            int iterations = Integer.parseInt(params.get("iterations"));
+            reductor = new RandomSwapperReductor(iterations);
         }
         return reductor;
     }
     
    
-    public ReductorBenchmark(String algorithm, String format, String file){
+    public ReductorBenchmark(String algorithm, HashMap<String,String> params, String format, String file){
         // Read the BDD
         BDDReader reader = new BDDReader(format, file);
         this.bdd = reader.read();
         if(VERBOSE){
             this.bdd.print(true);
-            //Printer.printBDD(this.bdd, "cocks.png");
         }
         // Apply the algorithm
         this.initialBDDSize = this.bdd.size();
         //BDD.variables().print();
         //System.out.println(BDD.T.gc());
-        this.algorithm = ReductorBenchmark.initAlgorithm(algorithm);
+        this.algorithm = ReductorBenchmark.initAlgorithm(algorithm, params);
     }
     
     /**
@@ -106,24 +131,25 @@ public class ReductorBenchmark {
         return this.reducedBDDSize;
     }
     
-    public static void makeBenchmark(String algorithm, String format, String resourceName){
+    private static void makeFileBenchmark(String algorithm, HashMap<String,String> params, String format, File file){
+        String filepath = file.getAbsolutePath();
+        String filename = file.getName();
+        ReductorBenchmark reductor = new ReductorBenchmark(algorithm, params, format, filepath);
+        reductor.run();
+        System.out.println(filename + " " + algorithm + " " + reductor.getInitialBDDSize() + " " + reductor.getReducedBDDSize()+" "+BDD.T.getSwapCounter());
+    }
+    
+    public static void makeBenchmark(String algorithm, HashMap<String,String> params, String format, String resourceName){
         File f = new File(resourceName);
-           
         if (f.isFile()) {
-            String file = resourceName;
-            ReductorBenchmark reductor = new ReductorBenchmark(algorithm, format, file);
-            reductor.run();
-            System.out.println(file + " " + algorithm + " " + reductor.getInitialBDDSize() + " " + reductor.getReducedBDDSize());
+            ReductorBenchmark.makeFileBenchmark(algorithm, params, format, f);
         } else if (f.isDirectory()) {
             File[] listOfFiles = f.listFiles();
             for (int i = 0; i < listOfFiles.length; i++) {
                 File file = listOfFiles[i];
                 if (file.isFile()) {
-                    String filename = file.getAbsolutePath();
-                    ReductorBenchmark reductor = new ReductorBenchmark(algorithm, format, filename);
-                    reductor.run();
-                    System.out.println(filename + " " + algorithm + " " + reductor.getInitialBDDSize() + " " + reductor.getReducedBDDSize());
-                    //return;
+                    ReductorBenchmark.makeFileBenchmark(algorithm, params, format, file);
+                    return;
                 }
             }
         }

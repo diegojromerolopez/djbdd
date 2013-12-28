@@ -40,6 +40,12 @@ public abstract class ReductionAlgorithm {
 
     /** Genetic algorightm */
     public static final int GENETIC_ALGORITHM = 3;
+
+    /** Random swp algorightm */
+    public static final int RANDOM_SWAP = 4;
+
+    /** Random swap algorightm */
+    public static final int RANDOM_SWAP_ALGORITHM = 4;
     
     /**
      * Constructor of the reduction algorigthm.

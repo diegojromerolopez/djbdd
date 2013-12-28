@@ -27,6 +27,7 @@ public class Chromosome extends VariableList {
      * @return The new size of the graph.
      */    
     public int applyOrderToGraph() {
+        /*
         // For each variable, move that to its position
         for (int varIndex = 0; varIndex < this.size; varIndex++) {
             int varPosition = this.order.get(varIndex);
@@ -36,6 +37,9 @@ public class Chromosome extends VariableList {
         BDD.T.gc();
         // Returns the new size of the graph
         return BDD.T.size();
+         * 
+         */
+        return super.applyOrderToGraph();
     }
     
     /**

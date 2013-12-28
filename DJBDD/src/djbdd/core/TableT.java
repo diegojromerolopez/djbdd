@@ -56,7 +56,7 @@ public class TableT {
     private long swapCounter = 0;
     
     /** Flag to start the swap counting */
-    private static boolean COUNT_SWAPS = false;
+    private static boolean COUNT_SWAPS = true;
     
     private void incSwapCounter(){
         if(COUNT_SWAPS){
@@ -90,6 +90,7 @@ public class TableT {
         this.False = new Vertex(false);
         this.addNew(this.False);
         this.addNew(this.True);
+        this.swapCounter = 0;
     }
     
     /**
@@ -103,6 +104,7 @@ public class TableT {
         this.False = new Vertex(false);
         this.addNew(this.False);
         this.addNew(this.True);
+        this.swapCounter = 0;
     }
     
     /**

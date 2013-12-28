@@ -263,6 +263,7 @@ public class SiftingReductor extends ReductionAlgorithm {
             System.out.println("=============================================");
             System.out.println("=============================================");
             System.out.println("STARTS " + varIndex + " (" + this.VARIABLES.get(varIndex) + ")");
+            System.out.println("The size of the tree is "+T.size());
         }
 
         int varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
@@ -271,7 +272,7 @@ public class SiftingReductor extends ReductionAlgorithm {
             Printer.printTableT("test15_" + this.VARIABLES.toString());
         }
         
-        if(varIndexPosition < this.numVariables/2){
+        if(varIndexPosition <= this.numVariables/2){
             varIndexBestPosition = this.findBestBackwardPosition(varIndex);
             varIndexBestPosition = this.findBestForwardPosition(varIndex);
         }
@@ -291,6 +292,8 @@ public class SiftingReductor extends ReductionAlgorithm {
         //*/
         if (VERBOSE) {
             System.out.println("ENDS " + varIndex);
+            System.out.println("The size of the tree is "+T.size());
+            System.out.println("=============================================");
             System.out.println("=============================================");
         }
         return size;
@@ -303,11 +306,14 @@ public class SiftingReductor extends ReductionAlgorithm {
     public void run() {
         // For each variable find its better position given that
         // the other variables are in fixed positions
+        Printer.printTableT("sifting_before");
         for (int varIndex : this.variableOrder) {
             if(VERBOSE){
                 System.out.println("Start searching for best position for variable "+varIndex);
             }
             this.findBestPositionForVariable(varIndex);
+            Printer.printTableT("sifting_after");
+            return;
         }
     }
     

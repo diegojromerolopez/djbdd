@@ -12,6 +12,7 @@ import djbdd.io.Printer;
 import djbdd.test.Tester;
 import djbdd.reductors.ReductorBenchmark;
 import java.io.*;
+import java.util.*;
 
 /**
  * Basic Main that allows doing some basic operations on BDDs.
@@ -97,11 +98,20 @@ public class Main {
         
         // Make the benchmark
         if(option.equals("--memory-optimization-benchmark")){
-            String algorithm = args[1];
-            String format = args[2].replace("--", "");
-            String resource = args[3];
+            String format = args[1].replace("--", "");
+            String resource = args[2];
+            String algorithm = args[3];
             random.Random.init(10);
-            ReductorBenchmark.makeBenchmark(algorithm, format, resource);
+            HashMap<String,String> params = new HashMap<String,String>();
+            for(int i=4; i<args.length; i++){
+                if(!args[i].contains("=")){
+                    System.err.println("From the 4th commandline argument, they must be of the form <algorithm_parameter>=<algorithm_parameter_value>");
+                    System.exit(-1);
+                }
+                String[] algParameter = args[i].split("=");
+                params.put(algParameter[0], algParameter[1]);
+            }
+            ReductorBenchmark.makeBenchmark(algorithm, params, format, resource);
         }
         
         t.end();

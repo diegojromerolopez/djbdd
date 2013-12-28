@@ -4,6 +4,7 @@ import djbdd.reductors.totalsearch.TotalSearchReductor;
 import djbdd.reductors.windowpermutation.WindowPermutationReductor;
 import djbdd.reductors.sifting.SiftingReductor;
 import djbdd.reductors.genetic.GeneticReductor;
+import djbdd.reductors.random.RandomSwapperReductor;
 import djbdd.core.BDD;
 import djbdd.core.BooleanEvaluator;
 import djbdd.io.Printer;
@@ -697,7 +698,7 @@ public class Tester {
         Printer.printTableT("test17_before");
         
         // Reduction type
-        int reductionType = ReductionAlgorithm.GENETIC_ALGORITHM;
+        int reductionType = ReductionAlgorithm.RANDOM_SWAP_ALGORITHM;
         
         System.out.println("");
         
@@ -721,6 +722,10 @@ public class Tester {
             double selectionPercentage = 0.25;
             double mutationProbability = 0.1;
             reductor = new GeneticReductor(populationSize, generations, selectionPercentage, mutationProbability);
+        }else if(reductionType == ReductionAlgorithm.RANDOM_SWAP_ALGORITHM){
+            System.out.println("Random swapper algorithm");
+            int iterations = 1000;
+            reductor = new RandomSwapperReductor(iterations);
         }else{
             System.err.println("Method not selected");
         }
