@@ -14,16 +14,13 @@ def run_batch():
 		"random_swapper iterations=1000"
 	]
 	for root, dirs, files in os.walk("data/benchmarks"):
-		for dir in dirs:
-			print dir
+		for file in files:
 			for algorithm in algorithms:
-				command = r"java -jar './DJBDD/store/DJBDD.jar' --memory-optimization-benchmark --dimacs ./data/benchmarks/{0} {1}".format(dir, algorithm)
-				#command = r"java -jar './DJBDD/dist/DJBDD.jar'"
-				#command = "java"
+				command = r"java -jar './DJBDD/store/DJBDD.jar' --memory-optimization-benchmark --dimacs ./data/benchmarks/{0} {1}".format(file, algorithm)
 				print command
 				output = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
 				print output
-				return
+				#return
 
 if __name__ == "__main__":
 	run_batch()

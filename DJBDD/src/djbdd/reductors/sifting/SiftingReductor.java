@@ -286,7 +286,7 @@ public class SiftingReductor extends ReductionAlgorithm {
     public void run() {
         // For each variable find its better position given that
         // the other variables are in fixed positions
-        Printer.printTableT("sifting_before");
+        //Printer.printTableT("sifting_before");
         for (int varIndex : this.variableOrder) {
             if(VERBOSE){
                 System.out.println("Start searching for best position for variable "+varIndex);
