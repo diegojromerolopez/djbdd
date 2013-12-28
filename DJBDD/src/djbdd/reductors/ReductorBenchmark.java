@@ -149,7 +149,6 @@ public class ReductorBenchmark {
                 File file = listOfFiles[i];
                 if (file.isFile()) {
                     ReductorBenchmark.makeFileBenchmark(algorithm, params, format, file);
-                    return;
                 }
             }
         }

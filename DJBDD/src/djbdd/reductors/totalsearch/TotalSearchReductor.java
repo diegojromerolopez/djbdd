@@ -64,7 +64,6 @@ public class TotalSearchReductor extends SiftingReductor {
     
     @Override
     public void run(){
-        Printer.printTableT("000.png");
         // For each variable find its better position given that
         // the other variables have moving positions
         bestSolution = this.VARIABLES;

@@ -129,8 +129,7 @@ public class SiftingReductor extends ReductionAlgorithm {
      * @param varIndex Index of the variable.
      * @return Best backward position found for variable with index varIndex.
      */
-    protected int findBestBackwardPosition(int varIndex){
-        int varIndexBestPosition = this.VARIABLES.getPositionOfVariable(varIndex);
+    protected int findBestBackwardPosition(int varIndex, int varIndexBestPosition){
         int varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
         boolean swapWasMade = false;
         final String var = this.VARIABLES.get(varIndex);
@@ -146,7 +145,7 @@ public class SiftingReductor extends ReductionAlgorithm {
                 System.out.println(this.VARIABLES.getOrderedVariables() + " " + size);
             }
 
-            if (Tsize <= size) {
+            if (Tsize < size) {
                 size = Tsize;
                 varIndexBestPosition = varIndexPosition - 1;
                 if (VERBOSE) {
@@ -157,6 +156,9 @@ public class SiftingReductor extends ReductionAlgorithm {
                 varIndexPosition--;
             }
         } while (swapWasMade);
+        if(VERBOSE){
+            System.out.println("END Back!!! " + varIndex + " is in position " + varIndexPosition);
+        }
         return varIndexBestPosition;
     }
     
@@ -165,8 +167,7 @@ public class SiftingReductor extends ReductionAlgorithm {
      * @param varIndex Index of the variable.
      * @return Best position found for variable with index varIndex.
      */
-    protected int findBestForwardPosition(int varIndex){
-        int varIndexBestPosition = this.VARIABLES.getPositionOfVariable(varIndex);
+    protected int findBestForwardPosition(int varIndex, int varIndexBestPosition){
         int varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
         int newVarIndexPosition = varIndexPosition;
         boolean swapWasMade = false;
@@ -178,6 +179,7 @@ public class SiftingReductor extends ReductionAlgorithm {
                 System.out.println("---------------------------------------------");
                 System.out.println("---------------------------------------------");
                 System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                System.out.println("Forward!!!!!");
                 System.out.println("Before swap " + i + ": variable  " + varIndex + " (" + var + ") is in position " + varIndexPosition);
                 System.out.flush();
                 //this.VARIABLES.print();
@@ -196,18 +198,17 @@ public class SiftingReductor extends ReductionAlgorithm {
                     System.out.println("NO swap " + i + ": variable " + varIndex + " (" + var + ") is in position " + newVarIndexPosition);
                 }
                 this.VARIABLES.print();
-                Printer.printTableT("test15_swap_" + i + "_swapped_var_at_" + varIndexPosition + "_(" + var + ")_" + this.VARIABLES.toString());
             }
 
             int Tsize = this.T.gc();
             if (VERBOSE) {
                 System.out.println(this.VARIABLES.getOrderedVariables() + " " + size);
             }
-            if (Tsize <= size) {
+            if (Tsize < size) {
                 size = Tsize;
                 varIndexBestPosition = varIndexPosition + 1;
                 if (VERBOSE) {
-                    System.out.println(Tsize + " IS THE FUCKIN BEST WITH " + varIndex + " (" + var + ") at " + varIndexBestPosition);
+                    System.out.println(Tsize + " IS THE FUCKIN BEST WITH " + varIndex + " (" + var + ") at " + varIndexBestPosition+" with size "+size);
                 }
             }
             if (swapWasMade) {
@@ -219,38 +220,7 @@ public class SiftingReductor extends ReductionAlgorithm {
         return varIndexBestPosition;
     }
     
-    /**
-     * Moves the variable to its best position.
-     * @param varIndex Index of the variable to move ot its best position.
-     * @param varIndexBestPosition Future position of the variable with varIndex.
-     */
-    /*protected void moveToBestPosition(int varIndex, int varIndexBestPosition){
-        
-        // Move to the best position
-        int varIndexPosition = this.VARIABLES.getPositionOfVariable(varIndex);
-        boolean swapWasMade = true;
-        
-        // If we have got the variable before the best position we move forward
-        // the variable
-        if(varIndexPosition < varIndexBestPosition){
-            while (swapWasMade && varIndexPosition < varIndexBestPosition) {
-                swapWasMade = this.T.swap(varIndexPosition);
-                if (swapWasMade) {
-                    varIndexPosition++;
-                }
-            }
-        }
-        // Otherwise we move backward the variable
-        else if(varIndexPosition > varIndexBestPosition){
-            while (swapWasMade && varIndexPosition >=0) {
-                swapWasMade = this.T.swapBack(varIndexPosition);
-                if (swapWasMade) {
-                    varIndexPosition--;
-                }
-            }
-        }
-    }*/
-    
+   
     /**
      * Finds the best position of a variable supossing the others are fixed in
      * their positions.
@@ -273,26 +243,36 @@ public class SiftingReductor extends ReductionAlgorithm {
         }
         
         if(varIndexPosition <= this.numVariables/2){
-            varIndexBestPosition = this.findBestBackwardPosition(varIndex);
-            varIndexBestPosition = this.findBestForwardPosition(varIndex);
+            varIndexBestPosition = this.findBestBackwardPosition(varIndex, varIndexBestPosition);
+            varIndexBestPosition = this.findBestForwardPosition(varIndex, varIndexBestPosition);
         }
         else
         {
-            varIndexBestPosition = this.findBestForwardPosition(varIndex);
-            varIndexBestPosition = this.findBestBackwardPosition(varIndex);
+            varIndexBestPosition = this.findBestForwardPosition(varIndex, varIndexBestPosition);
+            varIndexBestPosition = this.findBestBackwardPosition(varIndex, varIndexBestPosition);
         }
         
         if (VERBOSE) {
-            System.out.println("The best position is " + varIndexBestPosition);
+            System.out.println("The position of variable "+varIndex+" ("+this.VARIABLES.get(varIndex)+") was "+varIndexPosition);
+            System.out.println("The best position of variable "+varIndex+" ("+this.VARIABLES.get(varIndex)+") is "+varIndexBestPosition);
+            System.out.println("Current position of variable "+varIndex+" ("+this.VARIABLES.get(varIndex)+") is "+this.VARIABLES.getPositionOfVariable(varIndex));
         }
 
+        
         // Moves variable to best position
-        this.T.moveVariable(varIndex, varIndexBestPosition);
-
+        if(varIndexBestPosition != this.VARIABLES.getPositionOfVariable(varIndex)){
+            if(VERBOSE){
+                System.out.println("Move variable "+ varIndex +" to "+varIndexBestPosition);
+            }
+            this.T.moveVariable(varIndex, varIndexBestPosition);
+            if(VERBOSE){
+                System.out.println("After moving, current position of variable "+varIndex+" ("+this.VARIABLES.get(varIndex)+") is "+this.VARIABLES.getPositionOfVariable(varIndex));
+            }
+        }
         //*/
         if (VERBOSE) {
             System.out.println("ENDS " + varIndex);
-            System.out.println("The size of the tree is "+T.size());
+            System.out.println("The size of the tree is "+T.size()+" ¿¿"+size+"??");
             System.out.println("=============================================");
             System.out.println("=============================================");
         }
@@ -310,11 +290,12 @@ public class SiftingReductor extends ReductionAlgorithm {
         for (int varIndex : this.variableOrder) {
             if(VERBOSE){
                 System.out.println("Start searching for best position for variable "+varIndex);
+                this.VARIABLES.print();
             }
             this.findBestPositionForVariable(varIndex);
-            Printer.printTableT("sifting_after");
-            return;
         }
+        //Printer.printTableT("sifting_after");
+        //this.VARIABLES.print();
     }
     
 }

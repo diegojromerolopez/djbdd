@@ -573,15 +573,16 @@ public class TableT {
         VariableList variables = BDD.variables();
         
         // If is the last level, ignore
-        if(level == variables.size()-1)
+        if(level == variables.size()-1){
             return false;
-    
+        }
+        
         int variableI = variables.getVariableInPosition(level);
         int variableJ = variables.getVariableInPosition(level+1);
         
         Log.println(VERBOSE, "Let's swap "+variableI+" for "+variableJ+"\n");
 
-        boolean swapWasMade = false;
+        boolean vertexSwapWasMade = false;
         // In other case, start Rudell algorithm to swaps two levels
         HashSet<Vertex> verticesOfLevel = new HashSet<Vertex>(this.getVerticesWhoseVariableIs(variableI));
         int vertex_i=0;
@@ -589,7 +590,7 @@ public class TableT {
             if(v.variable == variableI){
                 Log.println(VERBOSE, "Swapping vertex "+v);
                 boolean swapWasMadeVertexV = this.swapVertexWithDescendantsWithVariable(v, variableJ);
-                swapWasMade = (swapWasMadeVertexV || swapWasMade);
+                vertexSwapWasMade = (swapWasMadeVertexV || vertexSwapWasMade);
                 if(VERBOSE){
                     Log.println(VERBOSE, "Swapping vertex "+v+" ENDED\n");
                     Printer.printTableT("swapping "+vertex_i+" table of vertex.index = "+v.index);
@@ -608,11 +609,11 @@ public class TableT {
         }
         
         // Count the vertices swaps
-        if(swapWasMade){
+        if(vertexSwapWasMade){
             this.incSwapCounter();
         }
-            
-        return swapWasMade;
+        
+        return true;
     }
     
     /**
@@ -678,33 +679,50 @@ public class TableT {
     /**
      * Moves the variable to a new position.
      * @param varIndex Index of the variable to move ot its best position.
-     * @param newVarPosition Future position of the variable with varIndex.
+     * @param varNewPosition Future position of the variable with varIndex.
      */
-    public void moveVariable(int varIndex, int newVarPosition){
+    public void moveVariable(int varIndex, int varNewPosition){
         VariableList variables = BDD.variables();
         // Move to the best position
-        int varIndexPosition = variables.getPositionOfVariable(varIndex);
+        int varPosition = variables.getPositionOfVariable(varIndex);
         boolean swapWasMade = true;
-        
-        // If we have got the variable before the best position we move forward
+        // If we have got the variable before the new position we move forward
         // the variable
-        if(varIndexPosition < newVarPosition){
-            while (swapWasMade && varIndexPosition < newVarPosition) {
-                swapWasMade = this.swap(varIndexPosition);
+        if(varPosition < varNewPosition){
+            while (swapWasMade && varPosition < varNewPosition) {
+                swapWasMade = this.swap(varPosition);
                 if (swapWasMade) {
-                    varIndexPosition++;
+                    varPosition++;
                 }
             }
         }
         // Otherwise we move backward the variable
-        else if(varIndexPosition > newVarPosition){
-            while (swapWasMade && varIndexPosition >=0) {
-                swapWasMade = this.swapBack(varIndexPosition);
+        else if(varPosition > varNewPosition){
+            
+            while (swapWasMade && varPosition > varNewPosition) {
+                swapWasMade = this.swapBack(varPosition);
                 if (swapWasMade) {
-                    varIndexPosition--;
+                    varPosition--;
                 }
             }
         }
+         
+        /*
+        if(varPosition < varNewPosition){
+           
+            do{
+                swapWasMade = this.swapVariable(varIndex);
+            }while(swapWasMade && variables.getPositionOfVariable(varIndex)<varNewPosition);
+            
+        }else if(varPosition > varNewPosition){
+            System.out.println("swap back");
+            do{
+                swapWasMade = this.swapBackVariable(varIndex);
+                varPosition = variables.getPositionOfVariable(varIndex);
+                System.out.println(varPosition);
+                System.out.println(swapWasMade);
+            }while(swapWasMade && varPosition>varNewPosition);
+        }*/
     }
     
     /**************************************************************************/
