@@ -283,7 +283,7 @@ public class SiftingReductor extends ReductionAlgorithm {
     /**
      * Executes the reduction method.
      */
-    public void run() {
+    public void execute() {
         // For each variable find its better position given that
         // the other variables are in fixed positions
         //Printer.printTableT("sifting_before");

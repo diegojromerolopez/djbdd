@@ -101,7 +101,6 @@ public class Main {
             String format = args[1].replace("--", "");
             String resource = args[2];
             String algorithm = args[3];
-            random.Random.init(10);
             HashMap<String,String> params = new HashMap<String,String>();
             for(int i=4; i<args.length; i++){
                 if(!args[i].contains("=")){

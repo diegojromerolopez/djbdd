@@ -15,28 +15,28 @@ import java.util.*;
 public class GeneticReductor extends ReductionAlgorithm {
     
     /** Chromosome population */
-    private ArrayList<Chromosome> population;
+    protected ArrayList<Chromosome> population;
     
     /** Size of the population */
-    private int populationSize;
+    protected int populationSize;
     
     /** Number of generations */
-    private int numberOfGenerations;
+    protected int numberOfGenerations;
     
     /** Probability of having a position altered in the process */
-    private double mutationProbability;
+    protected double mutationProbability;
     
     /** Percentage of population that will be selected in each iteration of the algorithm */
-    private double selectionPercentage;
+    protected double selectionPercentage;
     
     /** Comparator between chromosomes */
-    ChromosomeComparator comparator;
+    protected ChromosomeComparator comparator;
     
     /**
      * Prints the population given as a parameter.
      * @param chromosomes Chromosomes that will be printed.
      */
-    private void printPopulation(ArrayList<Chromosome> chromosomes){
+    protected void printPopulation(ArrayList<Chromosome> chromosomes){
         for(Chromosome c : chromosomes){
             c.print();
         }
@@ -64,7 +64,8 @@ public class GeneticReductor extends ReductionAlgorithm {
      */
     protected void generatePopulation(){
         this.population = new ArrayList<Chromosome>(this.populationSize);
-        for(int i=0; i<this.populationSize; i++){
+        this.population.add(new Chromosome(BDD.variables()));
+        for(int i=1; i<this.populationSize; i++){
             this.population.add(new Chromosome());
         }
         if(VERBOSE){
@@ -95,7 +96,7 @@ public class GeneticReductor extends ReductionAlgorithm {
      * Executes the genetic algorithm.
      */
     @Override
-    public void run(){
+    public void execute(){
         // First we generate the population
         this.generatePopulation();
 

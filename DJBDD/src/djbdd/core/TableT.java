@@ -303,7 +303,7 @@ public class TableT {
      * Calls the garbage collector that deletes the references to dead objects.
      */
     public synchronized int gc(){
-        Log.println(VERBOSE, "<<<<<<<<<<<<<<< GC >>>>>>>>>>>>>>>>>");
+        //Log.println(VERBOSE, "<<<<<<<<<<<<<<< GC >>>>>>>>>>>>>>>>>");
         
         // Compact the hash maps
         ArrayList<Integer> keys = new ArrayList<Integer>(this.T.keySet());
@@ -321,7 +321,7 @@ public class TableT {
                 if(this.T.containsKey(key)){
                     Vertex v = this.T.get(key).get();
                     if(v == null || v.isOrphan()){
-                        Log.println(VERBOSE, "DELETING "+v);
+                        //Log.println(VERBOSE, "DELETING "+v);
                         if(v!=null){
                             Vertex.decNumParentsOfVertex(v.low());
                             Vertex.decNumParentsOfVertex(v.high());
@@ -330,19 +330,19 @@ public class TableT {
                         this.remove(key);
                         deletions++;
                         
-                        Log.println(VERBOSE, (v!=null), "DELETED: "+key+" "+v);
-                        Log.println(VERBOSE, (v==null), "DELETED: "+key+" NULL ");
+                        //Log.println(VERBOSE, (v!=null), "DELETED: "+key+" "+v);
+                        //Log.println(VERBOSE, (v==null), "DELETED: "+key+" NULL ");
                     }
                 }
             }
         }
 
-        Log.println(VERBOSE, deletions+" vertices deleted");
-        Log.println(VERBOSE, "<<<<<<<<<<<<<< END GC >>>>>>>>>>>>>>");
+        //Log.println(VERBOSE, deletions+" vertices deleted");
+        //Log.println(VERBOSE, "<<<<<<<<<<<<<< END GC >>>>>>>>>>>>>>");
 
         _size -= deletions;
         
-        Log.println(VERBOSE, "The size is "+_size);
+        //Log.println(VERBOSE, "The size is "+_size);
 
         return _size;
     }
@@ -580,7 +580,7 @@ public class TableT {
         int variableI = variables.getVariableInPosition(level);
         int variableJ = variables.getVariableInPosition(level+1);
         
-        Log.println(VERBOSE, "Let's swap "+variableI+" for "+variableJ+"\n");
+        //Log.println(VERBOSE, "Let's swap "+variableI+" for "+variableJ+"\n");
 
         boolean vertexSwapWasMade = false;
         // In other case, start Rudell algorithm to swaps two levels
@@ -588,11 +588,11 @@ public class TableT {
         int vertex_i=0;
         for(Vertex v : verticesOfLevel){
             if(v.variable == variableI){
-                Log.println(VERBOSE, "Swapping vertex "+v);
+                //Log.println(VERBOSE, "Swapping vertex "+v);
                 boolean swapWasMadeVertexV = this.swapVertexWithDescendantsWithVariable(v, variableJ);
                 vertexSwapWasMade = (swapWasMadeVertexV || vertexSwapWasMade);
                 if(VERBOSE){
-                    Log.println(VERBOSE, "Swapping vertex "+v+" ENDED\n");
+                    //Log.println(VERBOSE, "Swapping vertex "+v+" ENDED\n");
                     Printer.printTableT("swapping "+vertex_i+" table of vertex.index = "+v.index);
                     vertex_i++;
                 }

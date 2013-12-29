@@ -14,6 +14,7 @@ import djbdd.reductors.io.*;
 import java.io.*;
 import java.util.*;
 import djbdd.io.Printer;
+import djbdd.timemeasurer.TimeMeasurer;
 
 /**
  *
@@ -61,10 +62,14 @@ public class ReductorBenchmark {
         }
         else if(algorithm.equals("window_permutation")){
             assertParameter(params, "window_size", "Size of the window in the algorithm. Suggested values are 2, 3 or 4.");
-            int window_size = Integer.parseInt(params.get("population"));
+            int window_size = Integer.parseInt(params.get("window_size"));
             reductor = new WindowPermutationReductor(window_size);
         }
         else if(algorithm.equals("genetic")){
+            // Semilla aleatoria
+            assertParameter(params, "random_seed", "Random seed.");
+            int randomSeed = Integer.parseInt(params.get("random_seed"));
+            random.Random.init(randomSeed);
             // Population size
             assertParameter(params, "population", "Number of chromosomes in the genetic algorithm.");
             int populationSize = Integer.parseInt(params.get("population"));
@@ -87,10 +92,18 @@ public class ReductorBenchmark {
             reductor = new GeneticReductor(populationSize, generations, selectionPercentage, mutationProbability);
         }
         else if(algorithm.equals("random_swapper")){
+            // Semilla aleatoria
+            assertParameter(params, "random_seed", "Random seed.");
+            int randomSeed = Integer.parseInt(params.get("random_seed"));
+            random.Random.init(randomSeed);
             // Iterations
             assertParameter(params, "iterations", "Iterations of the random swapper algorithm.");
             int iterations = Integer.parseInt(params.get("iterations"));
             reductor = new RandomSwapperReductor(iterations);
+        }
+        else{
+            System.err.println("Algorithm not recognized");
+            System.exit(-1);
         }
         return reductor;
     }
@@ -113,14 +126,14 @@ public class ReductorBenchmark {
     /**
      * Runs the optimization process.
      */
-    public BDD run(){
-        this.algorithm.run();
+    public long run(){
+        long elapsedTime = this.algorithm.run();
         //BDD.variables().print();
         //System.out.println(BDD.T.gc());
         this.reducedBDDSize = this.bdd.size();
         //Printer.printTableT("T");
         //Printer.printBDD(bdd, "BDD");
-        return this.bdd;
+        return elapsedTime;
     }
     
     public int getInitialBDDSize(){
@@ -131,15 +144,18 @@ public class ReductorBenchmark {
         return this.reducedBDDSize;
     }
     
+    private static final String SEP = "\t";
+    
     private static void makeFileBenchmark(String algorithm, HashMap<String,String> params, String format, File file){
         String filepath = file.getAbsolutePath();
         String filename = file.getName();
         ReductorBenchmark reductor = new ReductorBenchmark(algorithm, params, format, filepath);
-        reductor.run();
-        System.out.println(filename + " " + algorithm + " " + reductor.getInitialBDDSize() + " " + reductor.getReducedBDDSize()+" "+BDD.T.getSwapCounter());
+        long elapsedTime = reductor.run();
+        System.out.println(filename + SEP + BDD.variables().size() + SEP + algorithm + SEP + reductor.getInitialBDDSize() + SEP + reductor.getReducedBDDSize() + SEP + BDD.T.getSwapCounter()+SEP+elapsedTime+SEP+""+TimeMeasurer.elapsedTimeAsHumanText(elapsedTime)+"");
     }
     
     public static void makeBenchmark(String algorithm, HashMap<String,String> params, String format, String resourceName){
+        System.out.println("File"+SEP+"Nvars"+SEP+"Alg."+SEP+"init_size"+SEP+"reduc_size"+SEP+"Nswaps"+SEP+"eTime"+SEP+"eTimeHuman");
         File f = new File(resourceName);
         if (f.isFile()) {
             ReductorBenchmark.makeFileBenchmark(algorithm, params, format, f);
@@ -148,7 +164,12 @@ public class ReductorBenchmark {
             for (int i = 0; i < listOfFiles.length; i++) {
                 File file = listOfFiles[i];
                 if (file.isFile()) {
-                    ReductorBenchmark.makeFileBenchmark(algorithm, params, format, file);
+                    try{
+                        ReductorBenchmark.makeFileBenchmark(algorithm, params, format, file);
+                    }catch(java.lang.OutOfMemoryError e){
+                        String filename = file.getName();
+                        System.out.println(filename + SEP + BDD.variables().size() + SEP + algorithm + SEP + "-" + SEP + "-" + SEP + BDD.T.getSwapCounter()+SEP+"-"+SEP+"-");
+                    }
                 }
             }
         }

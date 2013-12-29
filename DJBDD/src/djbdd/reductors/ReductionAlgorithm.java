@@ -3,6 +3,7 @@ package djbdd.reductors;
 import djbdd.core.BDD;
 import djbdd.core.TableT;
 import djbdd.core.VariableList;
+import djbdd.timemeasurer.TimeMeasurer;
 
 /**
  * Abstract class that representes the different reduction algorithms
@@ -55,6 +56,13 @@ public abstract class ReductionAlgorithm {
         this.VARIABLES = BDD.variables();
     }
     
-    public abstract void run();
+    public long run(){
+        TimeMeasurer t = new TimeMeasurer("run", true);
+        this.execute();
+        t.end();
+        return t.getElapsedTime();
+    }
+    
+    public abstract void execute();
     
 }

@@ -97,6 +97,11 @@ public class Chromosome extends VariableList {
         super(BDD.variables());
         this.initRandomOrder();
     }
+    
+    public Chromosome(VariableList variables){
+        super(variables);
+        this.computeGraphSize();
+    }
 
     /**
      * Copy constructor of the Chromosome.
@@ -111,6 +116,7 @@ public class Chromosome extends VariableList {
             this.order.add(original.order.get(i));
             this.orderedVariables.add(original.orderedVariables.get(i));
         }
+        this.graphSize = original.graphSize;
     }
 
    /*  public Chromosome spawnMutant(double percentage){

@@ -9,9 +9,9 @@ def run_batch():
 		#"total_search",
 		"sifting", "sifting_sameorder",
 		"window_permutation window_size=2", "window_permutation window_size=3", "window_permutation window_size=4",
-		"genetic generations=100, population=1000 selection_percentage=0.5 mutation_probability=0.2",
-		"genetic generations=1000, population=100 selection_percentage=0.2 mutation_probability=0.1",
-		"random_swapper iterations=1000"
+		"genetic random_seed=10 generations=100, population=1000 selection_percentage=0.5 mutation_probability=0.2",
+		"genetic random_seed=10 generations=1000, population=100 selection_percentage=0.2 mutation_probability=0.1",
+		"random_swapper random_seed=10 iterations=1000"
 	]
 	for root, dirs, files in os.walk("data/benchmarks"):
 		for file in files:

@@ -63,7 +63,7 @@ public class TotalSearchReductor extends SiftingReductor {
     }
     
     @Override
-    public void run(){
+    public void execute(){
         // For each variable find its better position given that
         // the other variables have moving positions
         bestSolution = this.VARIABLES;

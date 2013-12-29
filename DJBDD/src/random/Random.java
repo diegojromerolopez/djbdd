@@ -16,12 +16,7 @@ public class Random {
     }
     
     public static void init(int seed){
-        if(RANDOM_SINGLETON == null){
-            RANDOM_SINGLETON = new Random(seed);
-        }
-        else{
-            System.err.println("Random.init has been called twice");
-        }
+        RANDOM_SINGLETON = new Random(seed);
     }
     
     public static int randInt(int min, int max){

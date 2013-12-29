@@ -29,11 +29,12 @@ public class TimeMeasurer {
     
     /**
      * Converts the elapsed time to a human readable format.
-     * @return String Time elapsed in human-friendly form.
+     * @param elapsedTime Measured time in seconds.
+     * @return String Elapsed time in human-friendly form.
      */
-    protected String getElapsedTimeAsHumanText(){
-        long ns = this.elapsedTime;
-        long us = this.elapsedTime / 1000;
+    public static String elapsedTimeAsHumanText(long elapsedTime){
+        long ns = elapsedTime;
+        long us = elapsedTime / 1000;
         ns = elapsedTime % 1000;
         long ms = us / 1000;
         us = us % 1000;
@@ -44,6 +45,14 @@ public class TimeMeasurer {
         long h = m / 60;
         m = m % 60;
         return h+" h, "+m+" m, "+s+" s, "+ms+" ms, "+us+"µs";
+    }
+    
+    /**
+     * Converts the elapsed time to a human readable format.
+     * @return String Time elapsed in human-friendly form.
+     */
+    protected String getElapsedTimeAsHumanText(){
+        return elapsedTimeAsHumanText(this.elapsedTime);
     }
     
     public TimeMeasurer(String context){

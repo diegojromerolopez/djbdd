@@ -91,7 +91,7 @@ public class WindowPermutationReductor extends ReductionAlgorithm {
      * Runs the algorithm
      */
     @Override
-    public void run(){
+    public void execute(){
         int numberOfVariables = this.VARIABLES.size();
         int startLevel = 0;
         int endLevel = startLevel+this.windowSize;

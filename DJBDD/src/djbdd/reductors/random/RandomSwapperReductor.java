@@ -34,7 +34,7 @@ public class RandomSwapperReductor extends ReductionAlgorithm {
      * Executes the optimization algorithm.
      */
     @Override
-    public void run(){
+    public void execute(){
         // The best solution is the current solution
         this.bestSolution = new VariableList(BDD.variables());
         

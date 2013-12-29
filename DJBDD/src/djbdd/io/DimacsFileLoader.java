@@ -44,9 +44,9 @@ public class DimacsFileLoader {
     public BDD run(int cnfsByBDD, int clausules){
         int numVariables = 0;
         int numClausules = 0;
-        String formula = "";
         ArrayList<String> variables = new ArrayList<String>();
         ArrayList<String> CNFS = new ArrayList<String>();
+        HashMap<String,Boolean> variableExistence = new HashMap<String,Boolean>();
         try{
           // Open the file that is the first 
           // command line parameter
@@ -78,6 +78,7 @@ public class DimacsFileLoader {
                           numClausules = clausules;
                       for(int i=1; i<=numVariables; i++){
                         variables.add(START_VAR+"x"+i+END_VAR);
+                        variableExistence.put(START_VAR+"x"+i+END_VAR, false);
                       }
                   }
                   else
@@ -94,6 +95,12 @@ public class DimacsFileLoader {
                     //System.out.println(formulaI);
                     formulaI = formulaI.replaceAll("(\\d+)", START_VAR+"x$1"+END_VAR);
                     formulaI = formulaI.trim();
+                    for(String var : variableExistence.keySet()){
+                        if(formulaI.contains(var)){
+                            variableExistence.put(var, true);
+                        }
+                    }
+                    
                     CNFS.add(formulaI);
                     
                     if(VERBOSE){
@@ -131,6 +138,21 @@ public class DimacsFileLoader {
                 formulaBDDI = "";
                 firstIteration = true;
             }
+        }
+        
+        // Variables that are used in the BDD
+        ArrayList<String> usedVariables = new ArrayList<String>(variables.size());
+        for(String var : variableExistence.keySet()){
+            if(variableExistence.get(var)){
+                usedVariables.add(var);
+            }
+            else{
+                variables.remove(var);
+            }
+        }
+        if(VERBOSE){
+            System.out.println(variables.size()+" variables : "+variables);
+            System.out.println(usedVariables.size()+" variables :"+usedVariables);
         }
         
         BDD.init(variables);
