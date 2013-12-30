@@ -48,6 +48,9 @@ public abstract class ReductionAlgorithm {
     /** Random swap algorightm */
     public static final int RANDOM_SWAP_ALGORITHM = 4;
     
+    /** Memetic algorightm */
+    public static final int MEMETIC_ALGORITHM = 5;
+    
     /**
      * Constructor of the reduction algorigthm.
      */

@@ -118,6 +118,7 @@ public class VariableList {
      * @param variableList Other object that will be copied in this object.
      */
     public VariableList(VariableList variableList){
+        //System.out.println("VariableList copy constructor");
         this.size = variableList.size;
         this.variables = new ArrayList<String>(this.size);
         this.order = new ArrayList<Integer>(this.size);

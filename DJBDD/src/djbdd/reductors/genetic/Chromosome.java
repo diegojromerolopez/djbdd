@@ -23,6 +23,9 @@ public class Chromosome extends VariableList {
     /** Cache used to avoid repeated graph size computaltions */
     private static HashMap<String,Integer> GRAPH_SIZE_CACHE = new HashMap<String,Integer>();
     
+    public String s;
+    public long id;
+    
     /**
      * Assign the order given by this chromosome.
      * @return The new size of the graph.
@@ -84,7 +87,19 @@ public class Chromosome extends VariableList {
      */
     public Chromosome(){
         super(BDD.variables());
+        VariableList variableList = BDD.variables();
+        this.size = variableList.size();
+        this.variables = new ArrayList<String>(this.size);
+        this.order = new ArrayList<Integer>(this.size);
+        this.orderedVariables = new ArrayList<String>(this.size);
+        
+        for(int i=0; i<this.size; i++){
+            this.variables.add(variableList.get(i));
+            this.order.add(variableList.getOrder().get(i));
+            this.orderedVariables.add(variableList.getOrderedVariables().get(i));
+        }
         this.initRandomOrder();
+        this.id = UUID.randomUUID().getMostSignificantBits();
     }
     
     public Chromosome(VariableList variables){
@@ -175,6 +190,7 @@ public class Chromosome extends VariableList {
         
         spawn.initOrderedVariables();
         spawn.computeGraphSize();
+        spawn.id = UUID.randomUUID().getMostSignificantBits();
         return spawn;
     }
     
@@ -182,8 +198,8 @@ public class Chromosome extends VariableList {
         this.applyOrderToGraph();
         SiftingReductor reductor = new SiftingReductor();
         reductor.execute();
-        this.order = BDD.variables().getOrder();
-        this.orderedVariables = BDD.variables().getOrderedVariables();
+        this.order = new ArrayList<Integer>(BDD.variables().getOrder());
+        this.orderedVariables = new ArrayList<String>(BDD.variables().getOrderedVariables());
         this.graphSize = BDD.T.gc();
     }
     
@@ -193,6 +209,13 @@ public class Chromosome extends VariableList {
     
     public String key(){
         return this.order.toString();
+    }
+    
+    /**
+     * Returns the graph size associated.
+     */
+    public int getGraphSize(){
+        return this.graphSize;
     }
     
 }

@@ -23,6 +23,10 @@ def run_batch():
 		"genetic random_seed=327489 population=20 generations=1000 selection_percentage=0.2 mutation_probability=0.1"
 		"genetic random_seed=121481 population=20 generations=1000 selection_percentage=0.2 mutation_probability=0.1"
 		
+		#"memetic random_seed=10 population=20 generations=1000 selection_percentage=0.2 mutation_probability=0.1"
+		#"memetic random_seed=327489 population=20 generations=1000 selection_percentage=0.2 mutation_probability=0.1"
+		#"memetic random_seed=121481 population=20 generations=1000 selection_percentage=0.2 mutation_probability=0.1"
+		
 		#"random_swapper random_seed=10 iterations=1000"
 		#"random_swapper random_seed=327489 iterations=1000"
 		#"random_swapper random_seed=121481 iterations=1000"

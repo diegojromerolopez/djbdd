@@ -9,7 +9,7 @@ import djbdd.reductors.ReductionAlgorithm;
 import java.util.*;
 
 /**
- * Genetic algorithm that reduces the 
+ * Genetic algorithm that reduces the size of the vertex graph using a genetic algorithm.
  * @author diegoj
  */
 public class GeneticReductor extends ReductionAlgorithm {
@@ -38,7 +38,8 @@ public class GeneticReductor extends ReductionAlgorithm {
      */
     protected void printPopulation(ArrayList<Chromosome> chromosomes){
         for(Chromosome c : chromosomes){
-            c.print();
+            //c.print();
+            System.out.println(c+" "+c.getGraphSize()+" "+c.id);
         }
     }
     
@@ -66,10 +67,13 @@ public class GeneticReductor extends ReductionAlgorithm {
         this.population = new ArrayList<Chromosome>(this.populationSize);
         this.population.add(new Chromosome(BDD.variables()));
         for(int i=1; i<this.populationSize; i++){
-            this.population.add(new Chromosome());
+            Chromosome cI = new Chromosome();
+            this.population.add(cI);
         }
         if(VERBOSE){
             System.out.println("WE GOT "+this.population.size()+" chromosomes");
+            System.out.println("generatePopulation");
+            this.printPopulation(this.population);
         }
     }
     
@@ -100,38 +104,82 @@ public class GeneticReductor extends ReductionAlgorithm {
     public void execute(){
         // First we generate the population
         this.generatePopulation();
-
-        //printPopulation(this.population);
         
         // Later, we spawn some generations
         int genI = 0;
         while (genI < this.numberOfGenerations) {
-
+            if(VERBOSE){
+                System.out.println("=============================================");
+                System.out.println("=============================================");
+                System.out.println("Generation "+(genI+1));
+            }
             // Select the best parents of the population
             ArrayList<Chromosome> parents = this.select();
 
+            if(VERBOSE){
+                System.out.println("Parents");
+                for(Chromosome c : parents){
+                    System.out.println(c+": "+c.getGraphSize()+" "+c.id);
+                    c.s = "parent";
+                }
+            }
+
+            if(VERBOSE){
+                System.out.println("Children");
+            }
             // This parents will spawn some children
             ArrayList<Chromosome> spawns = new ArrayList<Chromosome>(parents.size() / 2);
             for (int i = 0; i < parents.size(); i += 2) {
                 Chromosome parent1 = parents.get(i);
                 Chromosome parent2 = parents.get(i + 1);
-                spawns.add(parent1.cross(parent2));
+                Chromosome spawn = parent1.cross(parent2);
+                if(VERBOSE){
+                    spawn.s = "child_"+i;
+                    spawns.add(spawn);
+                    System.out.println(spawn+": "+spawn.getGraphSize()+" "+spawn.id);
+                }
             }
 
+            if(VERBOSE){
+                System.out.println("Mutation");
+            }
             // The children are mutated
             for (int i = 0; i < spawns.size(); i++) {
+                if(VERBOSE){
+                    System.out.println(spawns.get(i)+": "+spawns.get(i).getGraphSize()+" "+spawns.get(i).id);
+                }
                 spawns.get(i).mutate(this.mutationProbability);
+                if(VERBOSE){
+                    System.out.println(spawns.get(i)+": "+spawns.get(i).getGraphSize()+" "+spawns.get(i).id);
+                }
             }
 
+            if(VERBOSE){
+                System.out.println("Pop before merge");
+                for(Chromosome c : this.population){
+                    System.out.println(c+": "+c.getGraphSize()+" "+c.id);
+                }
+            }
+            
+            
             // The population increases with the new children
             this.population.addAll(spawns);
 
+            if(VERBOSE){
+                System.out.println("Population after merge");
+                for(Chromosome c : this.population){
+                    System.out.println(c+": "+c.getGraphSize()+" "+c.id);
+                }
+            }
+            
             // We order the chromosomes in generated graph size ascendent order
             Collections.sort(this.population, comparator);
-
+            
             // We get the best elements of the population
             this.population = new ArrayList<Chromosome>(this.population.subList(0, this.populationSize));
             genI++;
+            
+
 
             //printPopulation(this.population);
         }
@@ -140,8 +188,10 @@ public class GeneticReductor extends ReductionAlgorithm {
         Collections.sort(this.population, comparator);
         
         Chromosome bestSolution = this.population.get(0);
-        //System.out.println("BEST SOLUTION");
-        //bestSolution.print();
+        if(VERBOSE){
+            System.out.println("BEST SOLUTION");
+            bestSolution.print();
+        }
         bestSolution.applyOrderToGraph();
         
     }

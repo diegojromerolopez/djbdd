@@ -3,7 +3,7 @@ package djbdd.test;
 import djbdd.reductors.totalsearch.TotalSearchReductor;
 import djbdd.reductors.windowpermutation.WindowPermutationReductor;
 import djbdd.reductors.sifting.SiftingReductor;
-import djbdd.reductors.genetic.GeneticReductor;
+import djbdd.reductors.genetic.*;
 import djbdd.reductors.random.RandomSwapperReductor;
 import djbdd.core.BDD;
 import djbdd.core.BooleanEvaluator;
@@ -654,7 +654,7 @@ public class Tester {
      */
     private static void test17(){
     
-        int numVariables = 4;
+        int numVariables = 10;
         ArrayList<String> variables = new ArrayList<String>(numVariables);
         for(int i=0; i<numVariables; i++){
             variables.add("{x"+i+"}");
@@ -698,11 +698,12 @@ public class Tester {
         Printer.printTableT("test17_before");
         
         // Reduction type
-        int reductionType = ReductionAlgorithm.RANDOM_SWAP_ALGORITHM;
+        int reductionType = ReductionAlgorithm.MEMETIC_ALGORITHM;
         
         System.out.println("");
         
         random.Random.init(10);
+        
         // Reduce the tree
         ReductionAlgorithm reductor = null;
         if(reductionType == ReductionAlgorithm.SIFTING_ALGORIGHTM){
@@ -717,11 +718,18 @@ public class Tester {
             reductor = new WindowPermutationReductor(windowSize);
         }else if(reductionType == ReductionAlgorithm.GENETIC_ALGORITHM){
             System.out.println("Genetic algorithm");
-            int populationSize = 400;
-            int generations = 100;
-            double selectionPercentage = 0.25;
-            double mutationProbability = 0.1;
+            int populationSize = 15;
+            int generations = 2;
+            double selectionPercentage = 0.20;
+            double mutationProbability = 0.50;
             reductor = new GeneticReductor(populationSize, generations, selectionPercentage, mutationProbability);
+        }else if(reductionType == ReductionAlgorithm.MEMETIC_ALGORITHM){
+            System.out.println("Memetic algorithm");
+            int populationSize = 100;
+            int generations = 1;
+            double selectionPercentage = 0.20;
+            double mutationProbability = 0.10;
+            reductor = new MemeticReductor(populationSize, generations, selectionPercentage, mutationProbability);            
         }else if(reductionType == ReductionAlgorithm.RANDOM_SWAP_ALGORITHM){
             System.out.println("Random swapper algorithm");
             int iterations = 1000;
@@ -750,7 +758,68 @@ public class Tester {
     }
     
     public static void test18(){
-    
+        int numVariables = 10;
+        ArrayList<String> variables = new ArrayList<String>(numVariables);
+        for(int i=0; i<numVariables; i++){
+            variables.add("{x"+i+"}");
+        }
+        
+        String function1 = "";
+        for(int i=1; i<numVariables; i+=2){
+            function1 += "{x"+i+"} && ";
+        }
+        function1 = function1.substring(0, function1.length()-3);
+        
+        String function2 = "";
+        for(int i=0; i<numVariables-1; i+=2){
+            function2 += "{x"+i+"} && ";
+        }
+
+        function2 = function2.substring(0, function2.length()-3);
+        
+        // The logic function is:
+        // (Conjunction of even variables) OR (Conjunction of odd variables)
+        // i. e. {x2} && {x4} && ... && {x20} ) || ({x1} && {x3} && ... && {x17} && {x19}
+        String function = "("+function1+") || ("+function2+")";
+        // Show it
+        System.out.println(function);
+        
+        // Initializing the system
+        BDD.init(variables);
+        
+        // BDD1
+        BDD bdd1 = new BDD(function);
+        
+        // Shows the old, non-optimal BDD
+        int oldSize = bdd1.size();
+        System.out.println("\nBEFORE the reordering");
+        System.out.println("Size of bdd1: "+oldSize);
+        System.out.println("Variables before the reordering algorithm");
+        BDD.variables().print();
+        
+        // Clean the orphan nodes and print the non-optimal tree
+        BDD.gc();
+        Printer.printTableT("test17_before");
+        
+        // Reduction type
+        int reductionType = ReductionAlgorithm.MEMETIC_ALGORITHM;
+        
+        System.out.println("");
+        
+        random.Random.init(10);
+        
+        Chromosome c1 = new Chromosome();
+        Chromosome c2 = new Chromosome();
+        
+        c1.print();
+        c2.print();
+        c2.mutate(.2);
+        System.out.println("Mutamos c2");
+        
+        c1.print();
+        c2.print();
+        
+        System.exit(-1);
     }
     
     /**************************************************************************/
