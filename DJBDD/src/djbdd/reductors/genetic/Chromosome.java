@@ -9,6 +9,7 @@ import java.util.*;
 import random.Random;
 import djbdd.core.BDD;
 import djbdd.core.VariableList;
+import djbdd.reductors.sifting.SiftingReductor;
 
 /**
  * Chromosome for Genetic Algorithm.
@@ -27,18 +28,6 @@ public class Chromosome extends VariableList {
      * @return The new size of the graph.
      */    
     public int applyOrderToGraph() {
-        /*
-        // For each variable, move that to its position
-        for (int varIndex = 0; varIndex < this.size; varIndex++) {
-            int varPosition = this.order.get(varIndex);
-            BDD.T.moveVariable(varIndex, varPosition);
-        }
-        // Clean the rubbish
-        BDD.T.gc();
-        // Returns the new size of the graph
-        return BDD.T.size();
-         * 
-         */
         return super.applyOrderToGraph();
     }
     
@@ -187,6 +176,15 @@ public class Chromosome extends VariableList {
         spawn.initOrderedVariables();
         spawn.computeGraphSize();
         return spawn;
+    }
+    
+    public void optimizeBySifting(){
+        this.applyOrderToGraph();
+        SiftingReductor reductor = new SiftingReductor();
+        reductor.execute();
+        this.order = BDD.variables().getOrder();
+        this.orderedVariables = BDD.variables().getOrderedVariables();
+        this.graphSize = BDD.T.gc();
     }
     
     public void print(){

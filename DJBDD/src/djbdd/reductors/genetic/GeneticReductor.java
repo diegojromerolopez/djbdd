@@ -89,7 +89,8 @@ public class GeneticReductor extends ReductionAlgorithm {
             }
         }
         Collections.shuffle(this.population, random.Random.getRandom());
-        return new ArrayList<Chromosome>(this.population.subList(0, selectionSize));
+        ArrayList<Chromosome> parents = new ArrayList<Chromosome>(this.population.subList(0, selectionSize));
+        return parents;
     }
     
     /**

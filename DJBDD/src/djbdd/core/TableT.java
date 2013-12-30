@@ -301,6 +301,7 @@ public class TableT {
 
     /**
      * Calls the garbage collector that deletes the references to dead objects.
+     * @return Returns the size of the BDD graph.
      */
     public synchronized int gc(){
         //Log.println(VERBOSE, "<<<<<<<<<<<<<<< GC >>>>>>>>>>>>>>>>>");

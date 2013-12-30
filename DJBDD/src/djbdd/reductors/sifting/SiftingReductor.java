@@ -86,6 +86,7 @@ public class SiftingReductor extends ReductionAlgorithm {
     }
     
     private void initVariableOrderWithSameOrder(){
+        this.variableOrder = new ArrayList<Integer>(this.numVariables);
         for(int i=0; i<this.numVariables; i++){
            this.variableOrder.add(i);
         }

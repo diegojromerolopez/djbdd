@@ -8,12 +8,12 @@ import djbdd.reductors.totalsearch.TotalSearchReductor;
 import djbdd.reductors.windowpermutation.WindowPermutationReductor;
 import djbdd.reductors.sifting.SiftingReductor;
 import djbdd.reductors.genetic.GeneticReductor;
+import djbdd.reductors.genetic.MemeticReductor;
 import djbdd.reductors.random.*;
 import djbdd.core.*;
 import djbdd.reductors.io.*;
 import java.io.*;
 import java.util.*;
-import djbdd.io.Printer;
 import djbdd.timemeasurer.TimeMeasurer;
 
 /**
@@ -60,12 +60,19 @@ public class ReductorBenchmark {
         else if(algorithm.equals("sifting_sameorder")){
             reductor = new SiftingReductor(SiftingReductor.VARIABLES_WITH_SAME_ORDER);
         }
+        else if(algorithm.equals("sifting_randomorder")){
+            // Semilla aleatoria
+            assertParameter(params, "random_seed", "Random seed.");
+            int randomSeed = Integer.parseInt(params.get("random_seed"));
+            random.Random.init(randomSeed);
+            reductor = new SiftingReductor(SiftingReductor.VARIABLES_WITH_RANDOM_ORDER);
+        }
         else if(algorithm.equals("window_permutation")){
             assertParameter(params, "window_size", "Size of the window in the algorithm. Suggested values are 2, 3 or 4.");
             int window_size = Integer.parseInt(params.get("window_size"));
             reductor = new WindowPermutationReductor(window_size);
         }
-        else if(algorithm.equals("genetic")){
+        else if(algorithm.equals("genetic") || algorithm.equals("memetic")){
             // Semilla aleatoria
             assertParameter(params, "random_seed", "Random seed.");
             int randomSeed = Integer.parseInt(params.get("random_seed"));
@@ -89,7 +96,12 @@ public class ReductorBenchmark {
                 System.err.println("This value must be in the interval [0, 1]");
                 System.exit(-1);
             }
-            reductor = new GeneticReductor(populationSize, generations, selectionPercentage, mutationProbability);
+            if(algorithm.equals("genetic")){
+                reductor = new GeneticReductor(populationSize, generations, selectionPercentage, mutationProbability);
+            }
+            else if(algorithm.equals("memetic")){
+                reductor = new MemeticReductor(populationSize, generations, selectionPercentage, mutationProbability);
+            }
         }
         else if(algorithm.equals("random_swapper")){
             // Semilla aleatoria
