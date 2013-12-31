@@ -23,8 +23,6 @@ public class Chromosome extends VariableList {
     /** Cache used to avoid repeated graph size computaltions */
     private static HashMap<String,Integer> GRAPH_SIZE_CACHE = new HashMap<String,Integer>();
     
-    public String s;
-    public long id;
     
     /**
      * Assign the order given by this chromosome.
@@ -99,7 +97,6 @@ public class Chromosome extends VariableList {
             this.orderedVariables.add(variableList.getOrderedVariables().get(i));
         }
         this.initRandomOrder();
-        this.id = UUID.randomUUID().getMostSignificantBits();
     }
     
     public Chromosome(VariableList variables){
@@ -190,7 +187,6 @@ public class Chromosome extends VariableList {
         
         spawn.initOrderedVariables();
         spawn.computeGraphSize();
-        spawn.id = UUID.randomUUID().getMostSignificantBits();
         return spawn;
     }
     

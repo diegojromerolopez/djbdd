@@ -39,7 +39,7 @@ public class GeneticReductor extends ReductionAlgorithm {
     protected void printPopulation(ArrayList<Chromosome> chromosomes){
         for(Chromosome c : chromosomes){
             //c.print();
-            System.out.println(c+" "+c.getGraphSize()+" "+c.id);
+            System.out.println(c+" "+c.getGraphSize()+" ");
         }
     }
     
@@ -119,8 +119,7 @@ public class GeneticReductor extends ReductionAlgorithm {
             if(VERBOSE){
                 System.out.println("Parents");
                 for(Chromosome c : parents){
-                    System.out.println(c+": "+c.getGraphSize()+" "+c.id);
-                    c.s = "parent";
+                    System.out.println(c+": "+c.getGraphSize()+" ");
                 }
             }
 
@@ -134,9 +133,8 @@ public class GeneticReductor extends ReductionAlgorithm {
                 Chromosome parent2 = parents.get(i + 1);
                 Chromosome spawn = parent1.cross(parent2);
                 if(VERBOSE){
-                    spawn.s = "child_"+i;
                     spawns.add(spawn);
-                    System.out.println(spawn+": "+spawn.getGraphSize()+" "+spawn.id);
+                    System.out.println(spawn+": "+spawn.getGraphSize()+" ");
                 }
             }
 
@@ -146,18 +144,18 @@ public class GeneticReductor extends ReductionAlgorithm {
             // The children are mutated
             for (int i = 0; i < spawns.size(); i++) {
                 if(VERBOSE){
-                    System.out.println(spawns.get(i)+": "+spawns.get(i).getGraphSize()+" "+spawns.get(i).id);
+                    System.out.println(spawns.get(i)+": "+spawns.get(i).getGraphSize()+" ");
                 }
                 spawns.get(i).mutate(this.mutationProbability);
                 if(VERBOSE){
-                    System.out.println(spawns.get(i)+": "+spawns.get(i).getGraphSize()+" "+spawns.get(i).id);
+                    System.out.println(spawns.get(i)+": "+spawns.get(i).getGraphSize()+" ");
                 }
             }
 
             if(VERBOSE){
                 System.out.println("Pop before merge");
                 for(Chromosome c : this.population){
-                    System.out.println(c+": "+c.getGraphSize()+" "+c.id);
+                    System.out.println(c+": "+c.getGraphSize()+" ");
                 }
             }
             
@@ -168,7 +166,7 @@ public class GeneticReductor extends ReductionAlgorithm {
             if(VERBOSE){
                 System.out.println("Population after merge");
                 for(Chromosome c : this.population){
-                    System.out.println(c+": "+c.getGraphSize()+" "+c.id);
+                    System.out.println(c+": "+c.getGraphSize()+" ");
                 }
             }
             
