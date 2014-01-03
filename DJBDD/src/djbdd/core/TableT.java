@@ -5,7 +5,6 @@ import djbdd.io.Printer;
 
 import java.util.*;
 import java.io.*;
-import java.lang.ref.WeakReference; 
 
 
 
@@ -29,19 +28,19 @@ public class TableT {
      * Contains every vertex of the graph given its index.
      * Note the use of weakreferences, because when a Vertex has no parents, must be erased by the garbage collector.
      */
-    private HashMap<Integer,WeakReference<Vertex>> T;
+    private HashMap<Integer,Vertex> T;
     
     /**
      * Uniqueness hashmap: keys are the string "var_i+-+low_i+-+high_i"
      * Note the use of weakreferences, because when a Vertex has no parents, must be erased by the garbage collector.
      */
-    private HashMap<String,WeakReference<Vertex>> U;
+    private HashMap<String,Vertex> U;
     
     /**
      * Variable vertices hash.
      * This hash contains the vertices of the graph grouped by its variables.
      */
-    public HashMap<Integer,WeakHashMap<Vertex,Boolean>> V;
+    public HashMap<Integer,HashSet<Vertex>> V;
     
     /** Used to increase key creation performance */
     private int lastKey = 0;
@@ -56,10 +55,10 @@ public class TableT {
     private long swapCounter = 0;
     
     /** Flag to start the swap counting */
-    private static boolean COUNT_SWAPS = true;
+    private final boolean COUNT_SWAPS = true;
     
     private void incSwapCounter(){
-        if(COUNT_SWAPS){
+        if(this.COUNT_SWAPS){
             this.swapCounter++;
         }
     }
@@ -74,10 +73,10 @@ public class TableT {
      * @param loadFactor Load factor of the hash tables.
      */
     private void initHashes(int initialCapacity, float loadFactor){
-        this.T = new HashMap<Integer,WeakReference<Vertex>>(initialCapacity, loadFactor);
-        this.U = new HashMap<String,WeakReference<Vertex>>(initialCapacity, loadFactor);
+        this.T = new HashMap<Integer,Vertex>(initialCapacity, loadFactor);
+        this.U = new HashMap<String,Vertex>(initialCapacity, loadFactor);
         
-        this.V = new HashMap<Integer,WeakHashMap<Vertex,Boolean>>(initialCapacity, loadFactor);
+        this.V = new HashMap<Integer,HashSet<Vertex>>(initialCapacity, loadFactor);
     }
     
     /**
@@ -123,7 +122,7 @@ public class TableT {
      */
     public synchronized boolean containsVertex(Vertex v){
         String uniqueKey = v.uniqueKey();
-        return this.U.containsKey(uniqueKey) && this.U.get(uniqueKey).get()!=null;
+        return this.U.containsKey(uniqueKey);
     }
 
     /**
@@ -133,7 +132,7 @@ public class TableT {
      * @return true if exists vertex whose unique key is vKey, false otherwise.
      */
     public synchronized boolean containsVertex(String vKey){
-        return this.U.containsKey(vKey) && this.U.get(vKey).get()!=null;
+        return this.U.containsKey(vKey);
     }
     
     /**************************************************************************/
@@ -146,7 +145,7 @@ public class TableT {
      * @see TableT#U
      */
     private synchronized void putInU(Vertex v){
-        this.U.put(v.uniqueKey(), new WeakReference<Vertex>(v));
+        this.U.put(v.uniqueKey(), v);
     }
 
     /**
@@ -155,7 +154,7 @@ public class TableT {
      * @see TableT#T
      */
     private synchronized void putInT(Vertex v){
-        this.T.put(v.index, new WeakReference<Vertex>(v));
+        this.T.put(v.index, v);
     }
 
     /**
@@ -167,9 +166,9 @@ public class TableT {
         int variable = v.variable;
         if(!this.V.containsKey(variable))
         {
-            this.V.put(variable, new WeakHashMap<Vertex,Boolean>());
+            this.V.put(variable, new HashSet<Vertex>());
         }
-        this.V.get(variable).put(v,true);
+        this.V.get(variable).add(v);
     }
     
   
@@ -262,8 +261,7 @@ public class TableT {
      * @param index Index of the Vertex to delete.
      */
     public synchronized boolean remove(int index){
-        WeakReference<Vertex> rRemoved = T.get(index);
-        Vertex removed = rRemoved.get();
+        Vertex removed = T.get(index);
         T.remove(index);
         if(removed != null){
             U.remove(removed.uniqueKey());
@@ -298,7 +296,33 @@ public class TableT {
         this.V.clear();
     }
 
-
+    protected boolean vertexHasParents(Vertex vertex){
+        if(vertex.numberOfRootedBDDs() > 0)
+            return true;
+        int vertexIndex = vertex.index;
+        ArrayList<Integer> keys = new ArrayList<Integer>(this.T.keySet());
+        int _size = keys.size();
+        int deletions = 0;
+        boolean thereIsADeletion = true;
+        while(thereIsADeletion)
+        {
+            keys = new ArrayList<Integer>(this.T.keySet());
+            thereIsADeletion = false;
+            for(Integer key : keys){
+                // For each Vertex that was erased there is an entry in
+                // hash table T that weak-references to that and must be erased
+                if(this.T.containsKey(key)){
+                    Vertex vI = this.T.get(key);
+                    if(vI != null){
+                        if(vI.lowIndex() == vertex.index || vI.highIndex() == vertex.index)
+                            return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
     /**
      * Calls the garbage collector that deletes the references to dead objects.
      * @return Returns the size of the BDD graph.
@@ -307,6 +331,7 @@ public class TableT {
         //Log.println(VERBOSE, "<<<<<<<<<<<<<<< GC >>>>>>>>>>>>>>>>>");
         
         // Compact the hash maps
+        //ArrayList<Integer> keys = new ArrayList<Integer>(this.T.keySet());
         ArrayList<Integer> keys = new ArrayList<Integer>(this.T.keySet());
         int _size = keys.size();
         int deletions = 0;
@@ -320,9 +345,10 @@ public class TableT {
                 // hash table T that weak-references to that and must be erased
 
                 if(this.T.containsKey(key)){
-                    Vertex v = this.T.get(key).get();
+                    Vertex v = this.T.get(key);
+                    //if(v == null || v.isOrphan() || !this.vertexHasParents(v)){
                     if(v == null || v.isOrphan()){
-                        //Log.println(VERBOSE, "DELETING "+v);
+                        Log.println(VERBOSE, "DELETING "+v);
                         if(v!=null){
                             Vertex.decNumParentsOfVertex(v.low());
                             Vertex.decNumParentsOfVertex(v.high());
@@ -360,8 +386,8 @@ public class TableT {
      * @return Vertex whose index is index.
      */    
     public Vertex get(int index){
-        WeakReference<Vertex> w = this.T.get(index);
-        return w.get();
+        Vertex v = this.T.get(index);
+        return v;
     }
     
     /**
@@ -371,8 +397,8 @@ public class TableT {
      * @return Vertex with uniqueness key vKey.
      */
     public Vertex get(String vKey){
-        WeakReference<Vertex> w = this.U.get(vKey);
-        return w.get();
+        Vertex v = this.U.get(vKey);
+        return v;
     }
  
     
@@ -421,10 +447,10 @@ public class TableT {
      */
     public ArrayList<Vertex> getVertices(){
         ArrayList<Vertex> vertices = new ArrayList<Vertex>(this.T.size());
-        for(WeakReference<Vertex> w : this.T.values()){
-            Vertex v = w.get();
-            if(v!=null)
+        for(Vertex v : this.T.values()){
+            if(v!=null){
                 vertices.add(v);
+            }
         }
         return vertices;
     }
@@ -445,11 +471,17 @@ public class TableT {
     public Set<Vertex> getVerticesWhoseVariableIs(int variable){
         // If the variable has no vertices, we return the empty set
         if(!V.containsKey(variable)){
-            return new HashSet<Vertex>();
+            return new TreeSet<Vertex>();
         }
         // We have some vertices with this variable
-        WeakHashMap<Vertex, Boolean> verticesWithThatVariable = V.get(variable);
-        return verticesWithThatVariable.keySet();
+        HashSet<Vertex> verticesWithThatVariable = V.get(variable);
+        HashSet<Vertex> validVertices = new HashSet<Vertex>(verticesWithThatVariable.size());
+        for(Vertex v : verticesWithThatVariable){
+            if(!v.isOrphan()){
+                validVertices.add(v);
+            }
+        }
+        return validVertices;
     }
 
     /**************************************************************************/
@@ -464,6 +496,83 @@ public class TableT {
             return low;
         }
         return this.add(var, low, high);
+    }
+    
+    public void updateNumParents(){
+        boolean change = false;
+        do{
+            change = false;
+            for(int index : this.T.keySet()){
+                Vertex v = this.T.get(index);
+                change = updateNumParents(v);
+            }
+        }while(change);
+    }
+    
+    public boolean updateNumParents(Vertex v){
+        if (v != null) {
+            int computedNumParents = v.computeNumParents();
+            if (computedNumParents != v.numberOfParents()) {
+                if(true){
+                    System.err.println(v+" was wrong "+v.num_parents+" != "+computedNumParents);
+                    System.out.flush();
+                    System.err.flush();
+                    System.exit(-1);
+                }
+                v.num_parents = computedNumParents;
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean testNumParents(){
+        boolean fuckedVertices = false;
+        for(int index : this.T.keySet()){
+            Vertex v = this.T.get(index);
+            if(v!=null){
+                int computedNumParents = v.computeNumParents();
+                if(computedNumParents!=v.numberOfParents()){
+                    System.err.println(v.debugToString()+" IS WRONG, should have "+computedNumParents);
+                    fuckedVertices = true;
+                }
+            }
+        }
+        return fuckedVertices;
+    }
+    
+    public boolean testNumParents(Vertex v, Vertex low, Vertex high, String caseText){
+        int vNumParents = v.computeNumParents();
+        int lowNumParents = low.computeNumParents();
+        int highNumParents = high.computeNumParents();
+        
+        if(vNumParents != v.numberOfParents() || lowNumParents != low.numberOfParents() || highNumParents != high.numberOfParents()){
+            System.err.println("==============================================");
+            System.err.println("==============================================");
+            System.err.println(caseText);
+            if(vNumParents != v.numberOfParents()){
+                System.err.println("v is WRONG");
+                System.err.println(v.debugToString());
+                System.err.println("Should be "+vNumParents+". It's "+v.numberOfParents());
+            }
+
+            if(lowNumParents != low.numberOfParents()){
+                System.err.println("low is WRONG");
+                System.err.println(low.debugToString());
+                System.err.println("Should be "+lowNumParents+". It's "+low.numberOfParents());
+            }
+
+            if(highNumParents != high.numberOfParents()){
+                System.err.println("high is WRONG");
+                System.err.println(high.debugToString());
+                System.err.println("Should be "+highNumParents+". It's "+high.numberOfParents());
+            }
+            System.err.println("----------------------------------------------");
+            System.err.println("----------------------------------------------");
+            System.err.flush();
+            return false;
+        }
+        return true;
     }
     
     /**
@@ -483,26 +592,6 @@ public class TableT {
         Vertex B = null;
         Vertex C = null;
         Vertex D = null;
-        
-        /*Vertex A = null;
-        Vertex B = null;
-        if (!low.isLeaf()) {
-            A = low.low();
-            B = low.high();
-        } else {
-            A = low;
-            B = low;
-        }
-
-        Vertex C = null;
-        Vertex D = null;
-        if (!high.isLeaf()) {
-            C = high.low();
-            D = high.high();
-        } else {
-            C = high;
-            D = high;
-        }*/
 
         Vertex newLow = null;
         Vertex newHigh = null;
@@ -516,6 +605,18 @@ public class TableT {
             newLow = addWithoutRedundant(varI, A, C);
             newHigh = addWithoutRedundant(varI, B, C);
             this.setVertex(v, varJ, newLow, newHigh);
+            Log.println(VERBOSE, "{{{{{{{{{{{{{{{{{{{{{");
+            Log.println(VERBOSE, v.debugToString());
+            Log.println(VERBOSE, newLow.debugToString());
+            Log.println(VERBOSE, newHigh.debugToString());
+            Log.println(VERBOSE, "}}}}}}}}}}}}}}}}}}}}}");
+            
+            /*BDD.T.updateNumParents(v);
+            BDD.T.updateNumParents(newLow);
+            BDD.T.updateNumParents(newHigh);*/
+            /* Test 
+            testNumParents(v, newLow, newHigh, "CASE A");
+            END Test */
             swapWasMade = true;
         }
         // Case b:
@@ -527,6 +628,18 @@ public class TableT {
             newLow = addWithoutRedundant(varI, A, B);
             newHigh = addWithoutRedundant(varI, A, C);
             this.setVertex(v, varJ, newLow, newHigh);
+            Log.println(VERBOSE, "{{{{{{{{{{{{{{{{{{{{{");
+            Log.println(VERBOSE, v.debugToString());
+            Log.println(VERBOSE, newLow.debugToString());
+            Log.println(VERBOSE, newHigh.debugToString());
+            Log.println(VERBOSE, "}}}}}}}}}}}}}}}}}}}}}");
+            
+            /*BDD.T.updateNumParents(v);
+            BDD.T.updateNumParents(newLow);
+            BDD.T.updateNumParents(newHigh);*/
+            /* Test 
+            testNumParents(v, newLow, newHigh, "CASE B");
+            END Test */
             swapWasMade = true;
         }
         // Case c:
@@ -539,6 +652,18 @@ public class TableT {
             newLow = addWithoutRedundant(varI, A, C);
             newHigh = addWithoutRedundant(varI, B, D);
             this.setVertex(v, varJ, newLow, newHigh);
+            Log.println(VERBOSE, "{{{{{{{{{{{{{{{{{{{{{");
+            Log.println(VERBOSE, v.debugToString());
+            Log.println(VERBOSE, newLow.debugToString());
+            Log.println(VERBOSE, newHigh.debugToString());
+            Log.println(VERBOSE, "}}}}}}}}}}}}}}}}}}}}}");
+            
+            /*BDD.T.updateNumParents(v);
+            BDD.T.updateNumParents(newLow);
+            BDD.T.updateNumParents(newHigh);*/
+            /* Test 
+            testNumParents(v, newLow, newHigh, "CASE C");
+            END Test */
             swapWasMade = true;
         }
         // Case d:
@@ -585,20 +710,37 @@ public class TableT {
 
         boolean vertexSwapWasMade = false;
         // In other case, start Rudell algorithm to swaps two levels
-        HashSet<Vertex> verticesOfLevel = new HashSet<Vertex>(this.getVerticesWhoseVariableIs(variableI));
-        int vertex_i=0;
+        TreeSet<Vertex> verticesOfLevel = new TreeSet<Vertex>(new VertexComparator());
+        verticesOfLevel.addAll(this.getVerticesWhoseVariableIs(variableI));
+        if(VERBOSE){
+            Log.println(VERBOSE,"||||||||||||||||||||||||||||||||||||||||||||||||||");
+            Log.println(VERBOSE,"We're going to swap level "+level);
+            Log.println(VERBOSE,"FALSE IS "+this.False.debugToString());
+            Log.println(VERBOSE, verticesOfLevel.size()+" "+verticesOfLevel);
+            TreeSet<Vertex> verticesOfNextLevel = new TreeSet<Vertex>(new VertexComparator());
+            verticesOfNextLevel.addAll(this.getVerticesWhoseVariableIs(variableJ));
+            Log.println(VERBOSE, verticesOfNextLevel.size()+" "+verticesOfNextLevel);
+            this.printVSize();
+        }        
         for(Vertex v : verticesOfLevel){
-            if(v.variable == variableI){
-                //Log.println(VERBOSE, "Swapping vertex "+v);
+            if(v.variable == variableI && !v.isOrphan()){
+                Log.println(VERBOSE, "Swapping vertex "+v.debugToString());
                 boolean swapWasMadeVertexV = this.swapVertexWithDescendantsWithVariable(v, variableJ);
                 vertexSwapWasMade = (swapWasMadeVertexV || vertexSwapWasMade);
                 if(VERBOSE){
-                    //Log.println(VERBOSE, "Swapping vertex "+v+" ENDED\n");
-                    Printer.printTableT("swapping "+vertex_i+" table of vertex.index = "+v.index);
-                    vertex_i++;
+                    Log.println(VERBOSE, "Swapping vertex "+v+" ENDED\n");
+                    //Printer.printTableT("swapping "+vertex_i+" table of vertex.index = "+v.index);
+                    //vertex_i++;
                 }
             }
         }
+        //BDD.T.updateNumParents();
+        if(VERBOSE){
+            this.printVSize();
+            Log.println(VERBOSE, verticesOfLevel.size()+" "+verticesOfLevel);
+        }
+        
+        
         
         // Swap the variables i and j
         BDD.variables().swapVariables(variableI, variableJ);
@@ -606,14 +748,13 @@ public class TableT {
         // If we are in VERBOSE mode, print the variables and the graph
         if(VERBOSE){
             BDD.variables().print();
-            Printer.printTableT("Swap of variable "+variableI+" has been done");
+            //Printer.printTableT("Swap of variable "+variableI+" has been done");
         }
         
         // Count the vertices swaps
         if(vertexSwapWasMade){
             this.incSwapCounter();
         }
-        
         return true;
     }
     
@@ -797,8 +938,7 @@ public class TableT {
     public void printU(){
         StringBuilder s = new StringBuilder("key\tvar_i\tvar\tlow\thigh\n");
         for(String key : this.U.keySet()){
-            WeakReference<Vertex> w = this.U.get(key);
-            Vertex v = w.get();
+            Vertex v = this.U.get(key);
             if(v != null){
                 String variable = this.getVertexVariableName(v);
                 s.append(key);
@@ -821,8 +961,7 @@ public class TableT {
         StringBuilder s = new StringBuilder("var_i (variable)\n");
         for (Integer var : this.V.keySet()) {
             s.append(var).append(" (").append(this.getVariableName(var)).append(") \n");
-            WeakHashMap<Vertex,Boolean> ws = this.V.get(var);
-            Set<Vertex> vertices = ws.keySet();
+            HashSet<Vertex> vertices = this.V.get(var);
             s.append("\tkey\tvar_i\tvar\tlow\thigh\n");
             for (Vertex v : vertices) {
                 if (v != null) {
@@ -841,6 +980,22 @@ public class TableT {
                     s.append("\n");
                 }
             }
+        }
+        System.out.println(s);
+    }
+    
+    public void printVSize(){
+        StringBuilder s = new StringBuilder("var_i (variable)\n");
+        for (Integer var : this.V.keySet()) {
+            s.append(var).append(" (").append(this.getVariableName(var)).append("): ");
+            HashSet<Vertex> vertices = this.V.get(var);
+            int size = 0;
+            for (Vertex v : vertices) {
+                if (v != null && !v.isOrphan()) {
+                    size++;
+                }
+            }
+            s.append(size).append("\n");
         }
         System.out.println(s);
     }

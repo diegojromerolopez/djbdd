@@ -35,8 +35,7 @@ public class BDDReader extends djbdd.io.BDDReader{
      */
     @Override
     public BDD readDimacs(){
-        return this.readDimacs(50);
+        BDD bdd = this.readDimacs(50);
+        return bdd;
     }
-       
-    
 }

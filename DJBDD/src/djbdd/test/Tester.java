@@ -647,19 +647,7 @@ public class Tester {
         Printer.printTableT("test16_after");
     }
     
-    /**
-     * Study about swapping of variables.
-     * Uses the Ruddel's swapping.
-     * 
-     */
-    private static void test17(){
-    
-        int numVariables = 10;
-        ArrayList<String> variables = new ArrayList<String>(numVariables);
-        for(int i=0; i<numVariables; i++){
-            variables.add("{x"+i+"}");
-        }
-        
+    public static String getWorstOrderFormula(int numVariables){
         String function1 = "";
         for(int i=1; i<numVariables; i+=2){
             function1 += "{x"+i+"} && ";
@@ -677,6 +665,65 @@ public class Tester {
         // (Conjunction of even variables) OR (Conjunction of odd variables)
         // i. e. {x2} && {x4} && ... && {x20} ) || ({x1} && {x3} && ... && {x17} && {x19}
         String function = "("+function1+") || ("+function2+")";
+        return function;
+    }
+    
+    public static String getProblematicFormula(){
+        String s = "";
+        
+        //s += "(!{x10} || !{x1} || {x11}) && ";
+        s += "(!{x10} || !{x3} || {x13}) && ";
+        s += "(!{x10} || !{x4} || {x14}) && ";
+        s += "(!{x15} || !{x1} || {x16}) && ";
+        s += "(!{x15} || !{x2} || {x17}) && ";
+        s += "(!{x15} || !{x4} || {x19}) && ";
+        s += "(!{x5} || !{x20} || !{x6}) && ";
+        s += "(!{x10} || !{x22} || !{x12}) && ";
+        s += "(!{x15} || !{x24} || !{x18}) && ";
+        s += "(!{x20} || {x27}) && ";
+        s += "(!{x21} || {x28}) && ";
+        s += "(!{x22} || {x29}) && ";
+        s += "(!{x23} || {x30}) && ";
+        s += "(!{x24} || {x31})  ";
+        /*s += "(!{x25} || {x32}) &&";
+        /*s += "(!{x1} || !{x28}) && ";
+        s += "(!{x2} || !{x30}) && ";
+        s += "(!{x3} || !{x32}) && ";
+        s += "(!{x5} || !{x22}) && ";
+        s += "(!{x5} || !{x23}) && ";
+        s += "(!{x5} || !{x24}) && ";
+        s += "(!{x5} || !{x25}) && ";
+        s += "(!{x10} || !{x20}) && ";
+        s += "(!{x10} || !{x21}) && ";
+        s += "(!{x10} || !{x24}) && ";
+        s += "(!{x10} || !{x25}) && ";
+        s += "(!{x10} || !{x26}) && ";
+        s += "(!{x15} || !{x20}) && ";
+        s += "(!{x15} || !{x21}) && ";
+        s += "(!{x15} || !{x22}) && ";
+        s += "(!{x15} || !{x23}) && ";
+        s += "(!{x15} || !{x26}) && ";
+        s += "({x10} || {x12}) && ";
+        s += "({x15} || {x18})";*/
+       return s;
+    }
+    
+    /**
+     * Study about swapping of variables.
+     * Uses the Ruddel's swapping.
+     * 
+     */
+    private static void test17(){
+        // Setup the variables
+        int numVariables = 50;
+        ArrayList<String> variables = new ArrayList<String>(numVariables);
+        for(int i=0; i<numVariables; i++){
+            variables.add("{x"+i+"}");
+        }
+        
+        //String function = getWorstOrderFormula(numVariables);
+        String function = getProblematicFormula();
+
         // Show it
         System.out.println(function);
         
@@ -690,15 +737,16 @@ public class Tester {
         int oldSize = bdd1.size();
         System.out.println("\nBEFORE the reordering");
         System.out.println("Size of bdd1: "+oldSize);
+        System.out.println("Size of T: "+BDD.T.size());
         System.out.println("Variables before the reordering algorithm");
         BDD.variables().print();
         
         // Clean the orphan nodes and print the non-optimal tree
         BDD.gc();
-        Printer.printTableT("test17_before");
+        //Printer.printTableT("test17_before");
         
         // Reduction type
-        int reductionType = ReductionAlgorithm.MEMETIC_ALGORITHM;
+        int reductionType = ReductionAlgorithm.SIFTING_ALGORIGHTM;
         
         System.out.println("");
         
@@ -743,12 +791,17 @@ public class Tester {
         int newSize = bdd1.size();
         System.out.println("\nAFTER the reordering");
         System.out.println("Size of bdd1: "+bdd1.size());
+        System.out.println("Size of T: "+BDD.T.size());
         System.out.println("Variables after the reordering algorithm");
         BDD.variables().print();
         
         // Clean the orphan nodes and print the optimal tree
         BDD.gc();
-        Printer.printTableT("test17_after");
+        BDD.T.testNumParents();        
+        BDD.T.print();
+        
+        //Printer.printTableT("test17_after");
+        Printer.printBDD(bdd1, "test17_bdd1_"+bdd1.size()+"_after");
         
         // Shows how many vertices we are reducing
         int reduction = oldSize-newSize;
@@ -758,29 +811,14 @@ public class Tester {
     }
     
     public static void test18(){
-        int numVariables = 10;
+        int numVariables = 50;
         ArrayList<String> variables = new ArrayList<String>(numVariables);
         for(int i=0; i<numVariables; i++){
             variables.add("{x"+i+"}");
         }
+        //String function = getWorstOrderFormula(numVariables);
+        String function = getProblematicFormula();
         
-        String function1 = "";
-        for(int i=1; i<numVariables; i+=2){
-            function1 += "{x"+i+"} && ";
-        }
-        function1 = function1.substring(0, function1.length()-3);
-        
-        String function2 = "";
-        for(int i=0; i<numVariables-1; i+=2){
-            function2 += "{x"+i+"} && ";
-        }
-
-        function2 = function2.substring(0, function2.length()-3);
-        
-        // The logic function is:
-        // (Conjunction of even variables) OR (Conjunction of odd variables)
-        // i. e. {x2} && {x4} && ... && {x20} ) || ({x1} && {x3} && ... && {x17} && {x19}
-        String function = "("+function1+") || ("+function2+")";
         // Show it
         System.out.println(function);
         
@@ -792,34 +830,26 @@ public class Tester {
         
         // Shows the old, non-optimal BDD
         int oldSize = bdd1.size();
-        System.out.println("\nBEFORE the reordering");
+        System.out.println("\nBEFORE the swap");
         System.out.println("Size of bdd1: "+oldSize);
+        System.out.println("Size of T: "+BDD.T.size());
         System.out.println("Variables before the reordering algorithm");
         BDD.variables().print();
         
         // Clean the orphan nodes and print the non-optimal tree
         BDD.gc();
-        Printer.printTableT("test17_before");
+        //Printer.printTableT("test18_before");
         
-        // Reduction type
-        int reductionType = ReductionAlgorithm.MEMETIC_ALGORITHM;
+        BDD.T.swap(10);
         
-        System.out.println("");
+        int newSize = bdd1.size();
+        System.out.println("\nAFTER the swap");
+        System.out.println("Size of bdd1: "+newSize);
+        System.out.println("Size of T: "+BDD.T.size());
+        System.out.println("Variables before the reordering algorithm");
+        BDD.variables().print();
         
-        random.Random.init(10);
-        
-        Chromosome c1 = new Chromosome();
-        Chromosome c2 = new Chromosome();
-        
-        c1.print();
-        c2.print();
-        c2.mutate(.2);
-        System.out.println("Mutamos c2");
-        
-        c1.print();
-        c2.print();
-        
-        System.exit(-1);
+        //Printer.printTableT("test18_after");
     }
     
     /**************************************************************************/

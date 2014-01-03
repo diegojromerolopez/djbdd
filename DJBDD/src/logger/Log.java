@@ -13,7 +13,7 @@ public class Log {
     /**
      * Activate / Deactivate the log print
      */
-    public static final boolean ACTIVATED = false;
+    public static final boolean ACTIVATED = true;
     
     public static void print(String str){
         if(ACTIVATED){

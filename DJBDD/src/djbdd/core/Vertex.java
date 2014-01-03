@@ -1,5 +1,7 @@
 package djbdd.core;
 
+import java.util.*;
+
 /**
  * Representation of a vertex of the graph that contains the BDDs.
  * @author diegoj
@@ -43,7 +45,7 @@ public class Vertex {
     private Vertex high = null;
 
     /** Number of parents that this vertex has */
-    private int num_parents = 0;
+    int num_parents = 0;
     
     /** Number of BDDs that have this vertex as root */
     private int num_rooted_bdds = 0;
@@ -314,9 +316,11 @@ public class Vertex {
      * @param newHigh Vertex that will be assigned as high descendant of this vertex.
      */
     final void setHigh(Vertex newHigh){
+        //System.out.println(this.debugToString());
         Vertex.decNumParentsOfVertex(this.high);
         this.high = newHigh;
         Vertex.incNumParentsOfVertex(this.high);
+        //System.out.println(this.debugToString());
     }
     
     /**
@@ -324,9 +328,11 @@ public class Vertex {
      * @param newLow Vertex that will be assigned as low descendant of this vertex.
      */
     final void setLow(Vertex newLow){
+        //System.out.println(this.debugToString());
         Vertex.decNumParentsOfVertex(this.low);
         this.low = newLow;
         Vertex.incNumParentsOfVertex(this.low);
+        //System.out.println(this.debugToString());
     }
     
     /**
@@ -358,17 +364,30 @@ public class Vertex {
      * Gets the string representation of a vertex and prints it on the stdio.
      * @return String Vertex in human legible format.
      */
-    public String debugPrint(){
+    public String debugToString(){
         String vertexStr = "";
         if(this.index == FALSE_INDEX)
-            vertexStr = "<Vertex FALSE>";
+            vertexStr = "<Vertex FALSE, (parents="+this.num_parents+", rooted_bdds="+this.num_rooted_bdds+")>";
         else if(this.index == TRUE_INDEX)
-            vertexStr = "<Vertex TRUE>";
+            vertexStr = "<Vertex TRUE, (parents="+this.num_parents+", rooted_bdds="+this.num_rooted_bdds+")>";
         else{
             String variableName = BDD.variables().get(this.variable);
-            vertexStr = "<Vertex index="+this.index+", var="+this.variable+" ("+variableName+"), (low="+this.low.index+", high="+this.high.index+"), (parents="+this.num_parents+", rooted_bdds="+this.num_rooted_bdds+">";
+            vertexStr = "<Vertex index="+this.index+", var="+this.variable+" ("+variableName+"), (low="+this.low+", high="+this.high+"), (parents="+this.num_parents+", rooted_bdds="+this.num_rooted_bdds+")>";
+            //vertexStr = "<Vertex index="+this.index+", var="+this.variable+" ("+variableName+"), (low="+this.low.index+", high="+this.high.index+"), (parents="+this.num_parents+", rooted_bdds="+this.num_rooted_bdds+")>";
         }
-        System.out.println(vertexStr);
         return vertexStr;
     }    
+    
+    int computeNumParents(){
+    
+        ArrayList<Integer> keys = new ArrayList<Integer>(BDD.T.keySet());
+        int computedNumParents = 0;
+        for(int vIndex : keys){
+            Vertex v = BDD.T.get(vIndex);
+            if(v != null && v.index != this.index && v.isParentOf(this)){
+                computedNumParents++;
+            }
+        }
+        return computedNumParents;
+    }
 }

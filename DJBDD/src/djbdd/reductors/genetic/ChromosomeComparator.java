@@ -19,7 +19,10 @@ public class ChromosomeComparator implements Comparator<Chromosome> {
         }else if(o1.graphSize == o2.graphSize){
             String o1Hash = o1.key();
             String o2Hash = o2.key();
-            return o1Hash.compareTo(o2Hash);
+            int val = o1Hash.compareTo(o2Hash);
+            if(val==0)
+                return -1;
+            return val;
         }else{
             return 1;
         }

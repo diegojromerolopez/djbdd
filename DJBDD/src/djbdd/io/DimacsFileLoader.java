@@ -158,12 +158,14 @@ public class DimacsFileLoader {
         BDD.init(variables);
         
         BDD bdd = new BDD(bdd_formula.get(0));
+        //System.out.println(bdd_formula.get(0));
         for(int i=1; i<bdd_formula.size(); i++){
             String formulaI = bdd_formula.get(i);
             if(VERBOSE){
                 System.out.println("Formula "+i+": "+formulaI);
                 System.out.println((i+1)+"/"+bdd_formula.size());
             }
+            //System.out.println(formulaI);
             BDD bddI = new BDD(formulaI);
             /*
             if(bddI == null){

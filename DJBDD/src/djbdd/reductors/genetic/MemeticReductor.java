@@ -1,5 +1,6 @@
 package djbdd.reductors.genetic;
 
+import djbdd.io.Printer;
 import java.util.*;
 
 /**
@@ -27,23 +28,38 @@ public class MemeticReductor extends GeneticReductor {
      */
     @Override
     protected ArrayList<Chromosome> select(){
+        T.gc();
         ArrayList<Chromosome> selectedChromosomes = super.select();
         int selectedSize = selectedChromosomes.size();
+        //return selectedChromosomes;
         
-        Collections.sort(this.population, this.comparator);
-        selectedChromosomes.add(this.population.get(0));
-        selectedChromosomes.add(this.population.get(1));
-        
+        //Collections.sort(this.population, this.comparator);
+        //selectedChromosomes.add(this.population.get(0));
+        //selectedChromosomes.add(this.population.get(1));
+        int optimizations = 1;
         for(int i=0; i<selectedChromosomes.size(); i++){
             Chromosome selected = selectedChromosomes.get(i);
-            selected.optimizeBySifting();
-            //System.out.println(i+"");
-            //System.out.println(selected+": "+selected.getGraphSize());
+            int beforeSifting = selected.getGraphSize();
+            int afterSifting = 0;
+            int optimizationIteration = 0;
+            do{
+            //Printer.printTableT(genI+"_0");
+                selected.optimize();
+                afterSifting = selected.getGraphSize();
+                optimizationIteration++;
+                T.gc();
+            //Printer.printTableT(genI+"_1");
+            }while(optimizationIteration < optimizations);
         }
         
+        
+        return selectedChromosomes;
+        /*
         Collections.sort(selectedChromosomes, this.comparator);
         
         return new ArrayList<Chromosome>(selectedChromosomes.subList(0, selectedSize));
+         * 
+         */
     }
     
 }

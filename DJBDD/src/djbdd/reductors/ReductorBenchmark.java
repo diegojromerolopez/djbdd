@@ -11,6 +11,7 @@ import djbdd.reductors.genetic.GeneticReductor;
 import djbdd.reductors.genetic.MemeticReductor;
 import djbdd.reductors.random.*;
 import djbdd.core.*;
+import djbdd.io.Printer;
 import djbdd.reductors.io.*;
 import java.io.*;
 import java.util.*;
@@ -139,10 +140,28 @@ public class ReductorBenchmark {
      * Runs the optimization process.
      */
     public long run(){
-        long elapsedTime = this.algorithm.run();
-        //BDD.variables().print();
-        //System.out.println(BDD.T.gc());
+        long elapsedTime = 0;
+        
+        BDD.gc();
+        if(VERBOSE){
+            System.out.println("Initial size:"+BDD.T.size());
+            BDD.T.print();
+        }
+        
+        BDD.T.updateNumParents();
+        elapsedTime = this.algorithm.run();
+        
         this.reducedBDDSize = this.bdd.size();
+        //System.out.println("BDD ("+this.reducedBDDSize+")");
+        //this.bdd.print(true);
+        //Printer.printTableT("sifting_"+BDD.T.size());
+
+        BDD.gc();
+        if(VERBOSE){
+            System.out.println("Reduced size:"+BDD.T.size());
+            BDD.T.print();
+        }
+        
         //Printer.printTableT("T");
         //Printer.printBDD(bdd, "BDD");
         return elapsedTime;

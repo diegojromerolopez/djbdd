@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package djbdd.reductors.genetic;
 
 import java.util.*;
@@ -9,7 +5,10 @@ import java.util.*;
 import random.Random;
 import djbdd.core.BDD;
 import djbdd.core.VariableList;
-import djbdd.reductors.sifting.SiftingReductor;
+
+import djbdd.reductors.*;
+import djbdd.reductors.sifting.*;
+import djbdd.reductors.windowpermutation.*;
 
 /**
  * Chromosome for Genetic Algorithm.
@@ -190,9 +189,9 @@ public class Chromosome extends VariableList {
         return spawn;
     }
     
-    public void optimizeBySifting(){
+    public void optimize(){
         this.applyOrderToGraph();
-        SiftingReductor reductor = new SiftingReductor();
+        ReductionAlgorithm reductor = new WindowPermutationReductor(5);
         reductor.execute();
         this.order = new ArrayList<Integer>(BDD.variables().getOrder());
         this.orderedVariables = new ArrayList<String>(BDD.variables().getOrderedVariables());

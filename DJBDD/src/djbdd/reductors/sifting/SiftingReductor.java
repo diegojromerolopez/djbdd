@@ -1,5 +1,6 @@
 package djbdd.reductors.sifting;
 
+import djbdd.core.BDD;
 import djbdd.io.*;
 
 import djbdd.reductors.ReductionAlgorithm;
@@ -41,8 +42,9 @@ public class SiftingReductor extends ReductionAlgorithm {
         variableOccurence = new TreeMap<Integer,Integer>();
         for(int variable=0; variable<this.numVariables; variable++){
             int varSize = 0;
-            if(this.T.V.containsKey(variable))
+            if(this.T.V.containsKey(variable)){
                 varSize = this.T.V.get(variable).size();
+            }
             variableOccurence.put(variable, varSize);
         }
     }
@@ -104,6 +106,7 @@ public class SiftingReductor extends ReductionAlgorithm {
         // Init the order of variables
         this.initVariableOcurrence();
         this.initVariableOrderDesc();
+        //this.VARIABLES.print();
     }
     
     public SiftingReductor(int variableOrder){
@@ -288,13 +291,23 @@ public class SiftingReductor extends ReductionAlgorithm {
         // For each variable find its better position given that
         // the other variables are in fixed positions
         //Printer.printTableT("sifting_before");
+        
+        int sizeBefore = BDD.T.size();
+        int i = 0;
         for (int varIndex : this.variableOrder) {
             if(VERBOSE){
                 System.out.println("Start searching for best position for variable "+varIndex);
                 this.VARIABLES.print();
             }
             this.findBestPositionForVariable(varIndex);
+            i++;
         }
+        
+        int sizeAfter = BDD.T.size();
+        //System.out.println(sizeBefore +"<?"+ sizeAfter);
+        //if(sizeBefore < sizeAfter){
+        //    System.err.println("PETE "+sizeBefore +"<?"+ sizeAfter);
+        //}
         //Printer.printTableT("sifting_after");
         //this.VARIABLES.print();
     }
