@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package djbdd.reductors;
 
 import djbdd.reductors.totalsearch.TotalSearchReductor;
@@ -18,7 +14,7 @@ import java.util.*;
 import djbdd.timemeasurer.TimeMeasurer;
 
 /**
- *
+ * Executes BDD size reduction benchmarks.
  * @author diegoj
  */
 public class ReductorBenchmark {
@@ -38,6 +34,12 @@ public class ReductorBenchmark {
     /** Should the benchmark be verbose? */
     public static final boolean VERBOSE = false;
     
+    /**
+     * Assert parameter existence.
+     * @param params Parameters of the algorithm.
+     * @param parameter Parameter that we want to test for existence in params.
+     * @param explanation Human text that will be shown in stderror as help if the parameter is not present.
+     */
     private static void assertParameter(HashMap<String,String> params, String parameter, String explanation){
         if(!params.containsKey(parameter)){
             System.err.println(explanation);
@@ -121,7 +123,13 @@ public class ReductorBenchmark {
         return reductor;
     }
     
-   
+    /**
+     * Constructor of the benchmark.
+     * @param algorithm Name of the algorithm chosen.
+     * @param params Extra parameters of that algorithm.
+     * @param format File format used to embed the BDD.
+     * @param file File path that contains a BDD in the specified format.
+     */
     public ReductorBenchmark(String algorithm, HashMap<String,String> params, String format, String file){
         // Read the BDD
         BDDReader reader = new BDDReader(format, file);
@@ -138,6 +146,7 @@ public class ReductorBenchmark {
     
     /**
      * Runs the optimization process.
+     * @return Number of elapsed nanoseconds.
      */
     public long run(){
         long elapsedTime = 0;
@@ -167,26 +176,104 @@ public class ReductorBenchmark {
         return elapsedTime;
     }
     
+    /**
+     * Returns the original BDD size.
+     * @return Number of vertices of the BDD before the reduction process.
+     */
     public int getInitialBDDSize(){
         return this.initialBDDSize;
     }
     
+    /**
+     * Returns the reduced BDD size.
+     * @return Number of vertices of the BDD after the reduction process.
+     */
     public int getReducedBDDSize(){
         return this.reducedBDDSize;
     }
     
+    /** Separator of shown results */
     private static final String SEP = "\t";
     
+    //private static String[] RESULT_FIELDS = {"File","Nvars","InitSize","ReducSize","Nswaps","Time (ns)","Time (s)","Time (h:m:s)"};
+    
+    /** Data that will be show to the user */
+    private static String[] RESULT_FIELDS = {"File","Nvars","InitSize","ReducSize","Nswaps", "Time (s)"};
+    
+    /**
+     * Prints the header for a processed file.
+     * @param algorithm Name of the used algorithm.
+     */
+    private static void printFileHeader(String algorithm){
+        StringBuilder out = new StringBuilder("Benchmark using "+algorithm+" algorithm\n");
+        for(String fieldName : RESULT_FIELDS){
+            out.append(fieldName).append(SEP);
+        }
+        System.out.println(out.toString().trim());
+    }
+    
+    /**
+     * Prints the results for a processed file.
+     * @param filename Name of the processed file.
+     * @param reductor Reduction algorithm used.
+     * @param elapsedTime Elapsed time in nanoseconds.
+     */
+    private static void printFileResults(String filename, ReductorBenchmark reductor, long elapsedTime){
+        int numVariables = BDD.variables().size();
+        int bddInitialSize = reductor.getInitialBDDSize();
+        int bddReducedSize = reductor.getReducedBDDSize();
+        long numSwaps = BDD.T.getSwapCounter();
+        double elapsedSeconds = elapsedTime / 1000_000_000.0;
+        String elapsedTimeHuman = TimeMeasurer.elapsedTimeAsHumanText(elapsedTime);
+        
+        // Show only the fields that are contained in
+        // the configuration array RESULT_FIELDS
+        StringBuilder s = new StringBuilder("");
+        if(Arrays.asList(RESULT_FIELDS).contains("File"))
+            s.append(filename).append(SEP);
+        if(Arrays.asList(RESULT_FIELDS).contains("Nvars"))
+            s.append(numVariables).append(SEP);
+        if(Arrays.asList(RESULT_FIELDS).contains("InitSize"))
+            s.append(bddInitialSize).append(SEP);
+        if(Arrays.asList(RESULT_FIELDS).contains("ReducSize"))
+            s.append(bddReducedSize).append(SEP);
+        if(Arrays.asList(RESULT_FIELDS).contains("Nswaps"))
+            s.append(numSwaps).append(SEP);
+        if(Arrays.asList(RESULT_FIELDS).contains("Time (ns)"))
+            s.append(elapsedTime).append(SEP);
+        if(Arrays.asList(RESULT_FIELDS).contains("Time (s)"))
+            s.append(elapsedSeconds).append(SEP);
+        if(Arrays.asList(RESULT_FIELDS).contains("Time (h:m:s)"))
+            s.append(elapsedTimeHuman).append(SEP);
+        
+        // Prints the data
+        System.out.println(s.toString());
+    }
+    
+    /**
+     * Make the benchmark of a BDD in file format.
+     * @param algorithm Name of the algorithm chosen.
+     * @param params Extra parameters of that algorithm.
+     * @param format File format used to embed the BDD.
+     * @param file File that contains a BDD.
+     */
     private static void makeFileBenchmark(String algorithm, HashMap<String,String> params, String format, File file){
         String filepath = file.getAbsolutePath();
         String filename = file.getName();
         ReductorBenchmark reductor = new ReductorBenchmark(algorithm, params, format, filepath);
         long elapsedTime = reductor.run();
-        System.out.println(filename + SEP + BDD.variables().size() + SEP + algorithm + SEP + reductor.getInitialBDDSize() + SEP + reductor.getReducedBDDSize() + SEP + BDD.T.getSwapCounter()+SEP+elapsedTime+SEP+""+TimeMeasurer.elapsedTimeAsHumanText(elapsedTime)+"");
+        printFileResults(filename, reductor, elapsedTime);
     }
-    
+
+    /**
+     * Make the benchmark of a BDD (in a file) or several BDDs (in a directory).
+     * @param algorithm Name of the algorithm chosen.
+     * @param params Extra parameters of that algorithm.
+     * @param format File format used to embed the BDD.
+     * @param resourceName File or directory path.
+     */
     public static void makeBenchmark(String algorithm, HashMap<String,String> params, String format, String resourceName){
-        System.out.println("File"+SEP+"Nvars"+SEP+"Alg."+SEP+"init_size"+SEP+"reduc_size"+SEP+"Nswaps"+SEP+"eTime"+SEP+"eTimeHuman");
+        printFileHeader(algorithm);
         File f = new File(resourceName);
         if (f.isFile()) {
             ReductorBenchmark.makeFileBenchmark(algorithm, params, format, f);
