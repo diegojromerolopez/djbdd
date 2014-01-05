@@ -45,13 +45,9 @@ public class MemeticReductor extends GeneticReductor {
      */
     @Override
     protected ArrayList<Chromosome> select(){
-        T.gc();
         ArrayList<Chromosome> selectedChromosomes = super.select();
         //int selectedSize = selectedChromosomes.size();
                 
-        Collections.sort(this.population, this.comparator);
-        selectedChromosomes.add(this.population.get(0));
-        selectedChromosomes.add(this.population.get(1));
         for(int i=0; i<selectedChromosomes.size(); i++){
             Chromosome selected = selectedChromosomes.get(i);
             //int beforeSifting = selected.getGraphSize();
@@ -62,10 +58,7 @@ public class MemeticReductor extends GeneticReductor {
                 //afterSifting = selected.getGraphSize();
                 optimizationIteration++;
             }while(optimizationIteration < this.optimizationIterations);
-            T.gc();
         }
-        
-        
         return selectedChromosomes;
     }
     

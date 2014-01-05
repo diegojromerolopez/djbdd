@@ -273,6 +273,26 @@ public class VariableList {
      * Used in djbdd.reductors.genetic and djbdd.reductors.random.
      */
     public int applyOrderToGraph() {
+        // First be test which variables need to be moved
+        // Note that a variable that is not moved, at the end will be in its
+        // desired position
+        ArrayList<Integer> variablesToMove = new ArrayList<Integer>(this.size);
+        for (int varIndex = 0; varIndex < this.size; varIndex++) {
+            int varNewPosition = this.order.get(varIndex);
+            if(varNewPosition != BDD.VARIABLES.order.get(varIndex)){
+                variablesToMove.add(varIndex);
+            }
+        }
+        // For each variable that needs to be moved, move it to its position
+        for (int varIndex : variablesToMove) {
+            int varPosition = this.order.get(varIndex);
+            BDD.T.moveVariable(varIndex, varPosition);
+        }
+        
+        // Returns the new size of the graph
+        return BDD.T.size();
+        
+        /*
         // For each variable, move that to its position
         for (int varIndex = 0; varIndex < this.size; varIndex++) {
             int varPosition = this.order.get(varIndex);
@@ -282,6 +302,8 @@ public class VariableList {
         BDD.T.gc();
         // Returns the new size of the graph
         return BDD.T.size();
+         * 
+         */
     }
     
     /**************************************************************************/
