@@ -191,7 +191,7 @@ public class Chromosome extends VariableList {
     
     public void optimize(){
         this.applyOrderToGraph();
-        ReductionAlgorithm reductor = new WindowPermutationReductor(5);
+        ReductionAlgorithm reductor = new SiftingReductor();
         reductor.execute();
         this.order = new ArrayList<Integer>(BDD.variables().getOrder());
         this.orderedVariables = new ArrayList<String>(BDD.variables().getOrderedVariables());

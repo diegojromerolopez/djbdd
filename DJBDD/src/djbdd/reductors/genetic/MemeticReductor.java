@@ -9,6 +9,9 @@ import java.util.*;
  */
 public class MemeticReductor extends GeneticReductor {
     
+    /** Defines the number of optimizations suffered for the chromosomes in the selection process. */
+    private int optimizationIterations;
+    
     /**
      * Constructor of the genetic algorithm.
      * @param populationSize Size of the population, that is, number of chromosomes.
@@ -18,6 +21,20 @@ public class MemeticReductor extends GeneticReductor {
      */
     public MemeticReductor(int populationSize, int generations, double selectionPercentage, double mutationProbability){
         super(populationSize, generations, selectionPercentage, mutationProbability);
+        this.optimizationIterations = 1;
+    }
+    
+   /**
+     * Constructor of the genetic algorithm.
+     * @param populationSize Size of the population, that is, number of chromosomes.
+     * @param generations Number of generations that will be executed.
+     * @param selectionPercentage Percentage of selected chromosomes. 
+     * @param mutationProbability Probability of mutation of each gene of each chromosome.
+     * @param optimizationIterations Number of times that chromosomes will be optimized.
+     */
+    public MemeticReductor(int populationSize, int generations, double selectionPercentage, double mutationProbability, int optimizationIterations){
+        super(populationSize, generations, selectionPercentage, mutationProbability);
+        this.optimizationIterations = optimizationIterations;
     }
     
     /**
@@ -30,36 +47,26 @@ public class MemeticReductor extends GeneticReductor {
     protected ArrayList<Chromosome> select(){
         T.gc();
         ArrayList<Chromosome> selectedChromosomes = super.select();
-        int selectedSize = selectedChromosomes.size();
-        //return selectedChromosomes;
-        
-        //Collections.sort(this.population, this.comparator);
-        //selectedChromosomes.add(this.population.get(0));
-        //selectedChromosomes.add(this.population.get(1));
-        int optimizations = 1;
+        //int selectedSize = selectedChromosomes.size();
+                
+        Collections.sort(this.population, this.comparator);
+        selectedChromosomes.add(this.population.get(0));
+        selectedChromosomes.add(this.population.get(1));
         for(int i=0; i<selectedChromosomes.size(); i++){
             Chromosome selected = selectedChromosomes.get(i);
-            int beforeSifting = selected.getGraphSize();
-            int afterSifting = 0;
+            //int beforeSifting = selected.getGraphSize();
+            //int afterSifting = 0;
             int optimizationIteration = 0;
             do{
-            //Printer.printTableT(genI+"_0");
                 selected.optimize();
-                afterSifting = selected.getGraphSize();
+                //afterSifting = selected.getGraphSize();
                 optimizationIteration++;
-                T.gc();
-            //Printer.printTableT(genI+"_1");
-            }while(optimizationIteration < optimizations);
+            }while(optimizationIteration < this.optimizationIterations);
+            T.gc();
         }
         
         
         return selectedChromosomes;
-        /*
-        Collections.sort(selectedChromosomes, this.comparator);
-        
-        return new ArrayList<Chromosome>(selectedChromosomes.subList(0, selectedSize));
-         * 
-         */
     }
     
 }
