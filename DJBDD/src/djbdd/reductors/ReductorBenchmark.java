@@ -286,7 +286,7 @@ public class ReductorBenchmark {
                         ReductorBenchmark.makeFileBenchmark(algorithm, params, format, file);
                     }catch(java.lang.OutOfMemoryError e){
                         String filename = file.getName();
-                        System.out.println(filename + SEP + BDD.variables().size() + SEP + algorithm + SEP + "-" + SEP + "-" + SEP + BDD.T.getSwapCounter()+SEP+"-"+SEP+"-");
+                        System.out.println(filename + SEP + BDD.variables().size() + SEP + "-" + SEP + "-" + SEP + BDD.T.getSwapCounter()+SEP+"-"+SEP+"-");
                     }
                 }
             }
