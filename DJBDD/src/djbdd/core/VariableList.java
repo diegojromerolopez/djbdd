@@ -24,6 +24,12 @@ public class VariableList {
      */
     protected ArrayList<Integer> order = null;
     
+    /**
+     * Position of variables.
+     * That is, order[position] = var iff variable var is in position position.
+     */
+    protected ArrayList<Integer> variablePosition = null;
+    
     /** Number of variables */
     protected int size = 0;
     
@@ -32,12 +38,24 @@ public class VariableList {
      */
     private void initOrderedVariables(){
         this.orderedVariables = new ArrayList<String>(this.size);
-        for(int i=0; i<this.size; i++)
+        for(int i=0; i<this.size; i++){
             orderedVariables.add("");
-        for(int var_index=0; var_index<this.size; var_index++){
-            int position = this.order.get(var_index);
-            String var = this.variables.get(var_index);
+        }
+        for(int varIndex=0; varIndex<this.size; varIndex++){
+            int position = this.order.get(varIndex);
+            String var = this.variables.get(varIndex);
             orderedVariables.set(position, var);
+        }
+    }
+    
+    private void initVariablePosition(){
+        this.variablePosition = new ArrayList<Integer>(this.size);
+        for(int i=0; i<this.size; i++){
+            variablePosition.add(0);
+        }
+        for(int varIndex=0; varIndex<this.size; varIndex++){
+            int position = this.order.get(varIndex);
+            variablePosition.set(position, varIndex);
         }
     }
     
@@ -50,8 +68,11 @@ public class VariableList {
         this.variables = variables;
         this.size = variables.size();
         this.order = new ArrayList<Integer>(this.size);
-        for(int i=0; i<this.size; i++)
+        this.variablePosition = new ArrayList<Integer>(this.size);
+        for(int i=0; i<this.size; i++){
             order.add(i);
+        }
+        this.initVariablePosition();
         this.initOrderedVariables();
     }
 
@@ -65,6 +86,7 @@ public class VariableList {
         this.variables = variables;
         this.size = variables.size();
         this.order = order;
+        this.initVariablePosition();
         this.initOrderedVariables();
     }    
 
@@ -95,6 +117,7 @@ public class VariableList {
             int index = this.variables.indexOf(var);
             this.order.set(index, i);
         }
+        this.initVariablePosition();
         this.initOrderedVariables();
     }    
 
@@ -110,6 +133,7 @@ public class VariableList {
             this.variables.add("{x"+i+"}");
             this.order.add(i);
         }
+        this.initVariablePosition();
         this.initOrderedVariables();
     }
     
@@ -123,10 +147,12 @@ public class VariableList {
         this.variables = new ArrayList<String>(this.size);
         this.order = new ArrayList<Integer>(this.size);
         this.orderedVariables = new ArrayList<String>(this.size);
+        this.variablePosition = new ArrayList<Integer>(this.size);
         for(int i=0; i<this.size; i++){
             this.variables.add(variableList.variables.get(i));
             this.order.add(variableList.order.get(i));
             this.orderedVariables.add(variableList.orderedVariables.get(i));
+            this.variablePosition.add(variableList.variablePosition.get(i));
         }
     }
     
@@ -145,7 +171,7 @@ public class VariableList {
      * @return Variable index.
      */    
     public int getVariableInPosition(int position){
-        return this.order.indexOf(position);
+        return this.variablePosition.get(position);
     }
 
     /**
@@ -235,6 +261,8 @@ public class VariableList {
         int posJ = this.order.get(variableJ);
         this.order.set(variableI, posJ);
         this.order.set(variableJ, posI);
+        this.variablePosition.set(posJ, variableI);
+        this.variablePosition.set(posI, variableJ);
         // List of ordered variables
         Collections.swap(this.orderedVariables, posI, posJ);
     }
