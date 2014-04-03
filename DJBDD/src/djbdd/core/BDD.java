@@ -624,6 +624,10 @@ public class BDD {
     /**************************************************************************/
     /* NOT operation */
     
+    /**
+     * Returns a BDD that is the complementary of this object.
+     * @return BDD that has the complemented boolean expression of the object.
+     */
     public BDD not(){
         return new BDD("!("+this.function+")");
     }
