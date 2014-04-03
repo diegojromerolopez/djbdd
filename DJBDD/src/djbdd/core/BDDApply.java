@@ -60,23 +60,25 @@ public class BDDApply {
      * @return int Integer key of the operation.
      */
     private static int getOperation(String operation)throws Exception{
-         if(operation.equals("&&") || operation.equalsIgnoreCase("and") || operation.equalsIgnoreCase(".") || operation.equalsIgnoreCase("·"))
-             return OP_AND;
-         if(operation.equals("||") || operation.equalsIgnoreCase("or") || operation.equalsIgnoreCase("+"))
-             return OP_OR;
-         if(operation.equalsIgnoreCase("nor"))
-             return OP_NOR;
-         if(operation.equalsIgnoreCase("nand"))
-             return OP_NAND;
-         if(operation.equalsIgnoreCase("<=>") || operation.equalsIgnoreCase("iff") || operation.equalsIgnoreCase("<->"))
-             return OP_IFF;
-         if(operation.equalsIgnoreCase("!="))
-             return OP_ISDIFFERENT;
-         if(operation.equalsIgnoreCase("=>") || operation.equalsIgnoreCase("if") || operation.equalsIgnoreCase("->"))
-             return OP_IF;
-         if(operation.equalsIgnoreCase("!=>") || operation.equalsIgnoreCase("notif") || operation.equalsIgnoreCase("!->"))
-             return OP_NOTIF;
-         throw new Exception("Operator "+operation+" undefined");
+        // Debug print
+        //System.out.println(operation);
+        if(operation.equals("&&") || operation.equalsIgnoreCase("and") || operation.equalsIgnoreCase(".") || operation.equalsIgnoreCase("·"))
+            return OP_AND;
+        if(operation.equals("||") || operation.equalsIgnoreCase("or") || operation.equalsIgnoreCase("+"))
+            return OP_OR;
+        if(operation.equalsIgnoreCase("nor"))
+            return OP_NOR;
+        if(operation.equalsIgnoreCase("nand"))
+            return OP_NAND;
+        if(operation.equalsIgnoreCase("<=>") || operation.equalsIgnoreCase("iff") || operation.equalsIgnoreCase("<->"))
+            return OP_IFF;
+        if(operation.equalsIgnoreCase("!="))
+            return OP_ISDIFFERENT;
+        if(operation.equalsIgnoreCase("=>") || operation.equalsIgnoreCase("if") || operation.equalsIgnoreCase("->"))
+            return OP_IF;
+        if(operation.equalsIgnoreCase("!=>") || operation.equalsIgnoreCase("notif") || operation.equalsIgnoreCase("!->"))
+            return OP_NOTIF;
+        throw new Exception("Operator "+operation+" undefined");
     }
     
     /**

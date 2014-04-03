@@ -43,7 +43,7 @@ public class Tester {
         // Construction of the BDD1
         BDD bdd = new BDD(function);
         bdd.print();
-        Printer.printBDD(bdd, "makeBDD_"+function+"_");
+        //Printer.printBDD(bdd, "makeBDD_"+function+"_");
         return bdd;
     }
     
@@ -58,21 +58,49 @@ public class Tester {
         // Initializing
         BDD.init(variables);
         
-        // Construction of the BDD1
+        // Construction of BDD1
+        System.out.println("============ BDD1 =============");
         String function1 = "(a || b)";
         BDD bdd1 = makeBDD(function1);
+        Printer.printBDD(bdd1, "test0_bdd1_"+bdd1.size()+"_");
         
-        // Construction of other BDD2
+        // Construction of other BDD
+        System.out.println("============ BDD2 =============");
         String function2 = "(f || g)";
         BDD bdd2 = makeBDD(function2);
+        Printer.printBDD(bdd2, "test0_bdd2_"+bdd2.size()+"_");
         
+        System.out.println("============ BDD3 =============");
         BDD bdd3 = bdd1.apply("and", bdd2);
         bdd3.print();
         Printer.printBDD(bdd3, "test0_bdd3_"+bdd3.size()+"_");
         
+        System.out.println("============ BDD4 =============");
         BDD bdd4 = makeBDD(bdd3.function);
         bdd4.print();
         Printer.printBDD(bdd4, "test0_bdd4_"+bdd4.size()+"_");
+        
+        System.out.println("============ not(BDD1) =============");
+        BDD bdd1Comp = bdd1.not();
+        bdd1Comp.print();
+        Printer.printBDD(bdd1Comp, "test0_not(bdd1)_"+bdd1Comp.size()+"_");
+
+        System.out.println("============ BDD5 =============");
+        String function5 = "(!a && !f && g)";
+        BDD bdd5 = makeBDD(function5);
+        bdd5.print();
+        Printer.printBDD(bdd5, "test0_bdd5_"+bdd5.size()+"_");
+        
+        System.out.println("============ BDD6 =============");
+        String function6 = "(!a && !b && !(f || g))";
+        BDD bdd6 = makeBDD(function6);
+        bdd6.print();
+        Printer.printBDD(bdd6, "test0_bdd6_"+bdd6.size()+"_");
+        
+        System.out.println("============ BDD7 =============");
+        BDD bdd7 = bdd1.apply("and", bdd5);
+        bdd7.print();
+        Printer.printBDD(bdd7, "test0_bdd7_"+bdd7.size()+"_");
         
         BDD.T.gc();
         BDD.T.print();//*/

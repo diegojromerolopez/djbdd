@@ -327,7 +327,8 @@ public class BDD {
         
         // Otherwise, we get an operation node
         String op = tree.getText();
-        boolean positiveChild = !op.equals("!");
+        //System.out.println("Operation "+op);
+        boolean positiveChild = !op.equals("!") && positiveTree;
         
         // For each children, we recursively call generateTreeFromAST
         // And assign current node as parent of the subtree generated
@@ -336,6 +337,7 @@ public class BDD {
         {
             Tree child = tree.getChild(childI);
             BDD bddI = BDD.generateTreeFromAST(child, positiveChild);
+            //System.out.println("Is a positive child "+bddI.function+"? "+positiveChild);
             bdds.add(bddI);
         }        
         
@@ -596,7 +598,7 @@ public class BDD {
         BDD bdd = bdds.get(0);
         for(int i=1; i<bdds.size(); i++){
             bdd = bdd.apply(op, bdds.get(i));
-            System.out.println("BDD.applyToAll "+(i+1)+"/"+bdds.size());
+            //System.out.println("BDD.applyToAll "+(i+1)+"/"+bdds.size());
             if(callGC)
                 BDD.T.gc();
         }
@@ -617,7 +619,18 @@ public class BDD {
     /* END of Apply algorithm */
     /**************************************************************************/
     /**************************************************************************/
-        
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    /* NOT operation */
+    
+    public BDD not(){
+        return new BDD("!("+this.function+")");
+    }
+    
+    /* END of NOT operation */
+    /**************************************************************************/
+    /**************************************************************************/
     
     /**************************************************************************/
     /**************************************************************************/
@@ -969,7 +982,6 @@ public class BDD {
                 // DO NOTHING!
             } else {
                 line = line.substring("Variable ordering:".length()).trim();
-                //System.out.println("VAR ORDER '"+line+"'");
                 String[] order = line.split(",\\s*");
                 for (String o : order) {
                     o = o.trim();

@@ -172,17 +172,17 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * 
    */
   public static String neg(String op){
-      if(op.equals("and"))
+      if(op.equals("and") || op.equals("&&"))
           return "or";
-      if(op.equals("or"))
+      if(op.equals("or") || op.equals("||"))
           return "and";
-      if(op.equals("<->"))
+      if(op.equals("<->") || op.equals("<=>"))
         return "!=";
-      if(op.equals("!="))
+      if(op.equals("!=") || op.equals("<>"))
         return "<->";
-      if(op.equals("->"))
+      if(op.equals("->") || op.equals("=>"))
         return "!->";
-      if(op.equals("!->"))
+      if(op.equals("!->") || op.equals("!=>"))
         return "->";
       return null;
   }
