@@ -5,6 +5,7 @@ import djbdd.reductors.windowpermutation.WindowPermutationReductor;
 import djbdd.reductors.sifting.SiftingReductor;
 import djbdd.reductors.genetic.GeneticReductor;
 import djbdd.reductors.genetic.MemeticReductor;
+import djbdd.reductors.genetic.ThresholdMemeticReductor;
 import djbdd.reductors.random.*;
 import djbdd.core.*;
 import djbdd.io.Printer;
@@ -75,7 +76,7 @@ public class ReductorBenchmark {
             int window_size = Integer.parseInt(params.get("window_size"));
             reductor = new WindowPermutationReductor(window_size);
         }
-        else if(algorithm.equals("genetic") || algorithm.equals("memetic")){
+        else if(algorithm.equals("genetic") || algorithm.equals("memetic") || algorithm.equals("tmemetic")){
             // Semilla aleatoria
             assertParameter(params, "random_seed", "Random seed.");
             int randomSeed = Integer.parseInt(params.get("random_seed"));
@@ -104,6 +105,9 @@ public class ReductorBenchmark {
             }
             else if(algorithm.equals("memetic")){
                 reductor = new MemeticReductor(populationSize, generations, selectionPercentage, mutationProbability);
+            }
+            else if(algorithm.equals("tmemetic")){
+                reductor = new ThresholdMemeticReductor(populationSize, generations, selectionPercentage, mutationProbability);
             }
         }
         else if(algorithm.equals("random_swapper")){

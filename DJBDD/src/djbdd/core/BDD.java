@@ -327,7 +327,7 @@ public class BDD {
         
         // Otherwise, we get an operation node
         String op = tree.getText();
-        System.out.println("Operation "+op);
+        //System.out.println("Operation "+op);
         boolean positiveChild = (!op.equals("!") && positiveTree) || (op.equals("!") && !positiveTree);
         
         // For each children, we recursively call generateTreeFromAST
@@ -337,7 +337,7 @@ public class BDD {
         {
             Tree child = tree.getChild(childI);
             BDD bddI = BDD.generateTreeFromAST(child, positiveChild);
-            System.out.println("Is a positive child "+bddI.function+"? "+positiveChild);
+            //System.out.println("Is a positive child "+bddI.function+"? "+positiveChild);
             bdds.add(bddI);
         }        
         

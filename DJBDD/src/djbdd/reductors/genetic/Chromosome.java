@@ -15,7 +15,9 @@ import djbdd.reductors.windowpermutation.*;
  * @author diegoj
  */
 public class Chromosome extends VariableList {
-    
+
+    public static int THRESHOLD = 0;
+            
     /** Size that will have the BDD using this order. */
     int graphSize;
     
@@ -28,13 +30,16 @@ public class Chromosome extends VariableList {
      * @return The new size of the graph.
      */    
     public int applyOrderToGraph() {
-        return super.applyOrderToGraph();
+        if(THRESHOLD == 0){
+            return super.applyOrderToGraph();
+        }
+        return super.applyOrderToGraphWhenSizeLessThan(THRESHOLD);
     }
     
     /**
      * Get the graph size given this order.
      */
-    public void computeGraphSize(){
+    public final void computeGraphSize(){
         String thisKey = this.key();
         if(Chromosome.GRAPH_SIZE_CACHE.containsKey(thisKey)){
             //System.out.println(thisKey+" "+Chromosome.GRAPH_SIZE_CACHE.get(thisKey));
@@ -102,7 +107,8 @@ public class Chromosome extends VariableList {
         super(variables);
         this.computeGraphSize();
     }
-
+    
+    
     /**
      * Copy constructor of the Chromosome.
      * @param original Order that will be copied

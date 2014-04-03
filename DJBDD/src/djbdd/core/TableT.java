@@ -296,6 +296,10 @@ public class TableT {
         this.V.clear();
     }
 
+    /**
+     * Warning! Internal deprecated debug method, will be deleted in the future.
+     * Tests if a vertex has parents or is a root vertex.
+     */
     protected boolean vertexHasParents(Vertex vertex){
         if(vertex.numberOfRootedBDDs() > 0)
             return true;
