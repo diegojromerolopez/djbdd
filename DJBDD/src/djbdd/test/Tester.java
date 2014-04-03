@@ -92,7 +92,7 @@ public class Tester {
         Printer.printBDD(bdd5, "test0_bdd5_"+bdd5.size()+"_");
         
         System.out.println("============ BDD6 =============");
-        String function6 = "(!a && !b && !(f || g))";
+        String function6 = "!(!a && !(f || g))"; // => a || f || g
         BDD bdd6 = makeBDD(function6);
         bdd6.print();
         Printer.printBDD(bdd6, "test0_bdd6_"+bdd6.size()+"_");
@@ -101,6 +101,11 @@ public class Tester {
         BDD bdd7 = bdd1.apply("and", bdd5);
         bdd7.print();
         Printer.printBDD(bdd7, "test0_bdd7_"+bdd7.size()+"_");
+        
+        System.out.println("============ BDD8 =============");
+        BDD bdd8 = makeBDD("!(!(!a && !f && g))"); // ((!a && !f) && g)
+        bdd8.print();
+        Printer.printBDD(bdd8, "test0_bdd8_"+bdd8.size()+"_");
         
         BDD.T.gc();
         BDD.T.print();//*/
