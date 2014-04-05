@@ -142,7 +142,7 @@ public class Chromosome extends VariableList {
     
     public void mutate(double probability){
         for(int i=0; i<this.size; i++){
-            if(random.Random.rand()<probability){
+            if(random.Random.rand() < probability){
                 int variableI = Random.randInt(0,this.size-1);
                 int variableJ = Random.randInt(0,this.size-1);
                 Collections.swap(this.order, variableI, variableJ);

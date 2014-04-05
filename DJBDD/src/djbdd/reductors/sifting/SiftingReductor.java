@@ -38,7 +38,7 @@ public class SiftingReductor extends ReductionAlgorithm {
      * Creates a count of how many vertices have a particular variable.
      * Stores this count in variableOccurence class member.
      */
-    private void initVariableOcurrence(){
+    protected final void initVariableOcurrence(){
         variableOccurence = new TreeMap<Integer,Integer>();
         for(int variable=0; variable<this.numVariables; variable++){
             int varSize = 0;
@@ -50,10 +50,12 @@ public class SiftingReductor extends ReductionAlgorithm {
     }
     
     /**
-     * Gets a list of the variables in descending order according to their
-     * associated number of vertices.
+     * Init the variable order in descending order according to their
+     * associated number of vertices in the BDD graph. That is,
+     * Beeing x and y varibles,
+     * x precedes y if  NumVerticesWhoseVariableIs(x) is less than NumVerticesWhoseVariableIs(y).
      */
-    private void initVariableOrderDesc(){
+    protected final void initVariableOrderDesc(){
 
        //Transfer as List and sort it
        ArrayList<Map.Entry<Integer, Integer>> l = new ArrayList<Map.Entry<Integer, Integer>>(variableOccurence.entrySet());
@@ -69,11 +71,17 @@ public class SiftingReductor extends ReductionAlgorithm {
        }
     }
     
-    private static int randomInt(int min, int max){
+    /**
+     * Returns a random int from an interval.
+     */
+    protected static int randomInt(int min, int max){
         return random.Random.randInt(min, max);
     }
     
-    private void initVariableOrderRandom(){
+    /**
+     * Init the variable order in descending order randomly.
+     */    
+    protected final void initVariableOrderRandom(){
         // Randomize the variable order
         HashMap<Integer,Boolean> selectedVariables = new HashMap<Integer,Boolean>();
         this.variableOrder = new ArrayList<Integer>(this.numVariables);
@@ -86,8 +94,11 @@ public class SiftingReductor extends ReductionAlgorithm {
             this.variableOrder.add(selectedVariable);
         }
     }
-    
-    private void initVariableOrderWithSameOrder(){
+
+    /**
+     * Init the variable order with the given order by the data file.
+     */ 
+    private final void initVariableOrderWithSameOrder(){
         this.variableOrder = new ArrayList<Integer>(this.numVariables);
         for(int i=0; i<this.numVariables; i++){
            this.variableOrder.add(i);

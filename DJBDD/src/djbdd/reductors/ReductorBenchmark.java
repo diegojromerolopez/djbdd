@@ -3,6 +3,7 @@ package djbdd.reductors;
 import djbdd.reductors.totalsearch.TotalSearchReductor;
 import djbdd.reductors.windowpermutation.WindowPermutationReductor;
 import djbdd.reductors.sifting.SiftingReductor;
+import djbdd.reductors.iteratingsifting.IteratingSiftingReductor;
 import djbdd.reductors.genetic.GeneticReductor;
 import djbdd.reductors.genetic.MemeticReductor;
 import djbdd.reductors.genetic.ThresholdMemeticReductor;
@@ -65,7 +66,7 @@ public class ReductorBenchmark {
             reductor = new SiftingReductor(SiftingReductor.VARIABLES_WITH_SAME_ORDER);
         }
         else if(algorithm.equals("sifting_randomorder")){
-            // Semilla aleatoria
+            // Random seed
             assertParameter(params, "random_seed", "Random seed.");
             int randomSeed = Integer.parseInt(params.get("random_seed"));
             random.Random.init(randomSeed);
@@ -77,7 +78,7 @@ public class ReductorBenchmark {
             reductor = new WindowPermutationReductor(window_size);
         }
         else if(algorithm.equals("genetic") || algorithm.equals("memetic") || algorithm.equals("tmemetic")){
-            // Semilla aleatoria
+            // Random seed
             assertParameter(params, "random_seed", "Random seed.");
             int randomSeed = Integer.parseInt(params.get("random_seed"));
             random.Random.init(randomSeed);
@@ -111,14 +112,38 @@ public class ReductorBenchmark {
             }
         }
         else if(algorithm.equals("random_swapper")){
-            // Semilla aleatoria
-            assertParameter(params, "random_seed", "Random seed.");
+            // Random seed
+            assertParameter(params, "random_seed", "Random seed is needed in this algorithm.");
             int randomSeed = Integer.parseInt(params.get("random_seed"));
             random.Random.init(randomSeed);
             // Iterations
             assertParameter(params, "iterations", "Iterations of the random swapper algorithm.");
             int iterations = Integer.parseInt(params.get("iterations"));
             reductor = new RandomSwapperReductor(iterations);
+        }
+        else if(algorithm.equals("isifting_without_reinitalization")){
+            // Random seed (this parameter will not be used)
+            int randomSeed = 10;
+            random.Random.init(randomSeed);
+            // Iterations
+            assertParameter(params, "iterations", "Iterations of the algorithm.");
+            int iterations = Integer.parseInt(params.get("iterations"));
+            // Reductor creation
+            reductor = new IteratingSiftingReductor(iterations);
+        }
+        else if(algorithm.equals("isifting")){
+            // Random seed
+            assertParameter(params, "random_seed", "Random seed is needed in this algorithm.");
+            int randomSeed = Integer.parseInt(params.get("random_seed"));
+            random.Random.init(randomSeed);
+            // Iterations
+            assertParameter(params, "iterations", "Iterations of the algorithm.");
+            int iterations = Integer.parseInt(params.get("iterations"));
+            // Probability of reinitilizing the order
+            assertParameter(params, "reinit_probability", "Probability of the reinitialization of the variable order during the proccess.");
+            double reinitProb = Double.parseDouble(params.get("reinit_probability"));
+            // Reductor creation
+            reductor = new IteratingSiftingReductor(iterations, reinitProb);
         }
         else{
             System.err.println("Algorithm not recognized");
