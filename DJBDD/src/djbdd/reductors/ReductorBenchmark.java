@@ -3,7 +3,7 @@ package djbdd.reductors;
 import djbdd.reductors.totalsearch.TotalSearchReductor;
 import djbdd.reductors.windowpermutation.WindowPermutationReductor;
 import djbdd.reductors.sifting.SiftingReductor;
-import djbdd.reductors.iteratingsifting.IteratingSiftingReductor;
+import djbdd.reductors.iterativesifting.IterativeSiftingReductor;
 import djbdd.reductors.genetic.GeneticReductor;
 import djbdd.reductors.genetic.MemeticReductor;
 import djbdd.reductors.genetic.ThresholdMemeticReductor;
@@ -129,7 +129,7 @@ public class ReductorBenchmark {
             assertParameter(params, "iterations", "Iterations of the algorithm.");
             int iterations = Integer.parseInt(params.get("iterations"));
             // Reductor creation
-            reductor = new IteratingSiftingReductor(iterations);
+            reductor = new IterativeSiftingReductor(iterations);
         }
         else if(algorithm.equals("isifting")){
             // Random seed
@@ -143,7 +143,7 @@ public class ReductorBenchmark {
             assertParameter(params, "reinit_probability", "Probability of the reinitialization of the variable order during the proccess.");
             double reinitProb = Double.parseDouble(params.get("reinit_probability"));
             // Reductor creation
-            reductor = new IteratingSiftingReductor(iterations, reinitProb);
+            reductor = new IterativeSiftingReductor(iterations, reinitProb);
         }
         else{
             System.err.println("Algorithm not recognized");

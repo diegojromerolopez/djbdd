@@ -1,11 +1,16 @@
-package djbdd.reductors.iteratingsifting;
+package djbdd.reductors.iterativesifting;
 
 import random.Random;
 import djbdd.core.*;
 import djbdd.io.*;
 import djbdd.reductors.sifting.SiftingReductor;
 import djbdd.reductors.ReductionAlgorithm;
-import djbdd.reductors.genetic.*;
+
+/*
+ * This method takes some elements of evolution algorithms, like the chromosome,
+ * that is used here as a container of a solution (that is, a variable order).
+ */
+import djbdd.reductors.genetic.Chromosome;
 
 import java.util.*;
 
@@ -21,7 +26,7 @@ import java.util.*;
  * or randomly. The variable list order is determined by a reinitialization probability in each iteration.
  * @author Diego J. Romero López
  */
-public class IteratingSiftingReductor extends SiftingReductor {
+public class IterativeSiftingReductor extends SiftingReductor {
     
     /** Iterations of the proccess */
     protected final int iterations;
@@ -34,7 +39,7 @@ public class IteratingSiftingReductor extends SiftingReductor {
      * @param iterations Times that a variable will be sifted to its best position.
      * @param reinitializationProbability Probability of chosing a random variable for this iteration.
      */
-    public IteratingSiftingReductor(int iterations, double reinitializationProbability){
+    public IterativeSiftingReductor(int iterations, double reinitializationProbability){
         super();
         this.iterations = iterations;
         if(reinitializationProbability > 1.0)
@@ -47,7 +52,7 @@ public class IteratingSiftingReductor extends SiftingReductor {
      * This constructor call will asume that will be no reinitialization proccess.
      * @param iterations Times that a variable will be sifted to its best position.
      */
-    public IteratingSiftingReductor(int iterations){
+    public IterativeSiftingReductor(int iterations){
         this(iterations, 0.0);
     }
     
@@ -70,7 +75,7 @@ public class IteratingSiftingReductor extends SiftingReductor {
             
             // If the prob_i is less than the reinitialization probability,
             // the order will be a random one. 
-            if(random.Random.rand() < this.reinitializationProbability){
+            if(random.Random.rand() <= this.reinitializationProbability){
                 this.initVariableOrderRandom();
             }
             // Otherwise, will be the variables descendenly ordered according

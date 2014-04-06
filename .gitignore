@@ -2,4 +2,4 @@
 *.properties
 DJBDD/build/*
 bigdata/*
-
+.~lock.*
