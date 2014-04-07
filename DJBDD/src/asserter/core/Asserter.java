@@ -2,7 +2,7 @@ package asserter.core;
 
 import djbdd.reductors.ReductionAlgorithm;
 import djbdd.core.BDD;
-//import djbdd.io.Printer;
+import djbdd.io.Printer;
 import java.util.*;
 
 import java.lang.reflect.*;
@@ -60,6 +60,8 @@ public class Asserter {
     public Asserter(String formula, Object logicEngine){
         // Constructs the BDD based on this formula
         this.bdd = new BDD(formula);
+        
+        Printer.printBDD(this.bdd, "bdd_"+this.bdd.size()+"_");
         // Reduce the formula using the 
         BDD.reduce(Asserter.BDD_REDUCTION_METHOD);
         
@@ -68,7 +70,7 @@ public class Asserter {
         this.logicEngine = logicEngine;
         
         // For debugging
-        //Printer.printBDD(this.bdd, "bdd_"+this.bdd.size()+"_");
+        Printer.printBDD(this.bdd, "bdd_reduced_"+this.bdd.size()+"_");
         
         // Assign to each variable the FALSE value
         // (we assume that what we don't know is always FALSE)

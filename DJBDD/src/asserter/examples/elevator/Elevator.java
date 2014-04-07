@@ -64,7 +64,7 @@ public class Elevator {
         this.floor = GROUND_FLOOR;
         this.status = STATUS_STOPPED;
         /* Build the asserter with the logic formula */
-        this.asserter = new Asserter("((isGoingUp && isGround) || (isGoingDown && isFirstFloor)) || (isGround && isStopped) || (isFirstFloor && isStopped)", this);
+        this.asserter = new Asserter("((isGoingUp && isGround) || (isGoingDown && isFirstFloor) || (isGround && isStopped) || (isFirstFloor && isStopped)) && ((isGround && !isFirstFloor) || (!isGround && isFirstFloor))", this);
     }
     
     /**
