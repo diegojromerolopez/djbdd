@@ -2,6 +2,8 @@ package djbdd.core;
 
 import djbdd.reductors.totalsearch.TotalSearchReductor;
 import djbdd.reductors.sifting.SiftingReductor;
+import djbdd.reductors.windowpermutation.WindowPermutationReductor;
+import djbdd.reductors.iterativesifting.IterativeSiftingReductor;
 import djbdd.timemeasurer.TimeMeasurer;
 import djbdd.logic.*;
 import djbdd.reductors.*;
@@ -845,6 +847,14 @@ public class BDD {
         }
         else if(type == ReductionAlgorithm.TOTAL_SEARCH){
             reductor = new TotalSearchReductor();
+        }
+        else if(type == ReductionAlgorithm.WINDOW_PERMUTATION){
+            int windowSize = 5;
+            reductor = new WindowPermutationReductor(windowSize);
+        }
+        else if(type == ReductionAlgorithm.ITERATIVE_SIFTING_ALGORITHM){
+            int iterations = 100;
+            reductor = new IterativeSiftingReductor(iterations);
         }
         reductor.run();
         // Destroy the not used vertices

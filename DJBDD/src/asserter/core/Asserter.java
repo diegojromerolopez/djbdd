@@ -1,5 +1,6 @@
 package asserter.core;
 
+import djbdd.reductors.ReductionAlgorithm;
 import djbdd.core.BDD;
 //import djbdd.io.Printer;
 import java.util.*;
@@ -24,14 +25,17 @@ public class Asserter {
     /** BDD that contains the logical expression */
     private final BDD bdd;
     
+    /** BDD reduction method. Set as our algorithm. */
+    private static final int BDD_REDUCTION_METHOD = ReductionAlgorithm.ITERATIVE_SIFTING_ALGORITHM;
+    
     /** Informs if the assertion system is running */
-    private static boolean BDD_SYSTEM_INITIALIZED;
+    private static boolean BDD_SYSTEM_INITIALIZED = false;
     
     /**
      * Object that implements the predicates that will be used to construct
      * the logical propositions.
      */
-    private Object managed;
+    private Object logicEngine;
     
     public static void init(ArrayList<String> variables){
         if(!Asserter.BDD_SYSTEM_INITIALIZED){
@@ -53,12 +57,15 @@ public class Asserter {
      * Constructs the asserter with a formula.
      * @param formula Boolean logic formula that has to be followed.
      */
-    public Asserter(String formula, Object managed){
+    public Asserter(String formula, Object logicEngine){
         // Constructs the BDD based on this formula
         this.bdd = new BDD(formula);
+        // Reduce the formula using the 
+        BDD.reduce(Asserter.BDD_REDUCTION_METHOD);
         
-        // Object that implements the variables as methods
-        this.managed = managed;
+        // Object that implements the logical variables as methods
+        // and is called when it is needed the current state of the system
+        this.logicEngine = logicEngine;
         
         // For debugging
         //Printer.printBDD(this.bdd, "bdd_"+this.bdd.size()+"_");
@@ -81,12 +88,12 @@ public class Asserter {
      * @param variableName Name of the variable whose boolean value will be gotten.
      * @return Boolean value of the variable variableName.
      */
-    public boolean value(String variableName){
-        // We calls a method of the managed objecet whose name is
+    private boolean value(String variableName){
+        // We calls a method of the logicEngine objecet whose name is
         // variableName using Java's reflection
         try {
-          Method method = this.managed.getClass().getMethod(variableName);
-          return (boolean)method.invoke(this.managed);
+          Method method = this.logicEngine.getClass().getMethod(variableName);
+          return (boolean)method.invoke(this.logicEngine);
         } catch (SecurityException e) {
             System.err.println("Method "+variableName+" is wrong");
             return false;
@@ -112,7 +119,7 @@ public class Asserter {
         HashMap<Integer,Boolean> lastVariableAssignement = (HashMap<Integer,Boolean>)this.variableAssignement.clone();
         
         // For each variable, we got its value from calling a method of the
-        // managed object with this name
+        // logicEngine object with this name
         for(String v : Asserter.VARIABLES){
             int vIndex = this.variableIndex.get(v);
             this.variableAssignement.put(vIndex, this.value(v));

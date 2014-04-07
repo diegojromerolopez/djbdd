@@ -54,6 +54,10 @@ public class IterativeSiftingReductor extends SiftingReductor {
      */
     public IterativeSiftingReductor(int iterations){
         this(iterations, 0.0);
+        // This random seed is not used because
+        // the variable list reinitialization probability is 0,
+        // so it is not used and we set to a constant value.
+        random.Random.init(0);
     }
     
     /**

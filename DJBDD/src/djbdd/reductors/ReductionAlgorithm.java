@@ -50,6 +50,9 @@ public abstract class ReductionAlgorithm {
     
     /** Memetic algorightm */
     public static final int MEMETIC_ALGORITHM = 5;
+
+    /** Iterative Sifting Algorithm algorightm (our algorithm) */
+    public static final int ITERATIVE_SIFTING_ALGORITHM = 6;
     
     /**
      * Constructor of the reduction algorigthm.
