@@ -77,7 +77,7 @@ public class Elevator {
         
         // Runs the assertion process
         if(!this.asserter.run()){
-            System.err.println("You can't go down");
+            System.out.println("ERROR. You can't go down");
             return;
         }
         
@@ -99,7 +99,7 @@ public class Elevator {
         
         // Runs the assertion process
         if(!this.asserter.run()){
-            System.err.println("You can't go up");
+            System.out.println("ERROR. You can't go up");
             return;
         }
         
