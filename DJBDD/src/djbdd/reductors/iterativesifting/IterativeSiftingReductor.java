@@ -53,10 +53,10 @@ public class IterativeSiftingReductor extends SiftingReductor {
      * @param iterations Times that a variable will be sifted to its best position.
      */
     public IterativeSiftingReductor(int iterations){
-        this(iterations, 0.0);
+        this(iterations, -1.0);
         // This random seed is not used because
-        // the variable list reinitialization probability is 0,
-        // so it is not used and we set to a constant value.
+        // the variable list reinitialization probability is -1,
+        // so it is set to a constant value (0, for example).
         random.Random.init(0);
     }
     
@@ -73,41 +73,47 @@ public class IterativeSiftingReductor extends SiftingReductor {
         // Iterations counter
         int i = 0;
         
-        // Iterations of the algorithm
-        while(i< iterations){
-            // What will be the variable list generation order method?
-            
-            // If the prob_i is less than the reinitialization probability,
-            // the order will be a random one. 
-            if(random.Random.rand() <= this.reinitializationProbability){
-                this.initVariableOrderRandom();
-            }
-            // Otherwise, will be the variables descendenly ordered according
-            // to its number of vertices
-            else
-            {
-                this.initVariableOrderDesc();
-            }
-            
-            // For each variable, we obtain its best position and updates
-            // the best solution if needed
-            for (int varIndex : this.variableOrder) {
-                // Debug prints
-                if(VERBOSE){
-                    System.out.println("Start searching for best position for variable "+varIndex);
-                    this.VARIABLES.print();
+        boolean thereIsAnImprovement = false;
+        do{
+            thereIsAnImprovement = false;
+            // Iterations of the algorithm
+            while(i< iterations){
+                // What will be the variable list generation order method?
+
+                // If the prob_i is less than the reinitialization probability,
+                // the order will be a random one. 
+                if(random.Random.rand() <= this.reinitializationProbability){
+                    Chromosome c = new Chromosome();
+                    c.applyOrderToGraph();
                 }
-                this.findBestPositionForVariable(varIndex);
-                // Current size obtained for this sifting
-                int currentOrderSize = BDD.T.size();
-                // If our best size is worse that the size obtained by the sifting
-                if(bestSize > currentOrderSize){
-                    bestOrder =  new Chromosome(BDD.variables());
-                    bestSize = currentOrderSize;
+                // Otherwise, will be the variables descendenly ordered according
+                // to its number of vertices
+                else
+                {
+                    this.initVariableOrderDesc();
                 }
+
+                // For each variable, we obtain its best position and updates
+                // the best solution if needed
+                for (int varIndex : this.variableOrder) {
+                    // Debug prints
+                    if(VERBOSE){
+                        System.out.println("Start searching for best position for variable "+varIndex);
+                        this.VARIABLES.print();
+                    }
+                    this.findBestPositionForVariable(varIndex);
+                    // Current size obtained for this sifting
+                    int currentOrderSize = BDD.T.size();
+                    // If our best size is worse that the size obtained by the sifting
+                    if(bestSize > currentOrderSize){
+                        bestOrder =  new Chromosome(BDD.variables());
+                        bestSize = currentOrderSize;
+                        thereIsAnImprovement = true;
+                    }
+                }
+                i++;
             }
-            i++;
-        }
+        }while(thereIsAnImprovement);
         
         // The best order is applied to the graph to finally obtain
         // the reduced BDD tree
