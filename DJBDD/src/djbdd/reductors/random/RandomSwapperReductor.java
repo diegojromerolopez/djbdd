@@ -1,7 +1,10 @@
 package djbdd.reductors.random;
 
+//import java.util.*;
 import djbdd.reductors.ReductionAlgorithm;
 import djbdd.core.*;
+//import djbdd.io.Printer;
+
 /**
  * Executes a number of random swaps and gets the best solution.
  * @author diegoj
@@ -36,11 +39,11 @@ public class RandomSwapperReductor extends ReductionAlgorithm {
         
         // The best solution BDD size is the current BDD size
         this.bestSolutionGraphSize = T.size();
-        
+       
         // We get a random variable each iteration
         int numVariables = this.bestSolution.size();
         int lastVariableIndex = numVariables-1;
-        
+
         // For each iteration, we get a variable and swap it
         // with the next variable in the BDD graph
         int i=0;
@@ -58,7 +61,6 @@ public class RandomSwapperReductor extends ReductionAlgorithm {
             }
             i++;
         }
-        
         // Apply the best order obtained to the graph
         this.bestSolution.applyOrderToGraph();
     }

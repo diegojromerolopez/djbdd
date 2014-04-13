@@ -317,6 +317,7 @@ public class ReductorBenchmark {
                         String filename = file.getName();
                         System.out.println(filename + SEP + BDD.variables().size() + SEP + "-" + SEP + "-" + SEP + BDD.T.getSwapCounter()+SEP+"-"+SEP+"-");
                     }
+                    //BDD.T.clear();
                 }
             }
         }

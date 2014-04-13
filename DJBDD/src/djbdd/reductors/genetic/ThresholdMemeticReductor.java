@@ -64,7 +64,7 @@ public class ThresholdMemeticReductor extends ReductionAlgorithm {
         // And use it as threshold
         BDD.reduce();
         this.THRESHOLD = T.size();
-        Chromosome.THRESHOLD = this.THRESHOLD;
+        Chromosome.THRESHOLD = 0;
         if(VERBOSE){
             System.out.println("Our solution must be have at the most "+this.THRESHOLD+" nodes");
             BDD.variables().print();
@@ -84,6 +84,7 @@ public class ThresholdMemeticReductor extends ReductionAlgorithm {
         this.population.add(new Chromosome(BDD.variables()));
         for(int i=1; i<this.populationSize; i++){
             Chromosome cI = new Chromosome();
+            cI.optimize();
             this.population.add(cI);
         }
         

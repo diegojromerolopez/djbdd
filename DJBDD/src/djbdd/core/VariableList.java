@@ -273,21 +273,14 @@ public class VariableList {
      * Used in djbdd.reductors.genetic and djbdd.reductors.random.
      */
     public int applyOrderToGraph() {
-        // First be test which variables need to be moved
-        // Note that a variable that is not moved, at the end will be in its
-        // desired position
-        ArrayList<Integer> variablesToMove = new ArrayList<Integer>(this.size);
-        for (int varIndex = 0; varIndex < this.size; varIndex++) {
-            int varNewPosition = this.order.get(varIndex);
-            if(varNewPosition != BDD.VARIABLES.order.get(varIndex)){
-                variablesToMove.add(varIndex);
+        do{
+            // Move each variable to its new position
+            for(int varIndex=0; varIndex<this.size; varIndex++){
+                int varPosition = this.order.get(varIndex);
+                BDD.T.moveVariable(varIndex, varPosition);
             }
-        }
-        // For each variable that needs to be moved, move it to its position
-        for (int varIndex : variablesToMove) {
-            int varPosition = this.order.get(varIndex);
-            BDD.T.moveVariable(varIndex, varPosition);
-        }
+            //System.out.println("applyOrderToGraph");
+        }while(!this.equals(BDD.variables()));
         
         // Returns the new size of the graph
         return BDD.T.size();
@@ -320,6 +313,34 @@ public class VariableList {
         
         // Returns the new size of the graph
         return BDD.T.size();
+    }
+
+    /**************************************************************************/
+    /**************************************************************************/
+    /**************************************************************************/
+    /* Comparison */
+    
+    /**
+     * Compares if two order are the same.
+     * That is if have each one of their variables in exactly the same position.
+     * @return true if they are the same order, false otherwise.
+     */
+    public boolean equals(VariableList otherVariableList){
+        // They must have the same size, otherwise,
+        // they can't be the same order.
+        if(this.size != otherVariableList.size){
+            return false;
+        }
+        // For each variable (identified by its variable index) they must be
+        // in the same position.
+        for(int varIndex=0; varIndex<this.size; varIndex++){
+            if(this.order.get(varIndex) != otherVariableList.order.get(varIndex)){
+                return false;
+            }
+        }
+        // If we are here, every variable in this and otherVariableList
+        // are in the same position, making both orders the same.
+        return true;
     }
     
     /**************************************************************************/
