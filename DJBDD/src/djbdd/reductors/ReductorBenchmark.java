@@ -117,29 +117,12 @@ public class ReductorBenchmark {
             int iterations = Integer.parseInt(params.get("iterations"));
             reductor = new RandomSwapperReductor(iterations);
         }
-        else if(algorithm.equals("isifting_without_reinitalization")){
-            // Random seed (this parameter will not be used)
-            int randomSeed = 10;
-            random.Random.init(randomSeed);
+        else if(algorithm.equals("isifting")){
             // Iterations
             assertParameter(params, "iterations", "Iterations of the algorithm.");
             int iterations = Integer.parseInt(params.get("iterations"));
             // Reductor creation
             reductor = new IterativeSiftingReductor(iterations);
-        }
-        else if(algorithm.equals("isifting")){
-            // Random seed
-            assertParameter(params, "random_seed", "Random seed is needed in this algorithm.");
-            int randomSeed = Integer.parseInt(params.get("random_seed"));
-            random.Random.init(randomSeed);
-            // Iterations
-            assertParameter(params, "iterations", "Iterations of the algorithm.");
-            int iterations = Integer.parseInt(params.get("iterations"));
-            // Probability of reinitilizing the order
-            assertParameter(params, "reinit_probability", "Probability of the reinitialization of the variable order during the proccess.");
-            double reinitProb = Double.parseDouble(params.get("reinit_probability"));
-            // Reductor creation
-            reductor = new IterativeSiftingReductor(iterations, reinitProb);
         }
         else{
             System.err.println("Algorithm not recognized");

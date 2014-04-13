@@ -31,34 +31,16 @@ public class IterativeSiftingReductor extends SiftingReductor {
     /** Iterations of the proccess */
     protected final int iterations;
     
-    /** Probability that will have the randomization of the variable order process each iteration */
-    protected final double reinitializationProbability;
-    
-    /**
-     * This algorithm needs a number of iterations and a reinitalization probability.
-     * @param iterations Times that a variable will be sifted to its best position.
-     * @param reinitializationProbability Probability of chosing a random variable for this iteration.
-     */
-    public IterativeSiftingReductor(int iterations, double reinitializationProbability){
-        super();
-        this.iterations = iterations;
-        if(reinitializationProbability > 1.0)
-            reinitializationProbability = reinitializationProbability / 10.0;
-        this.reinitializationProbability = reinitializationProbability;
-    }
 
     /**
      * This algorithm needs a number of iterations and a reinitalization probability.
-     * This constructor call will asume that will be no reinitialization proccess.
      * @param iterations Times that a variable will be sifted to its best position.
      */
     public IterativeSiftingReductor(int iterations){
-        this(iterations, -1.0);
-        // This random seed is not used because
-        // the variable list reinitialization probability is -1,
-        // so it is set to a constant value (0, for example).
-        random.Random.init(0);
+        super();
+        this.iterations = iterations;
     }
+
     
     /**
      * Executes the reduction method.
@@ -75,23 +57,12 @@ public class IterativeSiftingReductor extends SiftingReductor {
         
         boolean thereIsAnImprovement = false;
         do{
+            i = 0;
             thereIsAnImprovement = false;
             // Iterations of the algorithm
             while(i< iterations){
-                // What will be the variable list generation order method?
-
-                // If the prob_i is less than the reinitialization probability,
-                // the order will be a random one. 
-                if(random.Random.rand() <= this.reinitializationProbability){
-                    Chromosome c = new Chromosome();
-                    c.applyOrderToGraph();
-                }
-                // Otherwise, will be the variables descendenly ordered according
-                // to its number of vertices
-                else
-                {
-                    this.initVariableOrderDesc();
-                }
+                // We order the variables each iteration
+                this.initVariableOrderDesc();
 
                 // For each variable, we obtain its best position and updates
                 // the best solution if needed

@@ -125,20 +125,21 @@ public class Chromosome extends VariableList {
         this.graphSize = original.graphSize;
     }
 
-   /*  public Chromosome spawnMutant(double percentage){
-        Chromosome mutant = new Chromosome(this);
-        
-        int mutatedNumberOfGenes = (int)Math.round(this.size*percentage);
-        for(int i=0; i<mutatedNumberOfGenes; i++){
-            int variableI = Random.randInt(0,this.size-1);
-            int variableJ = Random.randInt(0,this.size-1);
-            Collections.swap(mutant.order, variableI, variableJ);
+    /*
+    // HAMMING DISTANCE COMPUTATION
+    public static int hammingDistance(Chromosome a, Chromosome b){
+        int dist = 0;
+        int size = a.size;
+        for(int varIndex=0; varIndex<size; varIndex++){
+            dist += Math.abs(a.order.get(varIndex) - b.order.get(varIndex));
         }
-        
-        mutant.initOrderedVariables();
-        mutant.computeGraphSize();
-        return mutant;
-    }*/
+        return dist;
+    }
+    
+    public int getHammingDifference(Chromosome other){
+        return Chromosome.hammingDistance(this, other);
+    }
+    */
     
     public void mutate(double probability){
         for(int i=0; i<this.size; i++){
