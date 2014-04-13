@@ -102,7 +102,13 @@ public class Chromosome extends VariableList {
         }
         this.initRandomOrder();
     }
+
     
+    /**
+     * Constructor of the Chromosome.
+     * Creates a chromsome based on the order passed as arguemnt.
+     * @param variables Order that will have the chromosome.
+     */
     public Chromosome(VariableList variables){
         super(variables);
         this.computeGraphSize();
@@ -141,6 +147,13 @@ public class Chromosome extends VariableList {
     }
     */
     
+    /**
+     * Mutation process.
+     * The mutation process consist on the swaping of the positions of two
+     * variables randomly chosed. Each variable has a probability of mutation
+     * that is the passed parameter.
+     * @param probability Probability of suffering a mutation in a gene (variable).
+     */
     public void mutate(double probability){
         for(int i=0; i<this.size; i++){
             if(random.Random.rand() < probability){
@@ -154,6 +167,11 @@ public class Chromosome extends VariableList {
         this.computeGraphSize();
     }
     
+    /**
+     * Cross operation.
+     * Interleaves the variables with the other chromosome.
+     * @param other Chromosome that will be crossed with this chromosome.
+     */
     public Chromosome cross(Chromosome other){
         Chromosome spawn = new Chromosome(this);
         
@@ -196,6 +214,11 @@ public class Chromosome extends VariableList {
         return spawn;
     }
     
+    /**
+     * Optimize the chromosome.
+     * Each chromosome is a variable order, so the optimization is obtaining
+     * a better order using an heuristic method, like Rudell's Sifting
+     */
     public void optimize(){
         this.applyOrderToGraph();
         ReductionAlgorithm reductor = new SiftingReductor();

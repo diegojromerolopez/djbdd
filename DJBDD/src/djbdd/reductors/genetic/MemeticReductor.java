@@ -170,6 +170,8 @@ public class MemeticReductor extends ReductionAlgorithm {
                 if(VERBOSE){
                     System.out.println(spawns.get(i)+": "+spawns.get(i).getGraphSize()+" ");
                 }
+                
+                spawns.get(i).optimize();
             }
 
             if(VERBOSE){
