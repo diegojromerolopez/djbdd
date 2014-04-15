@@ -3,3 +3,4 @@
 DJBDD/build/*
 bigdata/*
 .~lock.*
+.DS_Store
