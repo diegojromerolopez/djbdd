@@ -1,0 +1,354 @@
+
+En el running title has puesto "Trabajo del Máster de Investigación en Ingeniería del Software"
+(no me gusta "Trabajo del Máster")
+y creo que queda mejor "Trabajo Fin de Máster de Investigación en Ingeniería del Software"
+o quizá "T.F.M. del Máster de Investigación en Ingeniería del Software"
+También puedes poner el título abreviado que es lo que se hace en los artículos:
+"Desarrollo de un sistema dinámico de verificación de software"
+Comprueba la nomenclatura en algún otro TFM.
+
+------------------------------------------------------------------------------------------------
+
+P2, en los agradecimientos yo escribiría "También agradezco..." eliminando "Por último,"
+(pues sólo hay dos agradecimientos y "por último" a mi me suena a que es el último de una larga lista)
+
+------------------------------------------------------------------------------------------------------
+
+P11, L3: No sé si debes cambiar "usa" por "usan"
+
+-----------------------------------------------------------------------------------------------------
+
+P11, L4: En lugar de "se las llama" escribe "se les llama"
+
+-----------------------------------------------------------------------------------------------------
+
+P11, L5: Yo cambiaría "de forma" por "de manera"
+
+-----------------------------------------------------------------------------------------------------
+
+P11, L8: Cambia "para propósitos" por "para los propósitos"
+
+-----------------------------------------------------------------------------------------------------
+
+P11, L8: Cambia "este trabajos" por "este trabajo"
+
+-----------------------------------------------------------------------------------------------------
+
+P11, L8: Insertar "[HR]" entre "son equivalentes" y ","
+
+-----------------------------------------------------------------------------------------------------
+
+P11, L8y9: Cambia "supondremos ambos tipos de demostración equivalentes." por
+"supondremos equivalentes ambos tipos de demostración."
+
+-----------------------------------------------------------------------------------------------------
+
+P11, L11: Yo eliminaría de aquí "(o lógica clásica)" 
+y trasladaría este paréntesis a la L2 que quedaría entonces como:
+
+"La lógica proposicional (o lógica clásica) es un sistema formal..."
+
+(las anotaciones de lenguaje a un concepto deben hacerse la primera vez que se nombre éste)
+
+------------------------------------------------------------------------------------------------------
+
+P11, L16: El operador negación (que aparece dos veces en este renglón)  no se ha impreso 
+en el pdf correctamente.
+------------------------------------------------------------------------------------------------------
+
+P11, L26y27: Borra "Así, dejamos para el lector la demostración sintáctica, dado que está demostrado 
+[HR] que son equivalentes."
+
+(la referencia es mejor que vaya la primera vez que hablas de la equivalencia; por otro lado, dejar 
+algo para el lector puede cabrear al tribunal (que serán los lectores primeros), de manera que cuando
+algo no lo quieras hacer, emplea una frase del estilo "no es difícil ver que")
+
+------------------------------------------------------------------------------------------------------
+
+P12: No has de dejar una tabla que empiece en una página y acabe en otra. En un caso como éste, pasa 
+toda la tabla a la segunda de las página (o a la primera si ahora cabe al haberle quitado un renglón).
+
+------------------------------------------------------------------------------------------------------
+
+P12, L3y4: Cambia 
+
+"al menos una de las proposiciones, que actúan como sus operandos, lo sea."
+
+por
+
+"ambas proposiciones, que actúan como sus operandos, lo sean."
+
+(habías puesto aquí la definición de la disyunción)
+
+------------------------------------------------------------------------------------------------------
+
+P12, L6: Donde pone "Muchas veces este operador se identifica con los símbolos ·, AND."
+
+No se entiende qué hay delante de la "," (si es un punto significando algo matemático, ponlo aquí y en
+lo sucesivo en negrita)
+------------------------------------------------------------------------------------------------------
+
+P12, L13: En lugar de "Este operador se identifica con los símbolos OR, V, +."
+
+yo pondría:
+
+"Este operador se identifica también con los símbolos +, OR."
+
+(el "también" es porque el símbolo v ya ha aparecido, y el cambio de orden para que vaya de
+acuerdo con lo que has dicho para la conjunción en el renglón correspondiente)
+------------------------------------------------------------------------------------------------------
+
+P12, L-2: Cambia "Para el operador de equivalencia tendríamos algo parecido"
+
+por "Para el operador de equivalencia tendríamos:"
+
+(añadidos los dos puntos al final y suprimido "algo parecido" que no es nada académico).
+
+-----------------------------------------------------------------------------------------------------
+
+P13: De nuevo la P13 empieza con una tabla cortada. Quizá con el cambio que hemos hecho antes salga
+ahora entera en la página 12, en otro caso, pásala entera a la pág 14.
+
+-----------------------------------------------------------------------------------------------------
+
+P13, L5,6y7: Cambia
+
+"El lector puede encontrar más información en [HR] y conociendo su comportamiento ante las entradas,
+si la salida es determinista podrá expresarlo como combinación de AND, OR y NOT."
+
+por
+
+
+"Para más información ver [HR]. Conociendo por tanto su comportamiento ante las entradas,
+si la salida es determinista, se podrá expresar como combinación de AND, OR y NOT."
+
+-----------------------------------------------------------------------------------------------------
+
+P13, L13: Aquí escribes la implicación con una sola línea horizontal cuando en la página anterior
+la escribías con dos líneas horizontales.
+
+
+-----------------------------------------------------------------------------------------------------
+
+P13, L15: Cambia 
+
+"paréntesis para evitar confusiones entre las distintas precedencias."
+
+por
+
+"paréntesis para evitar confusiones."
+
+(era un poco reiterativa la frase) 
+
+------------------------------------------------------------------------------------------------------
+
+P13, L18: Aquí escribes la doble implicación con una sola línea horizontal cuando en la página anterior
+y en esta la escribes con dos líneas horizontales. 
+
+------------------------------------------------------------------------------------------------------
+
+P13, en esta página comienzas a escribir fórmulas proposicionales que van solas en un renglón; creo que
+como criterio general (y usual) aquellas fórmulas que vayan solas en un renglón y no vyan rodeadas de 
+texto, debería ir centradas (esto tambien se aplica a las páginas posteriores).
+
+------------------------------------------------------------------------------------------------------
+
+P14, L4y5: Cambia 
+
+"Las leyes de De Morgan relacionan los operadores AND y OR con el de negación según la siguiente expresión:"
+
+por
+
+"Las leyes de De Morgan relacionan los operadores AND y OR mediante el de negación según las siguientes
+expresiones:"
+
+
+(es mediante la negación como se relacionan, lo que tu habías escrito significa literalmente que 
+la conjunción y disyunción juntos se relacionan con la negación; es decir, los dos primero con 
+el segundo).
+-------------------------------------------------------------------------------------------------------
+
+P14, L8y9: No entiendo la siguiente frase:
+
+"Estas propiedades son interesantes debido a que deberemos tener un algoritmo para negar algún
+subárbol, se deberá recorrer todos los vértices e ir intercambiando los descendientes de cada vértice."
+
+------------------------------------------------------------------------------------------------------
+
+P15, L3: Cambia
+
+"es una forma de representar tablas de verdad"
+
+por
+
+"es una forma de representar una tabla de verdad"
+
+(problema de concordancia con el inicio del renglón)
+
+------------------------------------------------------------------------------------------------------
+
+P15, L6y7: añade una "," al final de la fórmula centrada y empieza el siguiente renglón por minúscula. 
+
+------------------------------------------------------------------------------------------------------
+
+P15, L11y12: yo cambiaría "arista" por "flecha" o "segmento orientado" pues una arista parece estar
+relacionada con una cara (de todos modos, si la nomenclatura en español es así por aquello de los grafos, 
+retiro la sugerencia).
+
+------------------------------------------------------------------------------------------------------
+
+P15, L1 tras Fig. 1: Cambia
+
+"depende de otra variable"
+
+por
+
+"depende además de otra variable"
+
+
+------------------------------------------------------------------------------------------------------
+
+P15, L2 de la nota a pié: Yo en lugar de 
+
+"Nosotros usaremos distintamente cualquiera de estos dos nombres."
+
+escribiría
+
+"Nosotros usaremos indistintamente ambas notaciones."
+------------------------------------------------------------------------------------------------------
+
+P16, L2 tras Fig. 2 (lo mismo que en L4 tras Fig. 2):
+
+Creo que es mejor cambiar
+
+"dos nodos descendientes."
+
+por
+
+"dos nodos descendentes."
+
+------------------------------------------------------------------------------------------------------
+
+P16, L4 tras Fig. 2: Cambia
+
+"En ese caso,"
+
+por
+
+"En este caso,"
+
+(para evitar repetición con el "ese" que viene justo a continuación).
+
+-----------------------------------------------------------------------------------------------------
+
+P16, L6y7 tras Fig. 2: Cambia
+
+" . Y tomando el orden de las variables como x, y luego, y. "
+
+por
+
+"donde tomamos el orden de las variables como primero x y luego y. "
+------------------------------------------------------------------------------------------------------
+
+P16, L-3: Cambia
+
+"Notemos que al nodo..."
+
+por
+
+"Al nodo..."
+------------------------------------------------------------------------------------------------------
+
+P17, de pronto se cambia la notación en la Fig.4. Supongo que será la forma estándar
+de dibujarla, pero quizá deberías esplicar un poco porque ahora no pones F como en
+los anteriores. 
+
+------------------------------------------------------------------------------------------------------
+
+P17, L2 tras Fig. 2:
+
+¿  "dígrafos" ?
+
+------------------------------------------------------------------------------------------------------
+
+P17, L-3y-4 desde Fig. 5: Cambia
+
+"apreciar en este diagrama es la repetición"
+
+por
+
+"apreciar es la repetición"
+
+------------------------------------------------------------------------------------------------------
+
+P17, L-2 desde Fig. 5:
+
+"sólo" debe escribirse como "solo"
+
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------
+
+P81 y 82: Formato de la Bibliografía. Coges la referncia cuya identificador es más largo, [AMS2], y
+encolumnas los textos desde un espacio horizontal más que la longitud del identificador para que quede
+como sigue:
+
+[A]    H. R. Andersen. An Introduction to Binary Decision Diagramas. Lecture notes for Efficient
+       Algorightms an Programs. IT Universidad de Copenhague. 1999.
+
+[A2]   S. B. Akers. Binary Decision Diagrams, IEEE Transactions on Computers, Vol. C-27, No. 6,
+       June 1978, pp. 509-516.
+
+[AMS]  F. A. Aloul, I. L. Markov y K. A. Sakallah. FORCE: A Fast and Easy-To-Implement
+       Variable-Ordering Heuristic, GLSVLSI 2003.
+
+[AMS2] F. Aloul, I. Markov, y K. Sakallah. Faster SAT and Smaller BDDs via Common Function
+       Structure. ICCAD, 443-448, 2001.
+
+[B]    R. E. Bryant. Graph-Based Algorithms for Boolean Function Manipulation. Computers, IEEE
+       Transactions on, 100(8), 677-691.
+
+etc.
+
+------------------------------------------------------------------------------------------------
+
+P81: En referencia [A2], en lugar de "Vol. C-27, No. 6, June 1978, pp. 509-516." escribe
+
+"Vol. C-27, 509-516, 1978."
+
+(ya veo que no pones los años entre paréntesis, lo cual que parece bien si así se hace en el área).
+
+------------------------------------------------------------------------------------------------
+
+
+P81: Pon los nombres de los autores de [AMS2] igual que en [AMS] (ya que son los mismos)
+Fíjate que en la segunda referencia has omitido la segunda inicial de todos los autores
+
+------------------------------------------------------------------------------------------------
+
+P81: ¿No falta el año al final de la referencia [B] ?
+
+------------------------------------------------------------------------------------------------
+
+P81: ¿no falta el año en [EGD] ?
+
+------------------------------------------------------------------------------------------------
+
+P81: ¿no falta el año en la referencia [HR] y en [HS]  ?
+
+------------------------------------------------------------------------------------------------
+
+P82: ¿no falta el año en [MT] y [P] ?
+
+------------------------------------------------------------------------------------------------
+
+P82: En la referencia [O3] cambia "Cor."  por "Corp."
+
+------------------------------------------------------------------------------------------------
+
+P82: En la referencia [SB] falta "y" entre los nombres de los autores
+
+------------------------------------------------------------------------------------------------
+
