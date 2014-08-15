@@ -17,7 +17,7 @@ public class CStyleFormulaFileLoader {
     String filename;
     
     /** Should it be verbose? */
-    public static final boolean VERBOSE = true;
+    public static final boolean VERBOSE = false;
     
     /**
      * Constructor: builds a BDDDimacsLoader from the DIMACS file path.

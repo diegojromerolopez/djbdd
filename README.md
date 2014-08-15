@@ -92,17 +92,9 @@ java -jar DJBDD.jar --print --<format> <file>
 ```
 Prints a BDD in the standard output.
 
-##### BDD probability computation
-
-```bash
-java -jar DJBDD.jar --prob --<format> <file>
-```
-Computes the probabilities of the variables of a boolean formula using Binary Decision Diagrams.
-
 #### Formats allowed
 
 - **dimacs**: Dimacs CNF format. See http://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps or http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html.
-- **she**: Steven She file. See https://code.google.com/p/linux-variability-analysis-tools/
 - **cstyle**: C-style boolean expression preceded by a line with all variables separated by commas. For example:
   - a && !b
   - a -> (!b && (c || d))
@@ -238,8 +230,8 @@ This library is memory greedy, use BDD.gc or the threaded garbage collector or h
 to implement some reduction method on the vertex table :)
 
 ### Why don't you use dynamic variable ordering when creating the BDD? ###
-I prefer buidling the BDD "as is" and relying in the developper using some
-variable reordering algorightm, like Variable Sifting, implemented in this
+I prefer building the BDD "as is" and relying in the developer using some
+variable reordering algorithm, like Variable Sifting, implemented in this
 package.
 
 ### Your code is inefficient/wrong/could be improved ###
@@ -249,7 +241,7 @@ I accept suggestions, critiques and comments you want to communicate me.
 Maybe I don't know it, please send me an email asking me and pointing me
 to a paper where it is explained. I will take a look to that.
 
-### What is the licence of this code? ###
+### What is the license of this code? ###
 This code is GPL3 with classpath linking exception. That's the same license than the OpenJDK7 one.
 
 ### Do you answer emails? ###

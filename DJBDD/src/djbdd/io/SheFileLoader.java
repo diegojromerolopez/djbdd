@@ -79,7 +79,7 @@ public class SheFileLoader {
     final static String END_VAR = "}";
     
     /** Informs if the loading must be verbose and show extra information or not */
-    public static final boolean VERBOSE = true;
+    public static final boolean VERBOSE = false;
     
     /**
      * Constructor: builds a BDDDimacsLoader from the DIMACS file path.

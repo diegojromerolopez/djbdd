@@ -6,7 +6,6 @@ package djbdd.main;
 
 import djbdd.core.BDD;
 import djbdd.timemeasurer.TimeMeasurer;
-import djbdd.prob.*;
 import djbdd.io.*;
 import djbdd.io.Printer;
 import djbdd.test.Tester;
@@ -85,14 +84,6 @@ public class Main {
         if(option.equals("--image")){
             BDD bdd = Main.loadBDDFromFile(args[1], args[2]);
             Printer.printBDD(bdd, args[2]+".png");
-            return;
-        }
-        
-        // Computes probabilities
-        if(option.equals("--prob")){
-            BDD bdd = Main.loadBDDFromFile(args[1], args[2]);
-            ProbComputer computer = new ProbComputer(bdd);
-            computer.run();
             return;
         }
         
