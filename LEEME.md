@@ -14,11 +14,11 @@ minimizar y realizar operaciones con funciones de lógica Booleana.
 Este software ha sido desarrollado de forma original y única por
 Diego J. Romero López como herramienta para su [Trabajo Fin de Máster](https://github.com/diegojromerolopez/djbdd/blob/master/doc/memoria.pdf?raw=true).
 
-There is an **English version of this README** [here](https://github.com/diegojromerolopez/djbdd/LEEME.md).
+There is an **English version of this README** [here](https://github.com/diegojromerolopez/djbdd/blob/master/README.md).
 
 Introducción
 -------------
-Ún árbol binario de decisión es una representación de una tabla de verdad
+Un árbol binario de decisión es una representación de una tabla de verdad
 en forma de grafo reducido. Para una introducción completa, vea
 [Binary Decision Diagram on Wikipedia](http://en.wikipedia.org/wiki/Binary_decision_diagram).
 

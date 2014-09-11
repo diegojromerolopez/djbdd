@@ -11,7 +11,7 @@ make operations with boolean logical formulas and study its properties.
 This software has been developed by Diego J. Romero-López as a tool
 for his [Master's Thesis](https://github.com/diegojromerolopez/djbdd/blob/master/doc/memoria.pdf?raw=true).
 
-Hay una **versión en español de este documento** [aquí](https://github.com/diegojromerolopez/djbdd/LEEME.md).
+Hay una **versión en español de este documento** [aquí](https://github.com/diegojromerolopez/djbdd/blob/master/LEEME.md).
 
 Introduction
 -------------
