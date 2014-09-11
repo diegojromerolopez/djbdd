@@ -167,7 +167,7 @@ You can access the vertices that has each variable in an efficient way. This wil
 - Restrict. [2].
 - Swapping of two variables. [5].
 
-### Reduction Algorithms Implemented ###
+### Implemented Reduction Algorithms ###
 This package contains many reduction algoritms.
 They are implemented in the **djbdd.reductors** package.
 
