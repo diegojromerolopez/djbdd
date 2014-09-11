@@ -3,13 +3,15 @@ DJBDD
 
 What's this?
 -------------
-A Java 7 BDD package with the GPL 3 (with classpath linking  exception) license.
+A Java 7 BDD package with the [GPL 3](http://www.gnu.org/copyleft/gpl.html) (with classpath linking exception) license.
 
 This package provides a Binary Decision Diagram library you can use to
-make operations with boolean logical formulas and study its propierties.
+make operations with boolean logical formulas and study its properties.
 
 This software has been developed by Diego J. Romero-López as a tool
 for his [Master's Thesis](https://github.com/diegojromerolopez/djbdd/blob/master/doc/memoria.pdf?raw=true).
+
+Hay una **versión en español de este documento** [aquí](https://github.com/diegojromerolopez/djbdd/LEEME.md).
 
 Introduction
 -------------
@@ -36,9 +38,8 @@ BDD.init(variables);
 // adding the operators -> (implication) and <-> (double implication)
 String function = "(a && b) || (c && d)";
 
-// With the current implementation, you can only specify
-// a static variable ordering, that is, in our example
-// the variable ordering of array of strings 'variables'.
+// The variable ordering is given by the order
+// of variables in the array of strings 'variables'.
 
 // Construction of a new BDD
 BDD bdd = new BDD(function);
@@ -150,6 +151,7 @@ Features
 
 ### Shared hash table ###
 All BDDs use the same hash table, sharing the vertices and subgraphs.
+The goal for using this data structure is reducing the number of repeated vertices.
 Each BDD has one root vertex though.
 
 ### Rich I/O API ###
@@ -157,7 +159,7 @@ This library provides method to load logical clausules in DIMACS format
 and Java native, includen implication and double implication operators.
 
 ### Memory efficient ###
-This library uses Java references between vertices and some tables of medium size.
+This library shares vertices between different BDDs.
 
 ### Vertices grouped by levels ###
 You can access the vertices that has each variable in an efficient way. This will be used for BDD-reducing algorithms.
@@ -188,7 +190,7 @@ BDD.T.print();
         
 Printer.printBDD(bdd1, "test15_bdd1_BEFORE_"+bdd1.size());
 
-// Construct a reduction algortihm. For example SiftingReductor:
+// Construct a reduction algorithm. For example SiftingReductor:
 SiftingReductor reductor = new SiftingReductor();
 // Start the reduction process
 reductor.run();
@@ -219,8 +221,10 @@ reductor.run();
 
 #### Rudell's Variable Sifting
 This package contains a basic implementation of the variable reordering
-proposed by Richard L. Rudell in [7]. Please, consider this module as
-experimental and use it at your own risk. For example:
+proposed by Richard L. Rudell in [7]. This method try to find the best
+position for each variable keeping fixed in their position the rest.
+
+Use example:
 
 ```java
 SiftingReductor reductor = new SiftingReductor();
@@ -238,8 +242,11 @@ RandomSwapperReductor reductor = new RandomSwapperReductor(iterations);
 reductor.run();
 ```
 
+Note that this algorithm, the genetic algorithm and the memetic algorithm need
+a random seed to be set before their execution.
+
 #### Genetic Reduction
-W. Lenders y C. Baier defined the genetic operators for developing a Genetic Algorithm
+W. Lenders & C. Baier defined the genetic operators for developing a Genetic Algorithm
 for this BDD reduction problem in [8]. We have implemeted a version of their approach
 in the **GeneticReductor** class.
 
@@ -277,7 +284,7 @@ reductor.run();
 
 #### Iterative Sifting
 
-This is our method [9] that applies a serious of sifting of variables with hopes of finding the best position for each one.
+This is our original method [9] that applies a serious of sifting of variables with hopes of finding the best position for each one.
 **IterativeSiftingReductor** contains this reduction method and can be used this way:
 
 ```java
@@ -285,6 +292,8 @@ int iterations = 100;
 IterativeSiftingReductor reductor = new IterativeSiftingReductor(iterations);
 reductor.run();
 ```
+
+A paper with the description of this method is pending evalution.
 
 ### TODOs ###
 - Include a parallel apply.
@@ -305,19 +314,19 @@ Bibliography
 -------------
 [1] Symbolic Boolean Manipulation with Ordered Binary Decision Diagrams, Randal E. Bryant. Carnegie Mellon University.
 
-[2] Binary Decision Diagrams. Fabio Somenzi. Department of Electrical and Computer Engineering. University of Colorado at Boulder.
+[2] Binary Decision Diagrams. Fabio Somenzi.
 
-[3] Efficient implementation of a BDD package, Karl S. Brace, Richard L. Rudell, Randal E. Bryant. 
+[3] Efficient implementation of a BDD package, Karl S. Brace, Richard L. Rudell & Randal E. Bryant. 
 
-[4] Implementation of an Efﬁcient Parallel BDD Package. Tony Stornetta, Forrest Brewer.
+[4] Implementation of an Efﬁcient Parallel BDD Package. Tony Stornetta & Forrest Brewer.
 
-[5] Incremental  Reduction of Binary Decision Diagrams. R. Jacobi, N. Calazans, C. Trullemans.
+[5] Incremental  Reduction of Binary Decision Diagrams. R. Jacobi, N. Calazans & C. Trullemans.
 
 [6] An Introduction to Binary Decision Diagrams. Henrik Reif Andersen.
 
-[7] Dynamic variable ordering for ordered binary decision diagrams. Richard L. Rudell.
+[7] Dynamic variable ordering for ordered binary decision diagrams, Richard L. Rudell.
 
-[8] Genetic Algorithms for the Variable Ordering Problem of Binary Decision Diagrams, Foundations of Genetic Algorithms (pp. 1-20). Springer Berlin Heidelberg, 2008. W. Lenders & C. Baier.
+[8] Genetic Algorithms for the Variable Ordering Problem of Binary Decision Diagrams, W. Lenders & C. Baier.
 
 [9] Iterative Sifting: A new approach to reduce BDD size. Diego J. Romero-López & Elena Ruiz-Larrocha. TBA.
 
@@ -336,11 +345,11 @@ I've used Netbeans (yeah, I know it is ancient but works for me). You should be 
 I suppose. I have not used it in Java 6, but it should work.
 
 ### Are there some code examples? ###
-Look in the tests and in the benchmarks.
+Look in the tests (**djbdd.test.Tester** class) and in the benchmarks.
 
 ### I'm running the examples (or my custom code) and throws a exception ###
 It depends on the exception type, but my money is on a memory-related exception.
-This library is memory greedy, use BDD.gc or help me
+This library is memory greedy, use **BDD.gc** or help me
 to implement some reduction method on the vertex table :)
 
 ### Why don't you use dynamic variable ordering when creating the BDD? ###
@@ -356,10 +365,13 @@ Maybe I don't know it, please send me an email asking me and pointing me
 to a paper where it is explained. I will take a look to that.
 
 ### What is the license of this code? ###
-This code is GPL3 with classpath linking exception. That's the same license than the OpenJDK7 one.
+This code is **GPL3 with classpath linking exception**. That's the same license than the OpenJDK7 one.
+If you are unsure about this kind of license, [read about it in](http://en.wikipedia.org/wiki/GPL_linking_exception).
 
 ### Do you answer emails? ###
 Of course I will answer questions, suggestions and comments about this library.
 
 ### Who are you? ###
-I'm Diego J., my email is die_gojr_om-erol-op_ez AT g-m-a-i-l.com (erase - and _ and replace AT with @). I'm from Spain and this is part of my master's final thesis.
+I'm Diego J., my email is die_gojr_om-erol-op_ez AT g-m-a-i-l.com
+(erase - and _ and replace AT with @). I'm from Spain and this is part of my master's final thesis.
+
