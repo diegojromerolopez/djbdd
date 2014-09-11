@@ -8,6 +8,9 @@ A Java 7 BDD package with the GPL 3 (with classpath linking  exception) license.
 This package provides a Binary Decision Diagram library you can use to
 make operations with boolean logical formulas and study its propierties.
 
+This software has been developed by Diego J. Romero-López as a tool
+for his [Master's Thesis](https://github.com/diegojromerolopez/djbdd/blob/master/doc/memoria.pdf).
+
 Introduction
 -------------
 A Binary Decision Diagram is a complete truth table of a boolean expression
@@ -298,7 +301,8 @@ Look the class Tester class in package djbdd.test, its full of examples.
 Documentation
 -------------
 There is a pdf file called [manual.pdf](https://github.com/diegojromerolopez/djbdd/blob/master/doc/manual.pdf) with some remarks about the implementation and how to use this library.
-Currently it is a work in progress, but you can read the tests, the code or ask me any question.
+Currently it is a work in progress, but you can read the tests, the code or ask me any question. If you are interested, there is also the Master's Thesis
+[Memoria del Trabajo Fin de Máster](https://github.com/diegojromerolopez/djbdd/blob/master/doc/memoria.pdf) (only in Spanish).
 
 Bibliography
 -------------
@@ -323,7 +327,7 @@ Bibliography
 FAQ
 -------------
 ### I don't understand what is a BDD ###
-OK. The concept is not easy, read the Wikipedia page about them (http://en.wikipedia.org/wiki/Binary_decision_diagram) and later the reference [1] and [2].
+OK. The concept is not easy, read the Wikipedia page about them [Binary Decision Diagram at Wikipedia](http://en.wikipedia.org/wiki/Binary_decision_diagram) and later the reference [1] and [2].
 
 ### Do you use complement arcs? ###
 No. I don't use them. I understand they can reduce the size of the graph, but I wanted to make a pure BDD library. Maybe I could include them in some future version.
@@ -332,10 +336,10 @@ No. I don't use them. I understand they can reduce the size of the graph, but I 
 I've used Netbeans (yeah, I know it is ancient but works for me). You should be able to open with whatever IDE you use.
 
 ### Can I use this library in Java5 or Java6? ###
-No. I'm afraid weak references were included in Java7 so, I'm sorry but no, you can't.
+I suppose. I have not used it in Java 6, but it should work.
 
 ### Are there some code examples? ###
-I'm working on that. Give some time.
+Look in the tests and in the benchmarks.
 
 ### I'm running the examples (or my custom code) and throws a exception ###
 It depends on the exception type, but my money is on a memory-related exception.
