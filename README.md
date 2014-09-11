@@ -9,7 +9,7 @@ This package provides a Binary Decision Diagram library you can use to
 make operations with boolean logical formulas and study its propierties.
 
 This software has been developed by Diego J. Romero-López as a tool
-for his [Master's Thesis](https://github.com/diegojromerolopez/djbdd/blob/master/doc/memoria.pdf).
+for his [Master's Thesis](https://github.com/diegojromerolopez/djbdd/blob/master/doc/memoria.pdf?raw=true).
 
 Introduction
 -------------
@@ -104,9 +104,7 @@ java -jar DJBDD.jar --print --<format> <file>
 ```
 Prints a BDD in the standard output.
 
-###### Restrictions
-
-####### Formats allowed
+###### Restriction on BDD formats allowed
 
 - **dimacs**: Dimacs CNF format. See [SAT format](http://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps) or [CNF](http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html) for more information.
 - **cstyle**: C-style boolean expression preceded by a line with all variables separated by commas. For example:
@@ -115,7 +113,7 @@ Prints a BDD in the standard output.
   - a <-> (b && !c)
   - a != (b && !c)
 
-####### Variable naming notes
+###### Restriction on variable naming
 
 **IMPORTANT**: for each variable there can no be any other that contains it as substring from the left.
 That is, if we have a variable with the name 'x1' we cannot use other variable with the name 'x11'.
@@ -124,10 +122,9 @@ It's not in my future plans to change that, so name your variables with names li
 - {x11}
 - {x12}
 
-###### Notes
+###### Other notes
 
-####### Example source data
-Directory **data** has some examples of each format (look the extension).
+**Example source data**: directory **data** has some examples of each format (look the extension).
 
 ##### BDD reduction benchmarks
 See below for a description of each reduction method.
@@ -300,9 +297,9 @@ Look the class Tester class in package djbdd.test, its full of examples.
 
 Documentation
 -------------
-There is a pdf file called [manual.pdf](https://github.com/diegojromerolopez/djbdd/blob/master/doc/manual.pdf) with some remarks about the implementation and how to use this library.
+There is a pdf file called [manual.pdf](https://github.com/diegojromerolopez/djbdd/blob/master/doc/manual.pdf?raw=true) with some remarks about the implementation and how to use this library.
 Currently it is a work in progress, but you can read the tests, the code or ask me any question. If you are interested, there is also the Master's Thesis
-[Memoria del Trabajo Fin de Máster](https://github.com/diegojromerolopez/djbdd/blob/master/doc/memoria.pdf) (only in Spanish).
+[Memoria del Trabajo Fin de Máster](https://github.com/diegojromerolopez/djbdd/blob/master/doc/memoria.pdf?raw=true) (only in Spanish).
 
 Bibliography
 -------------
