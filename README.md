@@ -48,7 +48,7 @@ BDD bdd = new BDD(function);
 bdd.print();
 
 // You can print it as a image PNG using a dot library
-Printer.printBDD(bdd1, "bdd_"+bdd.size());
+Printer.printBDD(bdd, "bdd_"+bdd.size());
 
 // Creating other BDDs:
 String function2 = "(a && e) || f"
