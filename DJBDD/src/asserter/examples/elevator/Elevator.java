@@ -116,6 +116,10 @@ public class Elevator {
      */
     public static void main(String args[]){
     
+        System.out.println("=================================================");
+        System.out.println("=================================================");
+        System.out.println("SIMULATION OF AN ELEVATOR");
+        
         // Logical variables implemented as methods of Elevator
         String[] variables = {"isGround", "isFirstFloor", "isStopped", "isGoingUp", "isGoingDown"};
         
@@ -137,6 +141,9 @@ public class Elevator {
             
         // The elevator can't go up because it is in the first floor
         elevator.up();
+        
+        System.out.println("=================================================");
+        System.out.println("=================================================");
     }
     
 }

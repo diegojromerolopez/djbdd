@@ -11,18 +11,18 @@ make operations with boolean logical formulas and study its propierties.
 Introduction
 -------------
 A Binary Decision Diagram is a complete truth table of a boolean expression
-in a reduced graph form. See http://en.wikipedia.org/wiki/Binary_decision_diagram.
+in a reduced graph form. For an introduction, see
+[Binary Decision Diagram on Wikipedia](http://en.wikipedia.org/wiki/Binary_decision_diagram).
 
 This library provides all the operations you need to work with them.
 
-Examples
+How to use it
 -------------
-### Code examples ###
-Nowadays there is no too much example code (I plan to update the library in the future).
-Look the class Tester class in package djbdd.test, its full of examples.
 
 ```java
-// These are the boolean variables
+// These are the boolean variables used in our formulas
+// They can have any alphanumeric name you want starting with a letter and
+// being unique variable names.
 String[] variables={"a", "b", "c", "d", "e", "f"};
 
 // You always have to initialize the BDD system before you create any
@@ -41,12 +41,13 @@ String function = "(a && b) || (c && d)";
 BDD bdd = new BDD(function);
 
 // Printing the BDD in the standard output
+// The internal table node will be shown by stdout
 bdd.print();
 
 // You can print it as a image PNG using a dot library
-Printer.printBDD(bdd1, "bdd_"+bdd1.size());
+Printer.printBDD(bdd1, "bdd_"+bdd.size());
 
-// Other BDD
+// Creating other BDDs:
 String function2 = "(a && e) || f"
 BDD bdd2 = new BDD(function2);
 bdd2.print();
@@ -63,20 +64,23 @@ BDD bdd4 = bdd.apply("or", bdd2);
 // In case we need to compute sizes, reduce the global graph or print it
 bdd2.delete();
 
-// If you think you can have few free memory, you would have to free it
-// calling to
+// If you think you can have few free memory,
+// you would have to free by calling the garbage collector
 BDD.gc();
-
-// Or, you can call the garbage collector thread (explained later)
 
 ```
 
 ### Complete tests ###
 The main program of this library is full of examples.
 The all-in-one jar version is located in **store/DJBDD.jar**,
-the dependant jar one is in  **dist/DJBDD.jar**.
+the dependant on libraries jar one is in  **dist/DJBDD.jar**.
+You should use **store/DJBDD.jar** for your experiments.
 
-You can run it without arguments to see the options.
+Easiest option is opening this project with [Netbeans](https://netbeans.org/).
+There are several executing configurations:
+- Two examples of computing consistency in the real world.
+- Six benchmark of BDD-reducing algorithms.
+- Tests that you can execute to verify BDD operations.
 
 #### Options
 ##### BDD print as image
@@ -84,6 +88,8 @@ You can run it without arguments to see the options.
 ```bash
 java -jar DJBDD.jar --image --<format> <file>
 ```
+Note that this option will work only if you are in a Linux/UNIX system
+with the [dot](http://linux.die.net/man/1/dot) tool to draw graphs in the path **/usr/bin/dot**.
 
 ##### BDD printing
 
@@ -94,13 +100,12 @@ Prints a BDD in the standard output.
 
 #### Formats allowed
 
-- **dimacs**: Dimacs CNF format. See http://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps or http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html.
+- **dimacs**: Dimacs CNF format. See [SAT format](http://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps) or [CNF](http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html) for more information.
 - **cstyle**: C-style boolean expression preceded by a line with all variables separated by commas. For example:
   - a && !b
   - a -> (!b && (c || d))
   - a <-> (b && !c)
   - a != (b && !c)
-- **djbdd**: DJBDD file. Is a textual file format that contains the vertices of the BDD as a list. So, the loading time is smaller than other methods.
 
 #### Variable naming notes
 
@@ -114,30 +119,27 @@ It's not in my future plans to change that, so name your variables with names li
 #### Example source data
 Directory **data** has some examples of each format (look the extension).
 
+##### BDD reduction benchmarks
+See below for a description of each reduction method.
+
+```bash
+# Sifting Algorithm
+java -jar ./DJBDD/store/DJBDD.jar --memory-optimization-benchmark --dimacs ./data/benchmarks/ sifting
+# Window Permutation Algorithm (window size = 2)
+java -jar ./DJBDD/store/DJBDD.jar --memory-optimization-benchmark --dimacs ./data/benchmarks/ window_permutation window_size=2
+# Random Swapper
+java -jar ./DJBDD/store/DJBDD.jar --memory-optimization-benchmark --dimacs ./data/benchmarks/ random_swapper random_seed=121481 iterations=100
+# Genetic Algorithm
+java -jar ./DJBDD/store/DJBDD.jar --memory-optimization-benchmark --dimacs ./data/benchmarks-genetic genetic random_seed=10 population=8 generations=10 selection_percentage=0.2 mutation_probability=0.1
+# Memetic Algorithm
+java -jar ./DJBDD/store/DJBDD.jar --memory-optimization-benchmark --dimacs ./data/benchmarks-memetic memetic random_seed=121481 population=8 generations=10 selection_percentage=0.2 mutation_probability=0.1
+## Iterative Sifting
+java -jar ./DJBDD/store/DJBDD.jar --memory-optimization-benchmark --dimacs ./data/benchmarks/ isifting iterations=100
+```
+
 
 Features
 -------------
-### Use of weak references ###
-This package uses the WeakReference class introduced in Java 7. This way
-I didn't have to implement a special garbage collector but use the Hotspot one.
-
-You can erase the weak references using the method of TableT gc. There is a way to use
-parallel garbage collection calling 
-
-```java
-// Maybe in the future we'll change that to something easier.
-GCThread gcCollector = new GCThread();
-gcCollector.start();
-/*
-	Your BDD code
-*/
-gcCollector.end();
-```
-
-If you want to use the variable ordering algorithm or want to force the
-freeing of memory, you can destroy a BDD calling the delete method. This
-method updates the reference counting and marks the BDD as "dirty", so
-the garbage collector could free its memory.
 
 ### Shared hash table ###
 All BDDs use the same hash table, sharing the vertices and subgraphs.
@@ -158,33 +160,133 @@ You can access the vertices that has each variable in an efficient way. This wil
 - Restrict. [2].
 - Swapping of two variables. [5].
 
-### Rudell's Variable Sifting ###
+### Reduction Algorithms Implemented ###
+This package contains many reduction algoritms.
+They are implemented in the **djbdd.reductors** package.
+
+These reduction algorithms are implemented as children classes of **djbdd.reductors.ReductionAlgorithm**,
+so they share the same API. This API contains a execute and run method. The first one must be overriden
+for each particular reduction method while the second will act as a façade of execute. The run method
+also measures the elapsed time in the reduction method for comparing the reduction algorithms
+
+```java
+// Some logic function used to build a BDD
+String function1 = "(a && d) || (b && c)";
+BDD bdd1 = new BDD(function1);
+
+// Call to garbage collector & print the
+// node table 
+BDD.gc();
+BDD.T.print();
+        
+Printer.printBDD(bdd1, "test15_bdd1_BEFORE_"+bdd1.size());
+
+// Construct a reduction algortihm. For example SiftingReductor:
+SiftingReductor reductor = new SiftingReductor();
+// Start the reduction process
+reductor.run();
+
+// Call to garbage collector & print the
+// node table (to compare with the first node table)
+BDD.gc();
+BDD.T.print();
+```
+
+It is important to note that these reduction methods reduce all the BDDs created
+in the program because they reduce the vertex mesh by swapping vertex levels.
+
+They are listed below:
+
+#### Window Permutation
+Developed in the class **djbdd.reductors.WindowPermutation**, this algorithm
+was proposed by Fujita et al. & Ishiura et al. Richard L. Rudell described it
+and compared with its own reduction method in [7]. This implementation is based
+on his description.
+
+```java
+// Window size
+int windowSize = 2;
+WindowPermutationReductor reductor = new WindowPermutationReductor(windowSize);
+reductor.run();
+```
+
+#### Rudell's Variable Sifting
 This package contains a basic implementation of the variable reordering
 proposed by Richard L. Rudell in [7]. Please, consider this module as
 experimental and use it at your own risk. For example:
 
 ```java
-String function1 = "(a && d) || (b && c)";
-BDD bdd1 = new BDD(function1);
-
-BDD.gc();
-BDD.T.print();
-        
-Printer.printBDD(bdd1, "test15_bdd1_BEFORE_"+bdd1.size());
-        
 SiftingReductor reductor = new SiftingReductor();
 reductor.run();
-        
-BDD.variables().print();
-        
-BDD.gc();
-BDD.T.print();
+```
+
+#### Random Swapper Reduction
+We wanted to compare a pure random algorithm with our evolutionary algorithms
+to test if our results are due to randomness or because this method truly works.
+This reduction method is based in swapping two variables chosen at random in each iteration in the BDD tree.
+
+```java
+int iterations = 1000;
+RandomSwapperReductor reductor = new RandomSwapperReductor(iterations);
+reductor.run();
+```
+
+#### Genetic Reduction
+W. Lenders y C. Baier defined the genetic operators for developing a Genetic Algorithm
+for this BDD reduction problem in [8]. We have implemeted a version of their approach
+in the **GeneticReductor** class.
+
+```java
+// Number of chromosomes
+int populationSize = 10;
+// Number of generations of the algorithm
+int generations = 1000;
+// % of population selected
+double selectionPercentage = 10;
+// Probability of mutating a gene in a chromosome
+double mutationProbability = 0.1;
+GeneticReductor reductor = new GeneticReductor(populationSize, generations, selectionPercentage, mutationProbability);
+reductor.run();
+```
+
+#### Memetic Reduction
+
+Based on [8], we propose another algorithm that combines the Genetic Algorithm optimizing
+each chromosome using the Rudell's Sifting Algorithm. Its name is **MemeticReductor** and its
+parameters are the same than the GeneticReductor.
+
+```java
+// Number of chromosomes
+int populationSize = 10;
+// Number of generations of the algorithm
+int generations = 1000;
+// % of population selected
+double selectionPercentage = 10;
+// Probability of mutating a gene in a chromosome
+double mutationProbability = 0.1;
+MemeticReductor reductor = new MemeticReductor(populationSize, generations, selectionPercentage, mutationProbability);
+reductor.run();
+```
+
+#### Iterative Sifting
+
+This is our method [9] that applies a serious of sifting of variables with hopes of finding the best position for each one.
+**IterativeSiftingReductor** contains this reduction method and can be used this way:
+
+```java
+int iterations = 100;
+IterativeSiftingReductor reductor = new IterativeSiftingReductor(iterations);
+reductor.run();
 ```
 
 ### TODOs ###
 - Include a parallel apply.
-- Review this README.
+- Parallelization of reduction methods.
 
+Examples
+-------------
+### Code examples ###
+Look the class Tester class in package djbdd.test, its full of examples.
 
 Documentation
 -------------
@@ -195,7 +297,7 @@ Bibliography
 -------------
 [1] Symbolic Boolean Manipulation with Ordered Binary Decision Diagrams, Randal E. Bryant. Carnegie Mellon University.
 
-[2] Binary Decision Diagrams. Fabio SOMENZI. Department of Electrical and Computer Engineering. University of Colorado at Boulder.
+[2] Binary Decision Diagrams. Fabio Somenzi. Department of Electrical and Computer Engineering. University of Colorado at Boulder.
 
 [3] Efficient implementation of a BDD package, Karl S. Brace, Richard L. Rudell, Randal E. Bryant. 
 
@@ -206,6 +308,10 @@ Bibliography
 [6] An Introduction to Binary Decision Diagrams. Henrik Reif Andersen.
 
 [7] Dynamic variable ordering for ordered binary decision diagrams. Richard L. Rudell.
+
+[8] Genetic Algorithms for the Variable Ordering Problem of Binary Decision Diagrams, Foundations of Genetic Algorithms (pp. 1-20). Springer Berlin Heidelberg, 2008. W. Lenders & C. Baier.
+
+[9] Iterative Sifting: A new approach to reduce BDD size. Diego J. Romero-López & Elena Ruiz-Larrocha. TBA.
 
 FAQ
 -------------
@@ -226,7 +332,7 @@ I'm working on that. Give some time.
 
 ### I'm running the examples (or my custom code) and throws a exception ###
 It depends on the exception type, but my money is on a memory-related exception.
-This library is memory greedy, use BDD.gc or the threaded garbage collector or help me
+This library is memory greedy, use BDD.gc or help me
 to implement some reduction method on the vertex table :)
 
 ### Why don't you use dynamic variable ordering when creating the BDD? ###
