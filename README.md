@@ -82,8 +82,11 @@ There are several executing configurations:
 - Six benchmark of BDD-reducing algorithms.
 - Tests that you can execute to verify BDD operations.
 
-#### Options
-##### BDD print as image
+#### Basic Options
+
+##### Output
+
+###### BDD print as image
 
 ```bash
 java -jar DJBDD.jar --image --<format> <file>
@@ -91,14 +94,16 @@ java -jar DJBDD.jar --image --<format> <file>
 Note that this option will work only if you are in a Linux/UNIX system
 with the [dot](http://linux.die.net/man/1/dot) tool to draw graphs in the path **/usr/bin/dot**.
 
-##### BDD printing
+###### BDD printing
 
 ```bash
 java -jar DJBDD.jar --print --<format> <file>
 ```
 Prints a BDD in the standard output.
 
-#### Formats allowed
+###### Restrictions
+
+####### Formats allowed
 
 - **dimacs**: Dimacs CNF format. See [SAT format](http://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps) or [CNF](http://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html) for more information.
 - **cstyle**: C-style boolean expression preceded by a line with all variables separated by commas. For example:
@@ -107,7 +112,7 @@ Prints a BDD in the standard output.
   - a <-> (b && !c)
   - a != (b && !c)
 
-#### Variable naming notes
+####### Variable naming notes
 
 **IMPORTANT**: for each variable there can no be any other that contains it as substring from the left.
 That is, if we have a variable with the name 'x1' we cannot use other variable with the name 'x11'.
@@ -116,7 +121,9 @@ It's not in my future plans to change that, so name your variables with names li
 - {x11}
 - {x12}
 
-#### Example source data
+###### Notes
+
+####### Example source data
 Directory **data** has some examples of each format (look the extension).
 
 ##### BDD reduction benchmarks
