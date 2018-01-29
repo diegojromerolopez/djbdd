@@ -1096,7 +1096,6 @@ public class TableT {
                     
                     tempT.put(index, v);
                 }
-                
           
                 // Second loop, we set low and high descendants
                 for(Integer key : tempT.keySet()){
@@ -1104,8 +1103,8 @@ public class TableT {
                     if(!v.isLeaf()){
                         Vertex low = tempT.get(lows.get(v.index));
                         Vertex high = tempT.get(highs.get(v.index));
-                        v.setHigh(low);
-                        v.setLow(high);
+                        v.setHigh(high);
+                        v.setLow(low);
                     }
                 }
                
