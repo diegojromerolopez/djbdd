@@ -4,8 +4,7 @@ DJBDD
 ¿Qué es esto?
 -------------
 Es un paquete de Java 7 para trabajar con árboles binarios de decisión
-(Binary Decision Diagrams, BDD). Este paquete tiene licencia GPL 3 con
-excepción del enlazado de las clases.
+(Binary Decision Diagrams, BDD). Este paquete tiene [licencia GPL con excepción del enlazado de las clases](https://openjdk.java.net/legal/gplv2+ce.html) en su versión 2 o posterior (a tu discreción).
 
 Este paquete proporciona una librería para creación y tratamiento
 de árboles binarios de decisión que puede usarse para representar,
