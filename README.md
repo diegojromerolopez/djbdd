@@ -3,7 +3,7 @@ DJBDD
 
 What's this?
 -------------
-A Java 7 BDD package with the [GPL 3](http://www.gnu.org/copyleft/gpl.html) (with classpath linking exception) license.
+A Java 7 BDD package with the [GPL 3](http://www.gnu.org/copyleft/gpl.html) (with classpath linking exception) license. *I can provide the code with other license, please write me to my email (at the botton of this README)*.
 
 This package provides a Binary Decision Diagram library you can use to
 make operations with boolean logical formulas and study its properties.
