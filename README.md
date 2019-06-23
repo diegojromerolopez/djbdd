@@ -330,6 +330,13 @@ Bibliography
 
 [9] Iterative Sifting: A new approach to reduce BDD size. Diego J. Romero-López & Elena Ruiz-Larrocha. TBA.
 
+Cites
+-------------
+*If you use DJBDD and like to appear here, please send me an email*.
+
+- [CI Fallin](https://chrisfallin.com/) PhD thesis: [Finding and Exploiting Parallelism with Data-Structure-Aware Static and
+Dynamic Analysis"](https://chrisfallin.com/pubs/cfallin-dissertation.pdf).
+
 FAQ
 -------------
 ### I don't understand what is a BDD ###
