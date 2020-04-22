@@ -284,7 +284,10 @@ reductor.run();
 
 #### Iterative Sifting
 
-This is our original method [9] that applies a serious of sifting of variables with hopes of finding the best position for each one.
+~~This is our original method [9] that applies a serious of sifting of variables with hopes of finding the best position for each one.~~
+
+Note that this approach seems to be almost equal to *Converging Sifting* made by R. Rudell in [Dynamic variable ordering for ordered binary decision diagrams](http://www.eecg.toronto.edu/~ece1767/project/rud.pdf).
+
 **IterativeSiftingReductor** contains this reduction method and can be used this way:
 
 ```java
@@ -328,7 +331,7 @@ Bibliography
 
 [8] Genetic Algorithms for the Variable Ordering Problem of Binary Decision Diagrams, W. Lenders & C. Baier.
 
-[9] Iterative Sifting: A new approach to reduce BDD size. Diego J. Romero-López & Elena Ruiz-Larrocha. TBA.
+~~[9] Iterative Sifting: A new approach to reduce BDD size. Diego J. Romero-López & Elena Ruiz-Larrocha. TBA.~~ Algorithm already published by other author.
 
 Cites
 -------------
