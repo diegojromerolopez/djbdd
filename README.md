@@ -338,7 +338,7 @@ Please cite the author as *Diego J. Romero López* (*Diego J.* is author's name 
 
 - [CI Fallin](https://chrisfallin.com/) PhD thesis: [Finding and Exploiting Parallelism with Data-Structure-Aware Static and
 Dynamic Analysis"](https://chrisfallin.com/pubs/cfallin-dissertation.pdf).
-- [Scalable pointer analysis of data structures using semantic models](https://dl.acm.org/doi/abs/10.1145/3377555.3377885) [pdf](https://dl.acm.org/doi/pdf/10.1145/3377555.3377885?download=true)
+- [Scalable pointer analysis of data structures using semantic models](https://dl.acm.org/doi/abs/10.1145/3377555.3377885) ([pdf](https://dl.acm.org/doi/pdf/10.1145/3377555.3377885?download=true))
 
 FAQ
 -------------
