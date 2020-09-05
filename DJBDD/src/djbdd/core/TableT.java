@@ -26,13 +26,11 @@ public class TableT {
     /**
      * Vertex hashmap.
      * Contains every vertex of the graph given its index.
-     * Note the use of weakreferences, because when a Vertex has no parents, must be erased by the garbage collector.
      */
     private HashMap<Integer,Vertex> T;
     
     /**
      * Uniqueness hashmap: keys are the string "var_i+-+low_i+-+high_i"
-     * Note the use of weakreferences, because when a Vertex has no parents, must be erased by the garbage collector.
      */
     private HashMap<String,Vertex> U;
     
