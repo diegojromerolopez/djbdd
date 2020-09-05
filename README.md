@@ -3,7 +3,7 @@ DJBDD
 
 What's this?
 -------------
-A Java 7 BDD package with the [GPL 3](http://www.gnu.org/copyleft/gpl.html) (with classpath linking exception) license.
+A Java 7 BDD package with the [GPL with classpath linking exception license](https://openjdk.java.net/legal/gplv2+ce.html) based on GPL version 2 or later, as you prefer. See [this explanation about the license](https://en.wikipedia.org/wiki/GPL_linking_exception). Howeer, if your use case requires other license, *I can re-license this project for you, please write me to my email (at the botton of this README)*.
 
 This package provides a Binary Decision Diagram library you can use to
 make operations with boolean logical formulas and study its properties.
@@ -284,7 +284,10 @@ reductor.run();
 
 #### Iterative Sifting
 
-This is our original method [9] that applies a serious of sifting of variables with hopes of finding the best position for each one.
+~~This is our original method [9] that applies a serious of sifting of variables with hopes of finding the best position for each one.~~
+
+Note that this approach seems to be almost equal to *Converging Sifting* made by R. Rudell in [Dynamic variable ordering for ordered binary decision diagrams](http://www.eecg.toronto.edu/~ece1767/project/rud.pdf).
+
 **IterativeSiftingReductor** contains this reduction method and can be used this way:
 
 ```java
@@ -328,7 +331,17 @@ Bibliography
 
 [8] Genetic Algorithms for the Variable Ordering Problem of Binary Decision Diagrams, W. Lenders & C. Baier.
 
-[9] Iterative Sifting: A new approach to reduce BDD size. Diego J. Romero-López & Elena Ruiz-Larrocha. TBA.
+~~[9] Iterative Sifting: A new approach to reduce BDD size. Diego J. Romero-López & Elena Ruiz-Larrocha. TBA.~~ Algorithm already published by other author.
+
+Cites
+-------------
+Please cite the author as *Diego J. Romero López* (*Diego J.* is author's name while *Romero López* is author's surname). If you want to write surname first, write *Romero López, Diego J.* In case you are interested, [read more about Spanish naming customs](https://en.wikipedia.org/wiki/Spanish_naming_customs).
+
+*If you use DJBDD and like to appear here, please send me an email*.
+
+- [CI Fallin](https://chrisfallin.com/) PhD thesis: [Finding and Exploiting Parallelism with Data-Structure-Aware Static and
+Dynamic Analysis"](https://chrisfallin.com/pubs/cfallin-dissertation.pdf).
+- [Scalable pointer analysis of data structures using semantic models](https://dl.acm.org/doi/abs/10.1145/3377555.3377885) ([pdf](https://dl.acm.org/doi/pdf/10.1145/3377555.3377885?download=true))
 
 FAQ
 -------------
