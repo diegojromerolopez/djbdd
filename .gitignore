@@ -23,7 +23,7 @@
 hs_err_pid*
 
 # Netbeans
-#nbproject/
+nbproject/
 
 # Mac files
 .DS_Store
